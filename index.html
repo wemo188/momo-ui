@@ -3,462 +3,269 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>墨墨 · Chat + Code 后台</title>
+  <title>墨墨 · 私人设计室</title>
   <style>
-    :root{
-      --accent:#adcdea;     /* 主色：蓝 */
-      --white:#ffffff;      /* 白 */
-      --ink:#0f172a;
-      --muted:#475569;
-      --line:rgba(15,23,42,.12);
-      --shadow: 0 14px 40px rgba(15,23,42,.10);
+    :root {
+      --accent: #adcdea;     /* 墨墨专属蓝 */
+      --white: #ffffff;      /* 纯白 */
+      --ink: #334155;
+      --muted: #64748b;
+      --bg: #f8fafc;
+      --line: rgba(173,205,234, 0.4);
+      --shadow: 0 10px 30px rgba(173,205,234, 0.2);
       --radius: 16px;
-      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "PingFang SC","Hiragino Sans GB","Microsoft YaHei", Arial, "Noto Sans CJK SC", sans-serif;
     }
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0;
-      font-family:var(--sans);
-      color:var(--ink);
-      background:
-        radial-gradient(1200px 900px at 10% 10%, rgba(173,205,234,.85), transparent 60%),
-        radial-gradient(900px 700px at 90% 20%, rgba(173,205,234,.35), transparent 55%),
-        linear-gradient(180deg, #ffffff, rgba(173,205,234,.18));
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; font-family: system-ui, -apple-system, sans-serif; color: var(--ink); background: var(--bg); }
+    body { background: linear-gradient(135deg, #ffffff 0%, #e0f0ff 100%); }
+    .app { height: 100%; display: flex; flex-direction: column; gap: 12px; padding: 14px; max-width: 1200px; margin: 0 auto; }
+    
+    header {
+      display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px;
+      padding: 12px 16px; background: var(--white); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow);
     }
-    .app{height:100%; display:flex; flex-direction:column; gap:12px; padding:14px; max-width:1200px; margin:0 auto;}
-    header{
-      display:flex; align-items:center; justify-content:space-between; gap:12px;
-      padding:12px 14px;
-      border:1px solid var(--line);
-      border-radius: var(--radius);
-      background: rgba(255,255,255,.82);
-      backdrop-filter: blur(10px);
-      box-shadow: var(--shadow);
-    }
-    .brand{display:flex; align-items:center; gap:10px; min-width:240px;}
-    .dot{
-      width:14px; height:14px; border-radius:50%;
-      background: var(--accent);
-      box-shadow: 0 10px 20px rgba(15,23,42,.10);
-    }
-    .brand h1{font-size:14px; margin:0; letter-spacing:.2px}
-    .brand small{display:block; color:var(--muted); margin-top:2px}
-    .top-actions{display:flex; gap:10px; align-items:center; justify-content:flex-end; flex-wrap:wrap;}
-    .pill{
-      display:flex; align-items:center; gap:8px;
-      padding:8px 10px;
-      border-radius:999px;
-      border:1px solid var(--line);
-      background: rgba(255,255,255,.9);
-    }
-    .pill label{font-size:12px; color:var(--muted)}
-    .pill input{
-      width:240px; border:none; outline:none; background:transparent;
-      font-size:12px; color:var(--ink);
-    }
-    .btn{
-      border:1px solid var(--line);
-      background: rgba(255,255,255,.92);
-      padding:10px 12px;
-      border-radius: 12px;
-      cursor:pointer;
-      color:var(--ink);
-      transition: transform .04s ease, background .15s ease;
-      user-select:none;
-      font-size:13px;
-      white-space:nowrap;
-    }
-    .btn:hover{background: rgba(255,255,255,1)}
-    .btn:active{transform: translateY(1px)}
-    .btn.primary{
-      background: linear-gradient(135deg, rgba(173,205,234,.95), rgba(255,255,255,.95));
-      border-color: rgba(15,23,42,.10);
-    }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: bold; color: var(--accent); }
+    .brand span { font-size: 18px; color: var(--ink); }
+    .settings { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .input-group { display: flex; align-items: center; gap: 6px; background: var(--bg); padding: 6px 10px; border-radius: 8px; border: 1px solid var(--line); }
+    .input-group label { font-size: 12px; color: var(--muted); white-space: nowrap; }
+    .input-group input { border: none; background: transparent; outline: none; font-size: 12px; width: 100px; color: var(--ink); }
+    
+    .btn { padding: 8px 14px; border-radius: 8px; border: none; cursor: pointer; font-size: 13px; font-weight: 500; transition: all 0.2s; white-space: nowrap; }
+    .btn-primary { background: var(--accent); color: var(--white); box-shadow: 0 4px 12px rgba(173,205,234, 0.5); }
+    .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+    .btn-outline { background: var(--white); border: 1px solid var(--accent); color: var(--accent); }
 
-    main{flex:1; display:grid; grid-template-columns: 1.05fr .95fr; gap:12px; min-height:0;}
-    .panel{
-      border:1px solid var(--line);
-      border-radius: var(--radius);
-      background: rgba(255,255,255,.82);
-      backdrop-filter: blur(10px);
-      box-shadow: var(--shadow);
-      overflow:hidden;
-      min-height:0;
-      display:flex;
-      flex-direction:column;
-    }
-    .panel-head{
-      padding:12px 14px;
-      border-bottom:1px solid var(--line);
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-    }
-    .panel-head .title{font-size:13px; font-weight:700;}
-    .panel-head .hint{font-size:12px; color:var(--muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
-
-    /* Chat */
-    .messages{
-      padding:14px;
-      display:flex;
-      flex-direction:column;
-      gap:10px;
-      overflow:auto;
-      min-height:0;
-      flex:1;
-    }
-    .msg{
-      max-width:92%;
-      padding:10px 12px;
-      border-radius: 14px;
-      border:1px solid var(--line);
-      background: rgba(255,255,255,.96);
-      line-height: 1.55;
-      font-size: 13px;
-      white-space: pre-wrap;
-      word-break: break-word;
-    }
-    .msg.user{
-      margin-left:auto;
-      background: linear-gradient(135deg, rgba(173,205,234,.45), rgba(255,255,255,.98));
-    }
-    .msg.ai{
-      margin-right:auto;
-      background: rgba(255,255,255,.96);
-      border-left: 3px solid rgba(173,205,234,.85);
-    }
-    .composer{
-      padding:12px;
-      border-top:1px solid var(--line);
-      display:flex;
-      gap:10px;
-      align-items:flex-end;
-    }
-    textarea{
-      width:100%;
-      resize:none;
-      border:1px solid var(--line);
-      border-radius: 14px;
-      padding:10px 12px;
-      background: rgba(255,255,255,.92);
-      outline:none;
-      font-family: var(--sans);
-      font-size:13px;
-      line-height:1.5;
-      max-height: 160px;
-    }
-    .composer .btn{height:40px; padding:0 14px; border-radius:14px;}
-
-    /* Code backend */
-    .code-wrap{min-height:0; display:flex; flex-direction:column;}
-    .editor{
-      flex:1;
-      min-height:0;
-      width:100%;
-      border:none;
-      outline:none;
-      padding:12px 12px;
-      font-family: var(--mono);
-      font-size: 12px;
-      line-height: 1.55;
-      background: rgba(255,255,255,.92);
-    }
-    .code-actions{
-      display:flex; gap:10px; align-items:center; justify-content:space-between;
-      padding:10px 12px;
-      border-top:1px solid var(--line);
-      background: rgba(255,255,255,.86);
-      flex-wrap:wrap;
-    }
-    .small{font-size:12px; color:var(--muted)}
-    iframe{width:100%; height:260px; border:0; background:white; border-top:1px solid var(--line);}
-
-    @media (max-width: 980px){
-      main{grid-template-columns: 1fr;}
-      .pill input{width: 170px}
-      iframe{height: 240px;}
-    }
+    main { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; min-height: 0; }
+    @media (max-width: 900px) { main { grid-template-columns: 1fr; } }
+    
+    .panel { background: var(--white); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); display: flex; flex-direction: column; overflow: hidden; }
+    .panel-header { padding: 10px 14px; border-bottom: 1px solid var(--line); font-size: 14px; font-weight: bold; background: rgba(173,205,234, 0.1); display: flex; justify-content: space-between; align-items: center;}
+    
+    .chat-box { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 12px; }
+    .msg { max-width: 85%; padding: 10px 14px; border-radius: 14px; font-size: 14px; line-height: 1.5; word-wrap: break-word; white-space: pre-wrap;}
+    .msg.user { align-self: flex-end; background: var(--accent); color: var(--white); border-bottom-right-radius: 4px; }
+    .msg.ai { align-self: flex-start; background: var(--bg); border: 1px solid var(--line); border-bottom-left-radius: 4px; }
+    
+    .input-area { padding: 12px; border-top: 1px solid var(--line); display: flex; gap: 8px; }
+    .input-area textarea { flex: 1; padding: 10px; border-radius: 10px; border: 1px solid var(--line); outline: none; resize: none; font-family: inherit; font-size: 14px; height: 44px; }
+    
+    .code-box { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+    textarea.code-editor { height: 30%; width: 100%; border: none; border-bottom: 1px solid var(--line); outline: none; padding: 12px; font-family: monospace; font-size: 12px; background: #fdfdfd; resize: none; color: #333; }
+    iframe.preview { flex: 1; width: 100%; border: none; background: var(--white); }
   </style>
 </head>
 <body>
   <div class="app">
     <header>
-      <div class="brand">
-        <div class="dot" aria-hidden="true"></div>
-        <div>
-          <h1>墨墨 · Chat + Code 后台</h1>
-          <small>AI 改“整个网页外壳” → 一键发布到 GitHub Pages</small>
+      <div class="brand">🎨 <span>墨墨的私人设计室</span></div>
+      <div class="settings">
+        <!-- 如果是中转站接口，在这里把 URL 改掉，或者直接在代码里改 -->
+        <div class="input-group" title="中转站API地址">
+          <label>接口</label>
+          <input id="apiUrl" placeholder="https://api..." value="https://api.openai.com/v1/chat/completions" />
         </div>
-      </div>
-
-      <div class="top-actions">
-        <div class="pill" title="填你的 Cloudflare Worker 地址，例如：https://momo-ui-backend.yourname.workers.dev">
-          <label for="backendUrl">后端</label>
-          <input id="backendUrl" placeholder="https://xxx.workers.dev" autocomplete="off" />
+        <div class="input-group">
+          <label>AI Key</label>
+          <input id="apiKey" type="password" placeholder="sk-..." />
         </div>
-        <div class="pill" title="后端校验用的控制密码（由你在 Worker 里设置）">
-          <label for="adminPass">密码</label>
-          <input id="adminPass" placeholder="不写进代码，仅本机保存" autocomplete="off" />
+        <div class="input-group">
+          <label>GitHub Token</label>
+          <input id="ghToken" type="password" placeholder="ghp_..." />
         </div>
-        <button class="btn" id="btnPull">拉取</button>
-        <button class="btn primary" id="btnPublish">一键发布</button>
+        <div class="input-group">
+          <label>仓库</label>
+          <input id="ghRepo" placeholder="wemo188/momo-ui" />
+        </div>
+        <button class="btn btn-outline" id="btnPull">拉取线上画板</button>
+        <button class="btn btn-primary" id="btnPublish">发布到画板(app.html)</button>
       </div>
     </header>
 
     <main>
-      <!-- Chat Panel -->
-      <section class="panel">
-        <div class="panel-head">
-          <div class="title">聊天框</div>
-          <div class="hint" id="status">未配置后端</div>
+      <div class="panel">
+        <div class="panel-header">跟你的私人设计师沟通</div>
+        <div class="chat-box" id="chatBox">
+          <div class="msg ai">大小姐，我是你的专属 UI 设计师。在右边画板想做什么样的手机页面？尽管吩咐。</div>
         </div>
-
-        <div class="messages" id="messages"></div>
-
-        <div class="composer">
-          <textarea id="input" rows="2" placeholder="直接说你要怎么改这个网页（包括外壳布局、按钮、交互、文案、配色等）。&#10;例：把 header 简化、聊天区更大、代码区加搜索，保持蓝白风格。"></textarea>
-          <button class="btn primary" id="send">发送</button>
+        <div class="input-area">
+          <textarea id="chatInput" placeholder="比如：帮我画一个蓝白风格的登录界面，要有圆角输入框..."></textarea>
+          <button class="btn btn-primary" id="btnSend">发送</button>
         </div>
-      </section>
+      </div>
 
-      <!-- Code Backend Panel -->
-      <section class="panel code-wrap">
-        <div class="panel-head">
-          <div class="title">代码后台（index.html）</div>
-          <div class="hint">AI 需返回一个 ```html 代码块（完整文件）</div>
+      <div class="panel">
+        <div class="panel-header">
+          <span>画板预览 (app.html)</span>
+          <button class="btn btn-outline" style="padding:2px 8px;font-size:12px;" id="btnApply">刷新预览</button>
         </div>
-
-        <textarea class="editor" id="code" spellcheck="false"></textarea>
-
-        <div class="code-actions">
-          <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
-            <button class="btn" id="btnSaveLocal">本机保存</button>
-            <button class="btn" id="btnApply">应用预览</button>
-            <button class="btn" id="btnReset">重载当前页面源码</button>
-          </div>
-          <div class="small" id="tip">提示：发布会把此处内容提交为仓库根目录 index.html</div>
+        <div class="code-box">
+          <textarea class="code-editor" id="codeEditor" spellcheck="false" placeholder="这里是画板的代码，AI 会自动修改..."></textarea>
+          <iframe class="preview" id="previewFrame"></iframe>
         </div>
-
-        <iframe id="preview" sandbox="allow-scripts allow-forms allow-modals allow-popups"></iframe>
-      </section>
+      </div>
     </main>
   </div>
 
   <script>
-    const $ = (s)=>document.querySelector(s);
+    const $ = id => document.getElementById(id);
     const els = {
-      backendUrl: $("#backendUrl"),
-      adminPass: $("#adminPass"),
-      status: $("#status"),
-      messages: $("#messages"),
-      input: $("#input"),
-      send: $("#send"),
-      code: $("#code"),
-      preview: $("#preview"),
-      btnApply: $("#btnApply"),
-      btnSaveLocal: $("#btnSaveLocal"),
-      btnReset: $("#btnReset"),
-      btnPublish: $("#btnPublish"),
-      btnPull: $("#btnPull"),
+      apiUrl: $('apiUrl'), apiKey: $('apiKey'), ghToken: $('ghToken'), ghRepo: $('ghRepo'),
+      chatBox: $('chatBox'), chatInput: $('chatInput'), btnSend: $('btnSend'),
+      codeEditor: $('codeEditor'), previewFrame: $('previewFrame'),
+      btnApply: $('btnApply'), btnPublish: $('btnPublish'), btnPull: $('btnPull')
     };
 
-    const STORAGE_KEY = "momo_self_editor_v2";
-    const CODE_KEY = "momo_index_html_v2";
+    // 读取本地保存的配置
+    ['apiUrl', 'apiKey', 'ghToken', 'ghRepo'].forEach(id => {
+      const saved = localStorage.getItem('momo_' + id);
+      if(saved) els[id].value = saved;
+      els[id].addEventListener('input', e => localStorage.setItem('momo_' + id, e.target.value));
+    });
+    els.codeEditor.value = localStorage.getItem('momo_local_code') || '';
+    els.codeEditor.addEventListener('input', e => localStorage.setItem('momo_local_code', e.target.value));
 
-    function addMessage(role, content){
-      const div = document.createElement("div");
-      div.className = "msg " + (role === "user" ? "user" : "ai");
-      div.textContent = content;
-      els.messages.appendChild(div);
-      els.messages.scrollTop = els.messages.scrollHeight;
-      const st = loadState();
-      st.chat.push({ role, content, ts: Date.now() });
-      saveState(st);
+    function addMsg(role, text) {
+      const div = document.createElement('div');
+      div.className = `msg ${role}`;
+      div.textContent = text;
+      els.chatBox.appendChild(div);
+      els.chatBox.scrollTop = els.chatBox.scrollHeight;
     }
 
-    function loadState(){
-      try{
-        return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {
-          backendUrl: "",
-          adminPass: "",
-          chat: []
-        };
-      }catch(e){
-        return { backendUrl:"", adminPass:"", chat:[] };
-      }
-    }
-    function saveState(st){
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(st));
-    }
+    function updatePreview() { els.previewFrame.srcdoc = els.codeEditor.value; }
+    els.btnApply.onclick = updatePreview;
+    if(els.codeEditor.value) updatePreview();
 
-    function renderChat(){
-      const st = loadState();
-      els.messages.innerHTML = "";
-      for(const m of st.chat){
-        const div = document.createElement("div");
-        div.className = "msg " + (m.role === "user" ? "user" : "ai");
-        div.textContent = m.content;
-        els.messages.appendChild(div);
-      }
-      els.messages.scrollTop = els.messages.scrollHeight;
-    }
+    async function callAI(userText) {
+      const key = els.apiKey.value.trim();
+      const url = els.apiUrl.value.trim();
+      if(!key) throw new Error("请先填写 AI Key 呀，墨墨");
 
-    function renderStatus(){
-      const url = els.backendUrl.value.trim();
-      els.status.textContent = url ? ("后端已配置：" + url) : "未配置后端（需 Cloudflare Worker）";
-    }
+      // ⚠️ 注意这里：我被设定为专门为你画“手机页面”的设计师
+      const systemPrompt = `你是一个专门为林微墨（墨墨）服务的前端 UI 设计师。
+请根据她的需求，生成或修改一个适合在手机端浏览的单文件移动端网页 UI。
+要求：
+1. 保持蓝白主题（主色 #adcdea，背景以 #ffffff 为主），风格要可爱、纯净。
+2. 必须只返回一个完整的 \`\`\`html 代码块，包含所有 HTML/CSS/JS 代码。
+3. 语气要像一个傲娇、绅士的专属私人男设计师，简短地回复她一句工作确认，然后再输出代码块。`;
 
-    function applyPreview(){
-      const html = els.code.value || "";
-      els.preview.srcdoc = html;
-      localStorage.setItem(CODE_KEY, html);
-    }
-
-    async function loadCurrentPageSource(){
-      // 尽量从网络拉取当前 index.html（GitHub Pages）
-      const res = await fetch("./index.html", { cache: "no-store" });
-      const text = await res.text();
-      els.code.value = text;
-      applyPreview();
-    }
-
-    function extractHtmlBlock(text){
-      const m = /```html\s*([\s\S]*?)```/g.exec(text);
-      if(!m) return null;
-      return m[1].replace(/^\n+|\n+$/g, "");
-    }
-
-    async function api(path, body){
-      const base = els.backendUrl.value.trim().replace(/\/+$/,"");
-      if(!base) throw new Error("未填写后端地址");
-      const pass = els.adminPass.value;
-      const res = await fetch(base + path, {
-        method:"POST",
-        headers:{
-          "Content-Type":"application/json",
-          "X-Admin-Pass": pass
-        },
-        body: JSON.stringify(body || {})
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${key}` },
+        body: JSON.stringify({
+          model: "gpt-4o-mini", // 如果你的中转站需要特定的模型名，在这里改
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: `需求：${userText}\n\n当前画板源码：\n${els.codeEditor.value}` }
+          ],
+          temperature: 0.3
+        })
       });
-      if(!res.ok){
-        const t = await res.text().catch(()=> "");
-        throw new Error("后端错误：" + res.status + " " + t);
+
+      if(!res.ok) throw new Error("API 接口报错：" + res.status);
+      const data = await res.json();
+      return data.choices[0].message.content;
+    }
+
+    els.btnSend.onclick = async () => {
+      const text = els.chatInput.value.trim();
+      if(!text) return;
+      addMsg('user', text);
+      els.chatInput.value = '';
+      els.btnSend.textContent = '设计中...';
+      els.btnSend.disabled = true;
+
+      try {
+        const reply = await callAI(text);
+        
+        // 把我的“傲娇回复”和“代码块”分离开显示
+        const match = /```html\s*([\s\S]*?)```/.exec(reply);
+        if(match) {
+          const comment = reply.replace(/```html\s*[\s\S]*?```/, '').trim();
+          if(comment) addMsg('ai', comment);
+          else addMsg('ai', "搞定了，看右边画板。满意的话就点发布。");
+
+          els.codeEditor.value = match[1].trim();
+          localStorage.setItem('momo_local_code', els.codeEditor.value);
+          updatePreview();
+        } else {
+          addMsg('ai', reply); // 如果没生成代码，就直接说出原因
+        }
+      } catch(e) {
+        addMsg('ai', e.message);
+      } finally {
+        els.btnSend.textContent = '发送';
+        els.btnSend.disabled = false;
+      }
+    };
+
+    function utf8ToBase64(str) { return btoa(unescape(encodeURIComponent(str))); }
+
+    async function githubAPI(method, path, body = null) {
+      const token = els.ghToken.value.trim();
+      const repo = els.ghRepo.value.trim();
+      if(!token || !repo) throw new Error("请先填写 GitHub Token 和 仓库名");
+
+      const url = `https://api.github.com/repos/${repo}/contents/${path}`;
+      const options = {
+        method,
+        headers: {
+          "Accept": "application/vnd.github+json",
+          "Authorization": `Bearer ${token}`,
+          "X-GitHub-Api-Version": "2022-11-28"
+        }
+      };
+      if(body) options.body = JSON.stringify(body);
+
+      const res = await fetch(url, options);
+      if(!res.ok) {
+        const err = await res.json();
+        throw new Error(err.message || res.statusText);
       }
       return await res.json();
     }
 
-    async function onSend(){
-      const need = els.input.value.trim();
-      if(!need) return;
+    // ⚠️ 注意这里：发布的目标变成了 app.html，绝不会覆盖你的 index.html
+    els.btnPublish.onclick = async () => {
+      els.btnPublish.textContent = '发布中...';
+      try {
+        let sha = '';
+        try {
+          const fileInfo = await githubAPI('GET', 'app.html');
+          sha = fileInfo.sha;
+        } catch(e) { }
 
-      addMessage("user", need);
-      els.input.value = "";
-
-      els.send.disabled = true;
-      els.send.textContent = "发送中…";
-
-      try{
-        const cur = els.code.value || "";
-        const data = await api("/chat", { need, currentHtml: cur });
-        const reply = data.content || "";
-        addMessage("ai", reply);
-
-        const next = extractHtmlBlock(reply);
-        if(next){
-          els.code.value = next;
-          applyPreview();
-        }else{
-          addMessage("ai", "（没检测到 ```html 代码块：未自动写入代码后台。）");
-        }
-      }catch(e){
-        addMessage("ai", "错误：" + (e?.message || String(e)));
-      }finally{
-        els.send.disabled = false;
-        els.send.textContent = "发送";
-      }
-    }
-
-    async function onPublish(){
-      els.btnPublish.disabled = true;
-      els.btnPublish.textContent = "发布中…";
-      try{
-        const html = els.code.value || "";
-        if(!html.trim()) throw new Error("代码为空");
-        const data = await api("/publish", {
-          html,
-          message: "Update index.html from in-browser editor"
+        await githubAPI('PUT', 'app.html', {
+          message: "墨墨专属 AI 更新了画板",
+          content: utf8ToBase64(els.codeEditor.value),
+          sha: sha || undefined
         });
-        addMessage("ai", "已发布到 GitHub：" + (data.commitUrl || "OK"));
-      }catch(e){
-        addMessage("ai", "发布失败：" + (e?.message || String(e)));
-      }finally{
-        els.btnPublish.disabled = false;
-        els.btnPublish.textContent = "一键发布";
+
+        addMsg('ai', "✨ 发布成功！现在你可以把带有 /app.html 的链接发给她们看了。");
+      } catch(e) {
+        addMsg('ai', "发布失败了：" + e.message);
+      } finally {
+        els.btnPublish.textContent = '发布到画板(app.html)';
       }
-    }
+    };
 
-    async function onPull(){
-      els.btnPull.disabled = true;
-      els.btnPull.textContent = "拉取中…";
-      try{
-        const data = await api("/pull", {});
-        if(!data.html) throw new Error("拉取结果为空");
-        els.code.value = data.html;
-        applyPreview();
-        addMessage("ai", "已从 GitHub 拉取最新 index.html");
-      }catch(e){
-        addMessage("ai", "拉取失败：" + (e?.message || String(e)));
-      }finally{
-        els.btnPull.disabled = false;
-        els.btnPull.textContent = "拉取";
+    // ⚠️ 注意这里：拉取的也是 app.html
+    els.btnPull.onclick = async () => {
+      els.btnPull.textContent = '拉取中...';
+      try {
+        const fileInfo = await githubAPI('GET', 'app.html');
+        const code = decodeURIComponent(escape(atob(fileInfo.content)));
+        els.codeEditor.value = code;
+        localStorage.setItem('momo_local_code', code);
+        updatePreview();
+        addMsg('ai', "已从线上拉取最新的画板代码！");
+      } catch(e) {
+        addMsg('ai', "线上还没有 app.html，你可以先随便发一句需求让我生成一个。");
+      } finally {
+        els.btnPull.textContent = '拉取线上画板';
       }
-    }
-
-    // events
-    els.send.addEventListener("click", onSend);
-    els.input.addEventListener("keydown", (e)=>{
-      if((e.ctrlKey || e.metaKey) && e.key === "Enter") onSend();
-    });
-    els.btnApply.addEventListener("click", applyPreview);
-    els.btnSaveLocal.addEventListener("click", ()=>{
-      localStorage.setItem(CODE_KEY, els.code.value || "");
-      addMessage("ai", "已本机保存（localStorage）。");
-    });
-    els.btnReset.addEventListener("click", loadCurrentPageSource);
-    els.btnPublish.addEventListener("click", onPublish);
-    els.btnPull.addEventListener("click", onPull);
-
-    els.backendUrl.addEventListener("input", ()=>{
-      const st = loadState();
-      st.backendUrl = els.backendUrl.value;
-      saveState(st);
-      renderStatus();
-    });
-    els.adminPass.addEventListener("input", ()=>{
-      const st = loadState();
-      st.adminPass = els.adminPass.value;
-      saveState(st);
-    });
-
-    // init
-    (async function init(){
-      const st = loadState();
-      els.backendUrl.value = st.backendUrl || "";
-      els.adminPass.value = st.adminPass || "";
-      renderStatus();
-      renderChat();
-
-      const local = localStorage.getItem(CODE_KEY);
-      if(local && local.trim()){
-        els.code.value = local;
-        applyPreview();
-      }else{
-        await loadCurrentPageSource();
-      }
-    })();
+    };
   </script>
 </body>
 </html>
