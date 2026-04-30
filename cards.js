@@ -62,10 +62,7 @@ var Cards={
             '<div class="search-box">'+
               '<div class="avatar-area-left" data-side="search1">'+
                 '<div class="avatar-preview" id="avatarPreview1">'+
-                  '<svg viewBox="0 0 24 24" fill="none" stroke="#adcdea" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+
-                    '<circle cx="12" cy="8" r="4"></circle>'+
-                    '<path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"></path>'+
-                  '</svg>'+
+                  '<svg viewBox="0 0 24 24" fill="none" stroke="#adcdea" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"></circle><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"></path></svg>'+
                 '</div>'+
               '</div>'+
               '<input type="text" class="search-input-left" placeholder="我们相识...">'+
@@ -76,10 +73,7 @@ var Cards={
               '<input type="text" class="search-input-right" placeholder="已经有...天">'+
               '<div class="avatar-area-right" data-side="search2">'+
                 '<div class="avatar-preview" id="avatarPreview2">'+
-                  '<svg viewBox="0 0 24 24" fill="none" stroke="#adcdea" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+
-                    '<circle cx="12" cy="8" r="4"></circle>'+
-                    '<path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"></path>'+
-                  '</svg>'+
+                  '<svg viewBox="0 0 24 24" fill="none" stroke="#adcdea" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"></circle><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"></path></svg>'+
                 '</div>'+
               '</div>'+
             '</div>'+
@@ -113,99 +107,76 @@ var Cards={
   },
 
   bindSearchUpload:function(){
-    // 左边对话框文字
-    var leftInput = document.querySelector('.search-input-left');
-    var leftSaved = localStorage.getItem('searchText_left');
-    if(leftSaved && leftInput) leftInput.value = leftSaved;
-    if(leftInput){
-        leftInput.addEventListener('input', function(){
-            localStorage.setItem('searchText_left', this.value);
-        });
-    }
+    var leftInput=document.querySelector('.search-input-left');
+    var leftSaved=App.LS.get('searchText_left');
+    if(leftSaved&&leftInput)leftInput.value=leftSaved;
+    if(leftInput)leftInput.addEventListener('input',function(){App.LS.set('searchText_left',this.value);});
 
-    // 右边对话框文字
-    var rightInput = document.querySelector('.search-input-right');
-    var rightSaved = localStorage.getItem('searchText_right');
-    if(rightSaved && rightInput) rightInput.value = rightSaved;
-    if(rightInput){
-        rightInput.addEventListener('input', function(){
-            localStorage.setItem('searchText_right', this.value);
-        });
-    }
+    var rightInput=document.querySelector('.search-input-right');
+    var rightSaved=App.LS.get('searchText_right');
+    if(rightSaved&&rightInput)rightInput.value=rightSaved;
+    if(rightInput)rightInput.addEventListener('input',function(){App.LS.set('searchText_right',this.value);});
 
-    // 左边头像上传
-    var area1 = document.querySelector('.avatar-area-left[data-side="search1"]');
-    var preview1 = document.getElementById('avatarPreview1');
-    if(area1 && preview1){
-        area1.addEventListener('click',function(){
-            var input = document.createElement('input');
-            input.type = 'file';
-            input.accept = 'image/*';
-            input.onchange = function(e){
-                var file = e.target.files[0];
-                if(file){
-                    var reader = new FileReader();
-                    reader.onload = function(ev){
-                        preview1.innerHTML = '';
-                        var img = document.createElement('img');
-                        img.src = ev.target.result;
-                        preview1.appendChild(img);
-                        localStorage.setItem('avatar_search1', ev.target.result);
-                    };
-                    reader.readAsDataURL(file);
-                }
-            };
-            input.click();
-        });
-        var saved1 = localStorage.getItem('avatar_search1');
-        if(saved1){
-            preview1.innerHTML = '';
-            var img1 = document.createElement('img');
-            img1.src = saved1;
-            preview1.appendChild(img1);
-        }
-    }
+    /* ★ 对话框头像：支持裁剪 */
+    Cards._bindSearchAvatar('.avatar-area-left[data-side="search1"]','avatarPreview1','avatar_search1');
+    Cards._bindSearchAvatar('.avatar-area-right[data-side="search2"]','avatarPreview2','avatar_search2');
+  },
 
-    // 右边头像上传
-    var area2 = document.querySelector('.avatar-area-right[data-side="search2"]');
-    var preview2 = document.getElementById('avatarPreview2');
-    if(area2 && preview2){
-        area2.addEventListener('click',function(){
-            var input = document.createElement('input');
-            input.type = 'file';
-            input.accept = 'image/*';
-            input.onchange = function(e){
-                var file = e.target.files[0];
-                if(file){
-                    var reader = new FileReader();
-                    reader.onload = function(ev){
-                        preview2.innerHTML = '';
-                        var img = document.createElement('img');
-                        img.src = ev.target.result;
-                        preview2.appendChild(img);
-                        localStorage.setItem('avatar_search2', ev.target.result);
-                    };
-                    reader.readAsDataURL(file);
-                }
-            };
-            input.click();
-        });
-        var saved2 = localStorage.getItem('avatar_search2');
-        if(saved2){
-            preview2.innerHTML = '';
-            var img2 = document.createElement('img');
-            img2.src = saved2;
-            preview2.appendChild(img2);
-        }
+  _bindSearchAvatar:function(selector,previewId,storageKey){
+    var area=document.querySelector(selector);
+    var preview=document.getElementById(previewId);
+    if(!area||!preview)return;
+
+    area.addEventListener('click',function(){
+      var input=document.createElement('input');
+      input.type='file';input.accept='image/*';
+      input.onchange=function(e){
+        var file=e.target.files[0];if(!file)return;
+        var reader=new FileReader();
+        reader.onload=function(ev){
+          if(App.cropImage){
+            App.cropImage(ev.target.result,function(cropped){
+              Cards._compressAndSetSearchAvatar(cropped,preview,storageKey);
+            });
+          } else {
+            Cards._compressAndSetSearchAvatar(ev.target.result,preview,storageKey);
+          }
+        };
+        reader.readAsDataURL(file);
+      };
+      input.click();
+    });
+
+    var saved=App.LS.get(storageKey);
+    if(saved){
+      preview.innerHTML='';
+      var img=document.createElement('img');img.src=saved;
+      preview.appendChild(img);
     }
-},
+  },
+
+  _compressAndSetSearchAvatar:function(src,preview,storageKey){
+    var img=new Image();
+    img.onload=function(){
+      var canvas=document.createElement('canvas'),max=200,w=img.width,h=img.height;
+      if(w>h){if(w>max){h=h*max/w;w=max;}}else{if(h>max){w=w*max/h;h=max;}}
+      canvas.width=w;canvas.height=h;
+      canvas.getContext('2d').drawImage(img,0,0,w,h);
+      var compressed=canvas.toDataURL('image/jpeg',0.85);
+      preview.innerHTML='';
+      var newImg=document.createElement('img');newImg.src=compressed;
+      preview.appendChild(newImg);
+      App.LS.set(storageKey,compressed);
+    };
+    img.src=src;
+  },
 
   bindEdit:function(){
     document.querySelectorAll('#cardRow .bx-w').forEach(function(card){
       var nameBar=card.querySelector('.bx-name-bar');
-      if(nameBar)nameBar.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();Cards.openEdit(card.dataset.side);});
+      if(nameBar)nameBar.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();Cards.openEdit(card.dataset.side,card);});
       var ph=card.querySelector('.bx-av-placeholder');
-      if(ph)ph.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();Cards.openEdit(card.dataset.side);});
+      if(ph)ph.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();Cards.openEdit(card.dataset.side,card);});
     });
   },
 
@@ -259,47 +230,114 @@ var Cards={
     ['bx-1','bx-2'].forEach(function(id){var el=App.$('#'+id);if(el)el.style.transform='';});
   },
 
-  openEdit:function(side){
+  /* ★ 重写 openEdit：在卡片下方弹出 + 可拖拽 + 头像裁剪 */
+  openEdit:function(side,cardEl){
     var d=Cards.data[side];
     var defSub=side==='left'?DEF_SUB_L:DEF_SUB_R;
     var old=App.$('#pcEditOverlay');if(old)old.remove();
-    var overlay=document.createElement('div');overlay.id='pcEditOverlay';overlay.className='pc-edit-overlay';
-    overlay.innerHTML=
-      '<div class="pc-edit-panel">'+
-        '<div class="pc-edit-title">编辑'+(side==='left'?'左':'右')+'卡片</div>'+
-        '<div class="pc-edit-group"><label class="pc-edit-label">头像（URL 或上传）</label><div class="pc-edit-upload-row"><input type="text" class="pc-edit-input" id="pcEditAvatar" placeholder="图片URL..." value="'+App.esc(d.avatar||'')+'"><label class="pc-edit-file-btn" for="pcEditFile"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></label><input type="file" id="pcEditFile" accept="image/*" hidden></div></div>'+
-        '<div class="pc-edit-group"><label class="pc-edit-label">名字</label><input type="text" class="pc-edit-input" id="pcEditName" value="'+App.esc(d.name||'')+'"></div>'+
-        '<div class="pc-edit-group"><label class="pc-edit-label">签名</label><input type="text" class="pc-edit-input" id="pcEditSub" value="'+App.esc(d.sub||defSub)+'"></div>'+
-        '<div class="pc-edit-row2"><div class="pc-edit-group"><label class="pc-edit-label">标签 1</label><input type="text" class="pc-edit-input" id="pcEditTag1" value="'+App.esc(d.tag1||'')+'"></div><div class="pc-edit-group"><label class="pc-edit-label">标签 2</label><input type="text" class="pc-edit-input" id="pcEditTag2" value="'+App.esc(d.tag2||'')+'"></div></div>'+
-        '<div class="pc-edit-btns"><button class="pc-edit-save" id="pcEditSaveBtn" type="button">保存</button><button class="pc-edit-cancel" id="pcEditCancelBtn" type="button">取消</button></div>'+
-      '</div>';
+
+    var overlay=document.createElement('div');
+    overlay.id='pcEditOverlay';
+    overlay.className='pc-edit-overlay';
+
+    var panel=document.createElement('div');
+    panel.className='pc-edit-panel';
+
+    panel.innerHTML=
+      '<div class="pc-edit-title" id="pcDragHandle">编辑'+(side==='left'?'左':'右')+'卡片</div>'+
+      '<div class="pc-edit-group"><label class="pc-edit-label">头像</label><div class="pc-edit-upload-row"><input type="text" class="pc-edit-input" id="pcEditAvatar" placeholder="图片URL..." value="'+App.escAttr(d.avatar||'')+'"><label class="pc-edit-file-btn" for="pcEditFile"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></label><input type="file" id="pcEditFile" accept="image/*" hidden></div></div>'+
+      '<div class="pc-edit-group"><label class="pc-edit-label">名字</label><input type="text" class="pc-edit-input" id="pcEditName" value="'+App.escAttr(d.name||'')+'"></div>'+
+      '<div class="pc-edit-group"><label class="pc-edit-label">签名</label><input type="text" class="pc-edit-input" id="pcEditSub" value="'+App.escAttr(d.sub||defSub)+'"></div>'+
+      '<div class="pc-edit-row2"><div class="pc-edit-group"><label class="pc-edit-label">标签1</label><input type="text" class="pc-edit-input" id="pcEditTag1" value="'+App.escAttr(d.tag1||'')+'"></div><div class="pc-edit-group"><label class="pc-edit-label">标签2</label><input type="text" class="pc-edit-input" id="pcEditTag2" value="'+App.escAttr(d.tag2||'')+'"></div></div>'+
+      '<div class="pc-edit-btns"><button class="pc-edit-save" id="pcEditSaveBtn" type="button">保存</button><button class="pc-edit-cancel" id="pcEditCancelBtn" type="button">取消</button></div>';
+
+    overlay.appendChild(panel);
     document.body.appendChild(overlay);
 
-    App.$('#pcEditFile').addEventListener('change',function(e){
+    /* 定位在卡片下方 */
+    if(cardEl){
+      var rect=cardEl.getBoundingClientRect();
+      var left=rect.left+rect.width/2-120;
+      var top=rect.bottom+8;
+      if(left<8)left=8;
+      if(left+240>window.innerWidth)left=window.innerWidth-248;
+      if(top+360>window.innerHeight)top=Math.max(10,window.innerHeight-370);
+      panel.style.left=left+'px';
+      panel.style.top=top+'px';
+    } else {
+      panel.style.left='50%';
+      panel.style.top='50%';
+      panel.style.transform='translate(-50%,-50%)';
+    }
+
+    /* ★ 拖拽 */
+    var _drag={active:false,sx:0,sy:0,ox:0,oy:0};
+    var handle=panel.querySelector('#pcDragHandle');
+
+    handle.addEventListener('touchstart',function(e){
+      if(e.target.closest('button')||e.target.closest('input'))return;
+      var t=e.touches[0];
+      var pr=panel.getBoundingClientRect();
+      panel.style.transform='none';
+      panel.style.left=pr.left+'px';
+      panel.style.top=pr.top+'px';
+      _drag={active:true,sx:t.clientX,sy:t.clientY,ox:pr.left,oy:pr.top};
+    },{passive:true});
+
+    document.addEventListener('touchmove',function onMove(e){
+      if(!_drag.active)return;e.preventDefault();
+      var t=e.touches[0];
+      panel.style.left=(_drag.ox+t.clientX-_drag.sx)+'px';
+      panel.style.top=(_drag.oy+t.clientY-_drag.sy)+'px';
+    },{passive:false});
+
+    document.addEventListener('touchend',function onEnd(){_drag.active=false;});
+
+    /* ★ 头像上传：支持裁剪 */
+    panel.querySelector('#pcEditFile').addEventListener('change',function(e){
       var file=e.target.files[0];if(!file)return;
-      var reader=new FileReader();reader.onload=function(ev){
-        var img=new Image();img.onload=function(){
-          var canvas=document.createElement('canvas'),max=400,w=img.width,h=img.height;
-          if(w>h){if(w>max){h=h*max/w;w=max;}}else{if(h>max){w=w*max/h;h=max;}}
-          canvas.width=w;canvas.height=h;canvas.getContext('2d').drawImage(img,0,0,w,h);
-          App.$('#pcEditAvatar').value=canvas.toDataURL('image/jpeg',0.7);
-        };img.src=ev.target.result;
-      };reader.readAsDataURL(file);
+      var reader=new FileReader();
+      reader.onload=function(ev){
+        if(App.cropImage){
+          App.cropImage(ev.target.result,function(cropped){
+            Cards._compressAvatar(cropped,function(compressed){
+              panel.querySelector('#pcEditAvatar').value=compressed;
+            });
+          });
+        } else {
+          Cards._compressAvatar(ev.target.result,function(compressed){
+            panel.querySelector('#pcEditAvatar').value=compressed;
+          });
+        }
+      };
+      reader.readAsDataURL(file);
     });
 
-    App.$('#pcEditSaveBtn').addEventListener('click',function(){
+    panel.querySelector('#pcEditSaveBtn').addEventListener('click',function(){
       Cards.data[side]={
-        avatar:App.$('#pcEditAvatar').value.trim(),
-        name:App.$('#pcEditName').value.trim(),
-        sub:App.$('#pcEditSub').value.trim(),
-        tag1:App.$('#pcEditTag1').value.trim(),
-        tag2:App.$('#pcEditTag2').value.trim()
+        avatar:panel.querySelector('#pcEditAvatar').value.trim(),
+        name:panel.querySelector('#pcEditName').value.trim(),
+        sub:panel.querySelector('#pcEditSub').value.trim(),
+        tag1:panel.querySelector('#pcEditTag1').value.trim(),
+        tag2:panel.querySelector('#pcEditTag2').value.trim()
       };
       Cards.save();Cards.render();overlay.remove();App.showToast('已保存');
     });
 
-    App.$('#pcEditCancelBtn').addEventListener('click',function(){overlay.remove();});
+    panel.querySelector('#pcEditCancelBtn').addEventListener('click',function(){overlay.remove();});
     overlay.addEventListener('click',function(e){if(e.target===overlay)overlay.remove();});
+  },
+
+  _compressAvatar:function(src,callback){
+    var img=new Image();
+    img.onload=function(){
+      var canvas=document.createElement('canvas'),max=400,w=img.width,h=img.height;
+      if(w>h){if(w>max){h=h*max/w;w=max;}}else{if(h>max){w=w*max/h;h=max;}}
+      canvas.width=w;canvas.height=h;
+      canvas.getContext('2d').drawImage(img,0,0,w,h);
+      callback(canvas.toDataURL('image/jpeg',0.8));
+    };
+    img.src=src;
   },
 
   init:function(){Cards.load();Cards.render();}
