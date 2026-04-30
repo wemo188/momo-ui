@@ -272,9 +272,8 @@ var Cards={
 
     /* ★ 拖拽 */
     var _drag={active:false,sx:0,sy:0,ox:0,oy:0};
-    var handle=panel.querySelector('#pcDragHandle');
-
-    handle.addEventListener('touchstart',function(e){
+    panel.addEventListener('touchstart',function(e){
+  if(e.target.closest('button')||e.target.closest('input')||e.target.closest('label'))return;
       if(e.target.closest('button')||e.target.closest('input'))return;
       var t=e.touches[0];
       var pr=panel.getBoundingClientRect();
