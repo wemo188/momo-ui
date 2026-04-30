@@ -19,11 +19,12 @@
       requestAnimationFrame(function() { panel.classList.add('show'); });
     },
 
-    close: function() {
+        close: function() {
       var panel = App.$('#wechatPanel');
       if (!panel) return;
+      // 直接隐藏，不做动画
       panel.classList.remove('show');
-      setTimeout(function() { panel.classList.add('hidden'); }, 350);
+      panel.classList.add('hidden');
     },
 
     isCharVisible: function(c) {
@@ -499,15 +500,18 @@
           var t = e.changedTouches[0];
           var dx = t.clientX - _wxSwipe.sx;
           var w = wxInner.offsetWidth || window.innerWidth;
-          if (dx > w * 0.3) {
+                    if (dx > w * 0.3) {
             wxInner.style.transition = 'transform .25s ease, opacity .25s ease';
             wxInner.style.transform = 'translateX(100%)';
             wxInner.style.opacity = '0';
             setTimeout(function() {
-              wxInner.style.transition = '';
-              wxInner.style.transform = '';
-              wxInner.style.opacity = '';
               Wechat.close();
+              // 延迟重置，避免闪烁
+              setTimeout(function() {
+                wxInner.style.transition = '';
+                wxInner.style.transform = '';
+                wxInner.style.opacity = '';
+              }, 50);
             }, 260);
           } else {
             wxInner.style.transition = 'transform .2s ease, opacity .2s ease';
