@@ -662,18 +662,67 @@ var Preset={
   isSysEnabled:function(sysId){if(!Preset.config.sysToggles)return true;return Preset.config.sysToggles[sysId]!==false;},
 
   /* ★ 重写 init：首次打开时创建默认预设 */
-  init:function(){
-    Preset.load();
+init:function(){
+  Preset.load();
 
-    /* 检查是否有预设，没有则创建默认的 */
-    if(!Preset.list.length){
-      var defaultPreset=createDefaultPreset();
-      Preset.list.push(defaultPreset);
-      Preset.save();
+  /* 检查是否有内置预设 */
+  var hasBuiltin=false;
+  var builtinIdx=-1;
+  for(var i=0;i<Preset.list.length;i++){
+    if(Preset.list[i].builtin===true&&Preset.list[i].id==='ps_default'){
+      hasBuiltin=true;builtinIdx=i;break;
+    }
+  }
+
+  if(!hasBuiltin){
+    /* 没有内置预设，创建 */
+    var defaultPreset=createDefaultPreset();
+    Preset.list.forEach(function(p){p.enabled=false;});
+    Preset.list.unshift(defaultPreset);
+    Preset.save();
+  } else {
+    /* ★ 已有内置预设，更新 items 的内容（保留用户的开关状态和排序） */
+    var existing=Preset.list[builtinIdx];
+    var builtinMap={};
+    BUILTIN_ITEMS.forEach(function(b){builtinMap[b.id]=b;});
+
+    var updated=false;
+    if(existing.items){
+      existing.items.forEach(function(it){
+        if(it.builtin&&it.id&&builtinMap[it.id]){
+          var latest=builtinMap[it.id];
+          if(it.content!==latest.content){
+            it.content=latest.content;
+            it.name=latest.name;
+            updated=true;
+          }
+        }
+      });
     }
 
-    App.preset=Preset;
+    /* 检查有没有新增的内置卡片 */
+    BUILTIN_ITEMS.forEach(function(b){
+      var found=false;
+      if(existing.items){
+        for(var j=0;j<existing.items.length;j++){
+          if(existing.items[j].id===b.id){found=true;break;}
+        }
+      }
+      if(!found){
+        var newItem=JSON.parse(JSON.stringify(b));
+        existing.items.push(newItem);
+        if(existing.order){
+          existing.order.push({type:'user',idx:existing.items.length-1});
+        }
+        updated=true;
+      }
+    });
+
+    if(updated)Preset.save();
   }
+
+  App.preset=Preset;
+}
 };
 
 function raf2(fn){requestAnimationFrame(function(){requestAnimationFrame(fn);});}
