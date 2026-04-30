@@ -504,8 +504,8 @@
       /* ★ 展开/收起 */
 panel.querySelector('#wsExpandLog').addEventListener('click', function() {
   isExpanded = !isExpanded;
+  var execInput = panel.querySelector('#wsExecInput');
   if (isExpanded) {
-    /* 先获取当前位置 */
     var rect = panel.getBoundingClientRect();
     panel.style.left = rect.left + 'px';
     panel.style.top = '10vh';
@@ -516,12 +516,16 @@ panel.querySelector('#wsExpandLog').addEventListener('click', function() {
     panel.style.height = '80vh';
     logArea.style.maxHeight = 'none';
     logArea.style.flex = '1';
+    execInput.style.fontSize = '14px';
+    execInput.style.padding = '14px 16px';
     this.textContent = '收起';
   } else {
     panel.style.maxHeight = '50vh';
     panel.style.height = '';
     logArea.style.maxHeight = '40vh';
     logArea.style.flex = '';
+    execInput.style.fontSize = '12px';
+    execInput.style.padding = '10px 14px';
     this.textContent = '展开';
   }
   logArea.scrollTop = logArea.scrollHeight;
