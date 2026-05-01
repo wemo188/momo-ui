@@ -257,42 +257,6 @@ function imgFallback(img){
 
 <!-- ====== 面板 ====== -->
 
-<!-- 主题配色 -->
-<div id="themePanel" class="panel hidden">
-  <div class="panel-header">
-    <h2>主题配色</h2>
-    <button class="panel-close" data-close="themePanel" aria-label="关闭" type="button">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-        <path d="M18 6L6 18M6 6l12 12"/>
-      </svg>
-    </button>
-  </div>
-  <div class="panel-body">
-    <div id="themeList" class="theme-list"></div>
-    <div class="divider"></div>
-    <div id="customThemeList" class="theme-list"></div>
-    <div class="divider"></div>
-    <div class="color-grid">
-      <div class="color-group"><label>页面背景</label><input type="color" id="colorBg" value="#ffffff"></div>
-      <div class="color-group"><label>卡片背景</label><input type="color" id="colorCard" value="#ffffff"></div>
-      <div class="color-group"><label>主题色</label><input type="color" id="colorAccent" value="#adcdea"></div>
-      <div class="color-group"><label>强调色</label><input type="color" id="colorAccentDeep" value="#8ab8de"></div>
-      <div class="color-group"><label>文字色</label><input type="color" id="colorText" value="#1a1a1a"></div>
-      <div class="color-group"><label>边框色</label><input type="color" id="colorBorder" value="#1a1a1a"></div>
-    </div>
-    <div class="form-group" style="margin-top:12px;">
-      <input type="text" id="customThemeName" placeholder="主题名称">
-    </div>
-    <div class="btn-row">
-      <button class="btn btn-primary" id="applyCustomColors" type="button">应用颜色</button>
-      <button class="btn btn-outline" id="saveCustomTheme" type="button">保存主题</button>
-    </div>
-    <div class="divider"></div>
-    <button class="btn btn-outline" id="resetTheme" style="width:100%;" type="button">恢复默认主题</button>
-    <button class="btn btn-danger" id="clearAllBtn" style="width:100%;margin-top:8px;" type="button">重置所有设置</button>
-  </div>
-</div>
-
 <!-- 字体设置 -->
 <div id="fontPanel" class="panel hidden">
   <div class="panel-header">
