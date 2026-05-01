@@ -583,6 +583,140 @@ html, body {
   transform: translate(-50%, -50%);
 }
 
+/* ====== 透明度条 ====== */
+.cp-alpha-wrap {
+  position: relative;
+  height: 16px;
+  margin: 8px 0 6px;
+  border-radius: 8px;
+  cursor: pointer;
+  background-image:
+    linear-gradient(45deg, #ccc 25%, transparent 25%, transparent 75%, #ccc 75%),
+    linear-gradient(45deg, #ccc 25%, transparent 25%, transparent 75%, #ccc 75%);
+  background-size: 8px 8px;
+  background-position: 0 0, 4px 4px;
+  overflow: hidden;
+}
+
+.cp-alpha-bar {
+  position: absolute;
+  inset: 0;
+  border-radius: 8px;
+  background: linear-gradient(to right, transparent, #000);
+}
+
+.cp-alpha-cursor {
+  position: absolute;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid #fff;
+  box-shadow: 0 0 3px rgba(0,0,0,.4);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+/* ====== 渐变模式 ====== */
+.cp-mode-row {
+  display: flex;
+  gap: 4px;
+  margin: 6px 0;
+}
+
+.cp-mode-btn {
+  flex: 1;
+  padding: 6px 0;
+  border: 1.5px solid rgba(0,0,0,.08);
+  border-radius: 8px;
+  background: rgba(0,0,0,.02);
+  font-size: 11px;
+  font-weight: 600;
+  color: #999;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all .15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.cp-mode-btn.active {
+  background: #1a1a1a;
+  color: #fff;
+  border-color: #1a1a1a;
+}
+
+.cp-gradient-area {
+  padding: 8px 0 4px;
+}
+
+.cp-grad-stops {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+.cp-grad-stop {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 1.5px solid transparent;
+  font-size: 11px;
+  color: #999;
+  -webkit-tap-highlight-color: transparent;
+  transition: all .15s;
+}
+
+.cp-grad-stop.active {
+  border-color: #7a9ab8;
+  color: #2e4258;
+  background: rgba(126,163,201,.08);
+}
+
+.cp-grad-dot {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid rgba(0,0,0,.1);
+}
+
+.cp-grad-preview {
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid rgba(0,0,0,.06);
+  margin-bottom: 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+.cp-grad-preview::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(45deg, #ccc 25%, transparent 25%, transparent 75%, #ccc 75%),
+    linear-gradient(45deg, #ccc 25%, transparent 25%, transparent 75%, #ccc 75%);
+  background-size: 8px 8px;
+  background-position: 0 0, 4px 4px;
+  z-index: 0;
+}
+
+.cp-grad-preview-inner {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.cp-grad-dir {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .cp-presets {
   display: flex; gap: 6px; flex-wrap: wrap; align-items: center;
 }
