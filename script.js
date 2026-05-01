@@ -680,11 +680,7 @@ App.openColorPicker = function(currentColor, onConfirm, onChange, callerId) {
         if(gradArea)gradArea.style.display='none';setFromColor(c);
       }
     };
-```
 
-下半段：
-
-```javascript
     /* ====== 拖拽事件 ====== */
     var specDrag=false,hueDrag=false,alphaDrag=false,lightDrag=false;
 
