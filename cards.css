@@ -113,6 +113,7 @@
 }
 
 #bx-2 .bx-cd {
+  background: var(--bx2-bg, #ffffff);
   position: relative; z-index: 2;
   background: #f8f9fa;
   border-radius: calc(11px * var(--S));
@@ -225,6 +226,7 @@
 }
 
 #bx-1 .bx-cd {
+  background: var(--bx2-bg, #ffffff);
   position: relative; z-index: 2;
   background: #f8f9fa;
   border-radius: calc(11px * var(--S));
