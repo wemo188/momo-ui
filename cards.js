@@ -380,7 +380,7 @@ var Cards={
     ['bx-1','bx-2','searchWrap1','searchWrap2'].forEach(function(id){var el=App.$('#'+id);if(el)el.style.transform='';});
   },
 
-  /* ★ 新版：双列全览编辑弹窗（无切换，所见即所得） */
+  /* ★ 竖版全览编辑弹窗 (上下排布，无切换) */
   openEdit:function(side,cardEl){
     var old=App.$('#pcEditOverlay');if(old)old.remove();
 
@@ -407,47 +407,39 @@ var Cards={
     }).join('');
 
     panel.innerHTML=
-      '<div class="pc-header" id="pcDragHandle">编辑卡片</div>'+
+      '<div class="pc-header">编辑卡片<div class="pc-close-btn" id="pcCloseBtn">×</div></div>'+
       '<div class="pc-body">'+
-        '<div class="pc-col">'+
-          '<div class="pc-group"><span class="pc-label">头像</span><div class="pc-av-row">'+
-            '<input type="text" class="pc-input" id="pcAvatar" placeholder="图片URL..." value="'+App.escAttr(d.avatar||'')+'">'+
-            '<label class="pc-icon-btn" for="pcFile" title="上传"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></label><input type="file" id="pcFile" accept="image/*" hidden>'+
-            '<div class="pc-icon-btn danger" id="pcDelAvatar" title="删除"><svg viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M5 6v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V6"/></svg></div>'+
-          '</div></div>'+
-          '<div class="pc-row">'+
-            '<div class="pc-group"><span class="pc-label">名字</span><input type="text" class="pc-input" id="pcName" value="'+App.escAttr(d.name||'')+'"></div>'+
-            '<div class="pc-group"><span class="pc-label">签名</span><input type="text" class="pc-input" id="pcSub" value="'+App.escAttr(d.sub||defSub)+'"></div>'+
-          '</div>'+
-          '<div class="pc-row">'+
-            '<div class="pc-group"><span class="pc-label">标签 1</span><input type="text" class="pc-input" id="pcTag1" value="'+App.escAttr(d.tag1||'')+'"></div>'+
-            '<div class="pc-group"><span class="pc-label">标签 2</span><input type="text" class="pc-input" id="pcTag2" value="'+App.escAttr(d.tag2||'')+'"></div>'+
-          '</div>'+
-        '</div>'+
-        '<div class="pc-col">'+
-          '<div class="pc-group"><span class="pc-label" style="margin-bottom:-4px;">调色板</span><div class="pc-palette-grid">'+dotsHtml+'</div></div>'+
-          '<div class="pc-group" style="margin-top:auto;"><span class="pc-label">边框粗细</span><div class="pc-slider-row"><input type="range" class="pc-slider" id="pcBorderW" min="1" max="8" step="0.5" value="'+col.borderW+'"><span class="pc-slider-val" id="pcBorderWVal">'+col.borderW+'px</span></div><button class="pc-reset-btn" id="pcReset" type="button">重置默认颜色</button></div>'+
-        '</div>'+
+        '<div class="pc-group"><span class="pc-label">头像</span><div class="pc-av-row">'+
+          '<input type="text" class="pc-input" id="pcAvatar" placeholder="图片URL..." value="'+App.escAttr(d.avatar||'')+'">'+
+          '<label class="pc-icon-btn" for="pcFile" title="上传"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></label><input type="file" id="pcFile" accept="image/*" hidden>'+
+          '<div class="pc-icon-btn danger" id="pcDelAvatar" title="删除"><svg viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M5 6v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V6"/></svg></div>'+
+        '</div></div>'+
+        '<div class="pc-group"><span class="pc-label">名字</span><input type="text" class="pc-input" id="pcName" value="'+App.escAttr(d.name||'')+'"></div>'+
+        '<div class="pc-group"><span class="pc-label">签名</span><input type="text" class="pc-input" id="pcSub" value="'+App.escAttr(d.sub||defSub)+'"></div>'+
+        '<div class="pc-group"><span class="pc-label">标签 1</span><input type="text" class="pc-input" id="pcTag1" value="'+App.escAttr(d.tag1||'')+'"></div>'+
+        '<div class="pc-group"><span class="pc-label">标签 2</span><input type="text" class="pc-input" id="pcTag2" value="'+App.escAttr(d.tag2||'')+'"></div>'+
+        '<div class="pc-group"><span class="pc-label" style="margin-bottom:-2px;">调色板</span><div class="pc-palette-grid">'+dotsHtml+'</div></div>'+
+        '<div class="pc-group" style="margin-top:auto;"><span class="pc-label">边框粗细</span><div class="pc-slider-row"><input type="range" class="pc-slider" id="pcBorderW" min="1" max="8" step="0.5" value="'+col.borderW+'"><span class="pc-slider-val" id="pcBorderWVal">'+col.borderW+'px</span></div></div>'+
       '</div>'+
       '<div class="pc-footer">'+
         '<button class="pc-btn pc-btn-save" id="pcSaveBtn" type="button">保 存</button>'+
-        '<button class="pc-btn pc-btn-cancel" id="pcCancelBtn" type="button">取 消</button>'+
+        '<button class="pc-btn pc-btn-cancel" id="pcResetColors" type="button">重 置</button>'+
       '</div>';
 
     overlay.appendChild(panel);
     document.body.appendChild(overlay);
 
-    /* 定位 */
+    /* 定位居中一点 */
     if(cardEl){
       var rect=cardEl.getBoundingClientRect();
-      var left=rect.left+rect.width/2-150; /* 300的一半 */
-      var top=rect.bottom+8;
+      var left=rect.left+rect.width/2-150;var top=rect.bottom+8;
       if(left<8)left=8;if(left+300>window.innerWidth)left=window.innerWidth-308;
       if(top+400>window.innerHeight)top=Math.max(10,window.innerHeight-410);
       panel.style.left=left+'px';panel.style.top=top+'px';
     }
 
-    Cards._bindPanelDrag(panel,'#pcDragHandle');
+    /* ★ 拖拽：整个卡片都是把手 */
+    Cards._bindPanelDrag(panel);
 
     /* 颜色点 */
     panel.querySelectorAll('.pc-dot').forEach(function(dot){
@@ -462,13 +454,13 @@ var Cards={
     var bwSlider=panel.querySelector('#pcBorderW');var bwVal=panel.querySelector('#pcBorderWVal');
     if(bwSlider)bwSlider.addEventListener('input',function(){col.borderW=parseFloat(this.value);bwVal.textContent=col.borderW+'px';Cards.data[side].colors=col;Cards.applyColors();});
 
-    /* 重置 */
-    panel.querySelector('#pcReset').addEventListener('click',function(e){
+    /* ★ 重置按钮：恢复默认颜色 */
+    panel.querySelector('#pcResetColors').addEventListener('click',function(e){
       e.stopPropagation();var defCol=side==='left'?DEF_COLORS_L:DEF_COLORS_R;
       col=JSON.parse(JSON.stringify(defCol));
       panel.querySelectorAll('.pc-dot').forEach(function(d){d.style.background=col[d.dataset.ck];});
       if(bwSlider){bwSlider.value=col.borderW;bwVal.textContent=col.borderW+'px';}
-      Cards.data[side].colors=col;Cards.applyColors();App.showToast('已重置');
+      Cards.data[side].colors=col;Cards.applyColors();App.showToast('已重置默认配色');
     });
 
     /* 上传 */
@@ -489,7 +481,7 @@ var Cards={
       e.stopPropagation();panel.querySelector('#pcAvatar').value='';App.showToast('头像已清除，点保存生效');
     });
 
-    /* 保存 */
+    /* ★ 保存 */
     panel.querySelector('#pcSaveBtn').addEventListener('click',function(){
       Cards.data[side]={
         avatar:(panel.querySelector('#pcAvatar')||{}).value||'',
@@ -502,21 +494,26 @@ var Cards={
       Cards.save();Cards.render();overlay.remove();App.showToast('已保存');
     });
 
-    /* 取消 */
-    panel.querySelector('#pcCancelBtn').addEventListener('click',function(){
+    /* ★ × 关闭按钮：取消更改 */
+    panel.querySelector('#pcCloseBtn').addEventListener('click',function(e){
+      e.stopPropagation();
       Cards.data=snapshot;Cards.save();Cards.render();overlay.remove();
     });
 
+    /* 点击外部取消 */
     overlay.addEventListener('click',function(e){
       if(e.target===overlay){Cards.data=snapshot;Cards.save();Cards.render();overlay.remove();}
     });
   },
 
-  _bindPanelDrag:function(panel,handleSelector){
-    var handle=panel.querySelector(handleSelector);if(!handle)return;
+  /* ★ 面板拖拽：把手为自身 */
+  _bindPanelDrag:function(panel){
+    var handle=panel;
+    if(!handle)return;
     var _drag={active:false,sx:0,sy:0,ox:0,oy:0};
     handle.addEventListener('touchstart',function(e){
-      if(e.target.closest('button')||e.target.closest('input')||e.target.closest('label')||e.target.closest('.pc-dot')||e.target.closest('.pc-icon-btn'))return;
+      /* 排除交互元素，摸到空白处就开始拖 */
+      if(e.target.closest('button')||e.target.closest('input')||e.target.closest('label')||e.target.closest('.pc-dot')||e.target.closest('.pc-icon-btn')||e.target.closest('.pc-close-btn')||e.target.closest('.pc-slider'))return;
       var t=e.touches[0];var pr=panel.getBoundingClientRect();
       panel.style.transform='none';panel.style.left=pr.left+'px';panel.style.top=pr.top+'px';
       _drag={active:true,sx:t.clientX,sy:t.clientY,ox:pr.left,oy:pr.top};
