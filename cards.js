@@ -3,8 +3,8 @@
 var App=window.App;if(!App)return;
 
 var EMPTY={name:'',sub:'',avatar:'',tag1:'',tag2:'',colors:null};
-var DEF_SUB_L='✥ 同你奔赴一场风花雪月 ✥';
-var DEF_SUB_R='◈ 与你共赏一阙火树银花 ◈';
+var DEF_SUB_L='✥同你奔赴一场风花雪月✥';
+var DEF_SUB_R='◈与你共赏一阙火树银花◈';
 
 /* ★ 默认颜色补充了 bg: '#ffffff' */
 var DEF_COLORS_L={bg:'#ffffff',border:'#bbd3ef',borderW:3,tagBg:'#9dbfe0',tagC:'#ffffff',tag2Bg:'#bbd3ef',tag2C:'#4a5a75',nameC:'#4a5a75',subC:'#6a8caf'};
