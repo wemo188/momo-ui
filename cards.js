@@ -35,26 +35,12 @@ var Cards={
     return c;
   },
 
-  applyColors:function(){
+    applyColors:function(){
     var lc=Cards.getColors('left');var rc=Cards.getColors('right');
     var bx2=App.$('#bx-2');var bx1=App.$('#bx-1');
 
-    function applyBg(el, prefix, bgVal) {
-      if (!el) return;
-      if (bgVal && bgVal.indexOf('gradient') >= 0) {
-        el.style.setProperty('--' + prefix + '-bg', 'transparent');
-        el.style.setProperty('--' + prefix + '-bg-img', bgVal);
-      } else if (bgVal && bgVal.indexOf('rgba') >= 0) {
-        el.style.setProperty('--' + prefix + '-bg', bgVal);
-        el.style.setProperty('--' + prefix + '-bg-img', 'none');
-      } else {
-        el.style.setProperty('--' + prefix + '-bg', bgVal || '#ffffff');
-        el.style.setProperty('--' + prefix + '-bg-img', 'none');
-      }
-    }
-
     if(bx2){
-      applyBg(bx2, 'bx2', lc.bg);
+      bx2.style.setProperty('--bx2-bg',lc.bg); /* 直接传值，不管纯色还是渐变！ */
       bx2.style.setProperty('--bx2-border-c',lc.border);
       bx2.style.setProperty('--bx2-border-w',lc.borderW+'px');
       bx2.style.setProperty('--bx2-tag-bg',lc.tagBg);
@@ -65,7 +51,7 @@ var Cards={
       bx2.style.setProperty('--bx2-sub-c',lc.subC);
     }
     if(bx1){
-      applyBg(bx1, 'bx1', rc.bg);
+      bx1.style.setProperty('--bx1-bg',rc.bg); /* 直接传值！ */
       bx1.style.setProperty('--bx1-border-c',rc.border);
       bx1.style.setProperty('--bx1-border-w',rc.borderW+'px');
       bx1.style.setProperty('--bx1-tag-bg',rc.tagBg);
@@ -79,18 +65,10 @@ var Cards={
 
   applySBColors:function(){
     var sb=Cards._sbData;var area=App.$('#searchArea');if(!area)return;
-    function applyVar(key, val) {
-      if (val && val.indexOf('gradient') >= 0) {
-        area.style.setProperty('--sb-' + key, 'transparent');
-        area.style.setProperty('--sb-' + key + '-img', val);
-      } else {
-        area.style.setProperty('--sb-' + key, val);
-        area.style.setProperty('--sb-' + key + '-img', 'none');
-      }
-    }
-    applyVar('border', sb.border);
-    applyVar('shadow', sb.shadow);
-    applyVar('text', sb.textC);
+    /* 对话框也一样，去掉愚蠢的判断，直接传值 */
+    area.style.setProperty('--sb-border',sb.border);
+    area.style.setProperty('--sb-shadow',sb.shadow);
+    area.style.setProperty('--sb-text',sb.textC);
   },
 
   render:function(){
