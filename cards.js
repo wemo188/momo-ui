@@ -440,9 +440,10 @@ var Cards={
     /* 定位 */
     if(cardEl){
       var rect=cardEl.getBoundingClientRect();
-      var left=rect.left+rect.width/2-200;var top=rect.bottom+8;
-      if(left<8)left=8;if(left+400>window.innerWidth)left=window.innerWidth-408;
-      if(top+320>window.innerHeight)top=Math.max(10,window.innerHeight-330);
+      var left=rect.left+rect.width/2-150; /* 300的一半 */
+      var top=rect.bottom+8;
+      if(left<8)left=8;if(left+300>window.innerWidth)left=window.innerWidth-308;
+      if(top+400>window.innerHeight)top=Math.max(10,window.innerHeight-410);
       panel.style.left=left+'px';panel.style.top=top+'px';
     }
 
