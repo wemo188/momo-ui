@@ -12,6 +12,30 @@ function compressImage(d,m,q,cb){var i=new Image();i.onload=function(){var w=i.w
 function fmtTime(ts){var d=new Date(ts);return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');}
 function pad2(n){return n<10?'0'+n:''+n;}
 
+var _charWeatherCache = {};
+
+function fetchCharWeather(charId, realCity, callback) {
+  if (!realCity) { callback(null); return; }
+  var cacheKey = realCity.toLowerCase();
+  var cached = _charWeatherCache[cacheKey];
+  if (cached && Date.now() - cached.time < 30 * 60 * 1000) {
+    callback(cached);
+    return;
+  }
+  fetch('https://wttr.in/' + encodeURIComponent(realCity) + '?format=j1&lang=zh')
+    .then(function(r) { if (!r.ok) throw new Error(); return r.json(); })
+    .then(function(data) {
+      if (data && data.current_condition && data.current_condition.length) {
+        var c = data.current_condition[0];
+        var desc = (c.lang_zh && c.lang_zh.length) ? c.lang_zh[0].value : (c.weatherDesc && c.weatherDesc.length ? c.weatherDesc[0].value : '');
+        var w = { temp: c.temp_C, humidity: c.humidity, desc: desc, time: Date.now() };
+        _charWeatherCache[cacheKey] = w;
+        callback(w);
+      } else { callback(null); }
+    })
+    .catch(function() { callback(null); });
+}
+
 function getCfg(charId){
 var cfg=null;
 if(App.charMgr){if(App.charMgr.charConfigs&&App.charMgr.charConfigs[charId])cfg=App.charMgr.charConfigs[charId];
@@ -216,29 +240,48 @@ return ui;
 }
 
 /* 构建时间天气文本 */
-function buildTimeWeather(cfg){
-if(!cfg.timeWeather)return '';
-var now=new Date();
-var hour=now.getHours();
-var period='';
-if(hour>=0&&hour<5)period='凌晨';
-else if(hour>=5&&hour<8)period='清晨';
-else if(hour>=8&&hour<11)period='上午';
-else if(hour>=11&&hour<13)period='中午';
-else if(hour>=13&&hour<17)period='下午';
-else if(hour>=17&&hour<19)period='傍晚';
-else if(hour>=19&&hour<23)period='晚上';
-else period='深夜';
-var timeStr=now.getFullYear()+'年'+(now.getMonth()+1)+'月'+now.getDate()+'日 '+['周日','周一','周二','周三','周四','周五','周六'][now.getDay()]+' '+pad2(now.getHours())+':'+pad2(now.getMinutes())+' ('+period+')';
-var info='现在是：'+timeStr;
-if(App.calendar){
-  var ws=App.calendar.getWeatherSummary();if(ws)info+='\n'+ws;
-  var userCity=App.calendar?App.calendar.getLocationForAI():'';
-  if(userCity)info+='\n你（用户）所在城市：'+userCity;
-  if(cfg.charCity)info+='\n角色所在城市：'+cfg.charCity;
-  var ss=App.calendar.getScheduleSummary();if(ss)info+='\n'+ss;
-}
-return info;
+function buildTimeWeather(cfg) {
+  if (!cfg.timeWeather) return '';
+  var now = new Date();
+  var hour = now.getHours();
+  var period = '';
+  if (hour >= 0 && hour < 5) period = '凌晨';
+  else if (hour >= 5 && hour < 8) period = '清晨';
+  else if (hour >= 8 && hour < 11) period = '上午';
+  else if (hour >= 11 && hour < 13) period = '中午';
+  else if (hour >= 13 && hour < 17) period = '下午';
+  else if (hour >= 17 && hour < 19) period = '傍晚';
+  else if (hour >= 19 && hour < 23) period = '晚上';
+  else period = '深夜';
+  var timeStr = now.getFullYear() + '年' + (now.getMonth() + 1) + '月' + now.getDate() + '日 ' + ['周日','周一','周二','周三','周四','周五','周六'][now.getDay()] + ' ' + pad2(now.getHours()) + ':' + pad2(now.getMinutes()) + ' (' + period + ')';
+  var info = '现在是：' + timeStr;
+
+  // 用户天气
+  var userCity = App.calendar ? App.calendar.getLocationForAI() : '';
+  if (App.calendar) {
+    var ws = App.calendar.getWeatherSummary();
+    if (ws) info += '\n' + (userCity ? '用户所在地（' + userCity + '）' : '') + ws;
+    var ss = App.calendar.getScheduleSummary();
+    if (ss) info += '\n' + ss;
+  }
+
+  // 角色天气
+  var charDisplayCity = cfg.charCity || cfg.charRealCity || '';
+  var charRealCity = cfg.charRealCity || '';
+
+  if (charRealCity) {
+    var cacheKey = charRealCity.toLowerCase();
+    var cw = _charWeatherCache[cacheKey];
+    if (cw) {
+      info += '\n角色所在地（' + (charDisplayCity || charRealCity) + '）天气：' + cw.desc + '，' + cw.temp + '°C，湿度' + cw.humidity + '%';
+    } else {
+      info += '\n角色所在城市：' + (charDisplayCity || charRealCity);
+    }
+  } else if (charDisplayCity) {
+    info += '\n角色所在城市：' + charDisplayCity;
+  }
+
+  return info;
 }
 
 /* 构建双语和表情包指令 */
@@ -431,6 +474,11 @@ if(App.wechat)App.wechat._savedInner=inner.innerHTML;
 var bgUrl=App.LS.get('chatBg_'+charId)||'';
 var tintOn=App.LS.get('chatTint_'+charId);if(tintOn===null)tintOn=true;
 if(App.chatUI)App.chatUI.render(inner,c,bgUrl,!!bgUrl,tintOn);
+// 预取角色天气
+var charCfg = getCfg(charId);
+if (charCfg.timeWeather && charCfg.charRealCity) {
+  fetchCharWeather(charId, charCfg.charRealCity, function() {});
+}
 Chat.renderMessages();Chat.bindEvents();Chat.startProactive();
 var palette=App.LS.get('chatPalette_'+charId);
 if(palette&&palette.accent&&App.chatUI)App.chatUI.applyPalette(palette.accent);
