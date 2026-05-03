@@ -102,9 +102,9 @@ var Cards={
         '</div>'+
       '</div>'+
       '<div class="card-right-area">'+
-        '<div class="card-icons-wrap">'+
-          '<div class="card-icon-item" id="cardIcon1"><div class="card-icon-img"><img src="'+App.escAttr(icon1)+'" onerror="imgFallback(this)"></div><div class="card-icon-label">查岗</div></div>'+
-          '<div class="card-icon-item" id="cardIcon2"><div class="card-icon-img"><img src="'+App.escAttr(icon2)+'" onerror="imgFallback(this)"></div><div class="card-icon-label">论坛</div></div>'+
+      '<div class="card-icons-wrap">'+
+          '<div class="card-icon-item" id="cardIcon1"><div class="card-icon-img" style="background-image:url(\''+App.escAttr(icon1)+'\'); background-size:cover; background-position:center;"></div><div class="card-icon-label">查岗</div></div>'+
+          '<div class="card-icon-item" id="cardIcon2"><div class="card-icon-img" style="background-image:url(\''+App.escAttr(icon2)+'\'); background-size:cover; background-position:center;"></div><div class="card-icon-label">论坛</div></div>'+
         '</div>'+
         '<div class="bx-w" id="bx-1" data-side="right">'+
           '<div class="bx-cw"><div class="bx-cd">'+
@@ -145,10 +145,12 @@ var Cards={
     if(area2)area2.addEventListener('click',function(e){e.stopPropagation();Cards.openSearchEdit(area2);});
   },
 
-  _restoreSearchAvatar:function(previewId,storageKey){
+    _restoreSearchAvatar:function(previewId,storageKey){
     var preview=document.getElementById(previewId);if(!preview)return;
     var saved=App.LS.get(storageKey);
-    if(saved){preview.innerHTML='';var img=document.createElement('img');img.src=saved;preview.appendChild(img);}
+    if(saved){
+      preview.innerHTML='<div style="width:100%;height:100%;background-image:url(\''+App.escAttr(saved)+'\');background-size:cover;background-position:center;border-radius:4px;"></div>';
+    }
   },
 
   _setSearchAvatar:function(src,previewId,storageKey){
@@ -159,7 +161,7 @@ var Cards={
       if(w>h){if(w>max){h=h*max/w;w=max;}}else{if(h>max){w=w*max/h;h=max;}}
       canvas.width=w;canvas.height=h;canvas.getContext('2d').drawImage(img,0,0,w,h);
       var compressed=canvas.toDataURL('image/jpeg',0.85);
-      preview.innerHTML='';var newImg=document.createElement('img');newImg.src=compressed;preview.appendChild(newImg);
+      preview.innerHTML='<div style="width:100%;height:100%;background-image:url(\''+App.escAttr(compressed)+'\');background-size:cover;background-position:center;border-radius:4px;"></div>';
       App.LS.set(storageKey,compressed);
     };
     img.src=src;
@@ -434,8 +436,8 @@ var Cards={
           var processImage=function(src){
             var lsKey=id==='cardIcon1'?'customIcon_cg':'customIcon_lt';
             App.LS.set(lsKey,src);
-            var imgEl=App.$('#'+id+' img');
-            if(imgEl)imgEl.src=src;
+                        var imgDiv = App.$('#' + id + ' .card-icon-img');
+            if(imgDiv) imgDiv.style.backgroundImage = 'url(' + src + ')';
             App.showToast('图标已更换');
           };
           if(App.cropImage){App.cropImage(ev.target.result,function(c){Cards._compressAvatar(c,processImage);});}
