@@ -87,3 +87,14 @@
   text-align: center;
   font-weight: 500;
 }
+
+/* ★ 底部栏防原生菜单，允许纯净拖拽 */
+.dock-item {
+  -webkit-touch-callout: none !important;
+  -webkit-user-select: none !important;
+  user-select: none !important;
+}
+.mk-card img {
+  pointer-events: none !important; /* 关键：穿透图片，避免长按跳出保存菜单 */
+  -webkit-user-drag: none !important;
+}
