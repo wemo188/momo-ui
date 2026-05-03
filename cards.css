@@ -37,7 +37,7 @@
 
 .card-icons-wrap {
   display: flex;
-  gap: 30px;
+  gap: 15px; /* ★ 这里改间距：数字越大离得越远。原来是30px，现在我改成了15px，你可以随便调 */
   justify-content: center;
   margin-bottom: 10px;
   margin-top: 10px;
@@ -65,11 +65,11 @@
 }
 
 .card-icon-img img {
-  width: 100%;
   height: 100%;
-  object-fit: cover;
+  width: auto; /* ★ 图片宽度根据原始比例自动铺开 */
+  object-fit: contain; /* ★ 原比例装入，绝不强行拉伸或裁剪 */
   display: block;
-  pointer-events: none !important; /* ★ 这条命根子：让长按穿透图片，只触发拖拽，绝对不弹菜单 */
+  pointer-events: none !important; 
   -webkit-user-drag: none !important;
 }
 
