@@ -12,11 +12,12 @@ var Cal={
 
   load:function(){
     Cal.city=App.LS.get('calCity')||'';
+    Cal.virtualCity=App.LS.get('calVirtualCity')||'';  // ← 加这行
     Cal.weather=App.LS.get('calWeather')||null;
     Cal.schedules=App.LS.get('calSchedules')||{};
     Cal.cardConfig=App.LS.get('wtCardConfig')||JSON.parse(JSON.stringify(CARD_DEFAULTS));
   },
-  save:function(){App.LS.set('calCity',Cal.city);App.LS.set('calWeather',Cal.weather);App.LS.set('calSchedules',Cal.schedules);},
+  save:function(){App.LS.set('calCity',Cal.city);  App.LS.set('calVirtualCity',Cal.virtualCity);App.LS.set('calWeather',Cal.weather);App.LS.set('calSchedules',Cal.schedules);},
   saveCardConfig:function(){App.LS.set('wtCardConfig',Cal.cardConfig);},
   todayKey:function(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');},
 
@@ -152,6 +153,9 @@ var Cal={
     if(!items.length)return '今日无外出行程。';
     return '今日行程:\n'+items.map(function(x){return (x.time||'')+' '+(x.content||'');}).join('\n');
   },
+getLocationForAI:function(){
+  return Cal.virtualCity || Cal.city || '';
+},
 
   _dragOffsetX:0,_dragOffsetY:0,
 
@@ -348,14 +352,81 @@ if(e.target.closest('.vf-lbl'))return;
 
   // ====== 天气面板 ======
   openWeatherPanel:function(){
-    var panel=App.$('#calPanel');if(!panel)return;
-    panel.innerHTML='<div class="cal-panel-header"><div class="cal-panel-back" id="closeCalPanel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></div><h2>天气</h2><div class="cal-panel-right"></div></div><div class="cal-panel-body"><div class="cal-info-card"><div class="cal-info-row"><span class="cal-info-label">当前城市</span><span class="cal-info-value">'+App.esc(Cal.city||'未设置')+'</span></div></div><div class="cal-form-group"><label class="cal-form-label">切换城市</label><div class="cal-input-row"><input type="text" class="cal-input" id="calCityInput" placeholder="输入城市名..."><button class="cal-icon-btn" id="calSearchCityBtn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg></button></div></div><button class="cal-btn cal-btn-dark" id="calRefreshBtn" type="button">刷新天气</button>'+(Cal.weather?'<div class="cal-info-card" style="margin-top:20px;"><div class="cal-info-row"><span class="cal-info-label">温度</span><span class="cal-info-value">'+App.esc(Cal.weather.temp)+'°C</span></div><div class="cal-info-row"><span class="cal-info-label">天气</span><span class="cal-info-value">'+App.esc(Cal.weather.desc)+'</span></div><div class="cal-info-row"><span class="cal-info-label">湿度</span><span class="cal-info-value">'+App.esc(Cal.weather.humidity)+'%</span></div></div>':'')+'</div>';
-    panel.classList.remove('hidden');setTimeout(function(){panel.classList.add('show');},20);
-    App.safeOn('#closeCalPanel','click',function(){Cal.closePanel();});
-    App.safeOn('#calSearchCityBtn','click',function(){var name=App.$('#calCityInput').value.trim();if(!name){App.showToast('请输入城市名');return;}App.showToast('获取天气中...');Cal.city=name;Cal.save();Cal.fetchWeather(name,function(w){if(w){Cal.openWeatherPanel();App.showToast('已切换: '+name);}else App.showToast('获取失败');});});
-    App.safeOn('#calRefreshBtn','click',function(){if(!Cal.city){App.showToast('请先设置城市');return;}App.showToast('刷新中...');Cal.fetchWeather(Cal.city,function(w){if(w){Cal.openWeatherPanel();App.showToast('天气已刷新');}else App.showToast('刷新失败');});});
-    App.bindSwipeBack(panel, function(){ Cal.closePanel(); });
-  },
+  var panel=App.$('#calPanel');if(!panel)return;
+  panel.innerHTML=
+    '<div class="cal-panel-header">'+
+      '<div class="cal-panel-back" id="closeCalPanel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></div>'+
+      '<h2>天气</h2>'+
+      '<div class="cal-panel-right"></div>'+
+    '</div>'+
+    '<div class="cal-panel-body">'+
+
+      '<div class="cal-info-card">'+
+        '<div class="cal-info-row"><span class="cal-info-label">真实城市</span><span class="cal-info-value">'+App.esc(Cal.city||'未设置')+'</span></div>'+
+        '<div class="cal-info-row"><span class="cal-info-label">虚拟城市</span><span class="cal-info-value">'+App.esc(Cal.virtualCity||'未设置')+'</span></div>'+
+      '</div>'+
+
+      '<div class="cal-form-group">'+
+        '<label class="cal-form-label">真实城市（用于获取天气数据）</label>'+
+        '<div class="cal-input-row">'+
+          '<input type="text" class="cal-input" id="calCityInput" placeholder="输入真实城市名..." value="'+App.esc(Cal.city||'')+'">'+
+          '<button class="cal-icon-btn" id="calSearchCityBtn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg></button>'+
+        '</div>'+
+      '</div>'+
+
+      '<div class="cal-form-group">'+
+        '<label class="cal-form-label">虚拟城市（发送给角色的地点）</label>'+
+        '<input type="text" class="cal-input" id="calVirtualCityInput" placeholder="如：长安、霍格沃茨、星穹列车..." value="'+App.esc(Cal.virtualCity||'')+'">'+
+        '<div style="font-size:11px;color:#999;margin-top:6px;line-height:1.5;">留空则使用真实城市。适合架空世界观。</div>'+
+      '</div>'+
+
+      '<div style="display:flex;gap:8px;">'+
+        '<button class="cal-btn cal-btn-dark" id="calSaveVirtual" type="button" style="flex:1;">保存虚拟城市</button>'+
+        '<button class="cal-btn cal-btn-dark" id="calRefreshBtn" type="button" style="flex:1;">刷新天气</button>'+
+      '</div>'+
+
+      (Cal.weather?
+        '<div class="cal-info-card" style="margin-top:20px;">'+
+          '<div class="cal-info-row"><span class="cal-info-label">温度</span><span class="cal-info-value">'+App.esc(Cal.weather.temp)+'°C</span></div>'+
+          '<div class="cal-info-row"><span class="cal-info-label">天气</span><span class="cal-info-value">'+App.esc(Cal.weather.desc)+'</span></div>'+
+          '<div class="cal-info-row"><span class="cal-info-label">湿度</span><span class="cal-info-value">'+App.esc(Cal.weather.humidity)+'%</span></div>'+
+        '</div>':'')+
+
+    '</div>';
+
+  panel.classList.remove('hidden');
+  setTimeout(function(){panel.classList.add('show');},20);
+  App.bindSwipeBack(panel, function(){ Cal.closePanel(); });
+
+  App.safeOn('#closeCalPanel','click',function(){Cal.closePanel();});
+
+  App.safeOn('#calSaveVirtual','click',function(){
+    Cal.virtualCity=App.$('#calVirtualCityInput').value.trim();
+    Cal.save();
+    Cal.openWeatherPanel();
+    App.showToast(Cal.virtualCity?'虚拟城市已保存：'+Cal.virtualCity:'已清除虚拟城市');
+  });
+
+  App.safeOn('#calSearchCityBtn','click',function(){
+    var name=App.$('#calCityInput').value.trim();
+    if(!name){App.showToast('请输入城市名');return;}
+    App.showToast('获取天气中...');
+    Cal.city=name;Cal.save();
+    Cal.fetchWeather(name,function(w){
+      if(w){Cal.openWeatherPanel();App.showToast('已切换：'+name);}
+      else App.showToast('获取失败');
+    });
+  });
+
+  App.safeOn('#calRefreshBtn','click',function(){
+    if(!Cal.city){App.showToast('请先设置真实城市');return;}
+    App.showToast('刷新中...');
+    Cal.fetchWeather(Cal.city,function(w){
+      if(w){Cal.openWeatherPanel();App.showToast('天气已刷新');}
+      else App.showToast('刷新失败');
+    });
+  });
+},
 
   // ====== 日历面板 ======
   _viewYear:0,_viewMonth:0,_selectedDate:'',_stickerPage:0,
