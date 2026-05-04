@@ -3,16 +3,24 @@
   'use strict';
   var App = window.App; if(!App)return;
 
+  // ★ 真正的默认图，永远不受 localStorage 影响
+  var ICON_DEFAULTS = {
+    cg: 'https://iili.io/BsSI1j9.md.jpg',
+    lt: 'https://iili.io/BQ98Pxp.md.jpg',
+    d1: 'https://iili.io/B5DgD5N.jpg',
+    d2: 'https://iili.io/BudrfVa.md.jpg',
+    d3: 'https://iili.io/BsZkNx1.md.jpg',
+    d4: 'https://iili.io/BghjowQ.md.jpg'
+  };
+
   var Bg = {
     init: function() {
-      // 1. 初始化并应用数据
       var bgData = App.LS.get('bgData') || {};
       Bg.applyBg(bgData);
       
-      var iconConfig = App.LS.get('topIconConfig') || { borderW: 1.5, shadow: 4, borderColor: '#dcebff', shadowColor: '#adcdea' };
+      var iconConfig = App.LS.get('topIconConfig') || { borderW: 1.5, shadow: 4, borderColor: '#dcebff', shadowColor: '#dcebff' };
       if(!iconConfig.borderColor) iconConfig.borderColor = '#dcebff';
-      if(!iconConfig.shadowColor) iconConfig.shadowColor = '#adcdea';
-      // ★ 只有用户真的调过才注入，否则不碰原始CSS
+      if(!iconConfig.shadowColor) iconConfig.shadowColor = '#dcebff';
       if(App.LS.get('topIconConfig')) Bg.applyTopIconStyle(iconConfig);
 
       var panel = App.$('#bgPanel');
@@ -21,18 +29,7 @@
       panel.className = 'fullpage-panel hidden';
       panel.style.background = '#f4f7fb';
 
-            // ★ 真正的默认图，永远不受 localStorage 影响
-      var ICON_DEFAULTS = {
-        cg: 'https://iili.io/BsSI1j9.md.jpg',
-        lt: 'https://iili.io/BQ98Pxp.md.jpg',
-        d1: 'https://iili.io/B5DgD5N.jpg',
-        d2: 'https://iili.io/BudrfVa.md.jpg',
-        d3: 'https://iili.io/BsZkNx1.md.jpg',
-        d4: 'https://iili.io/BghjowQ.md.jpg'
-      };
-
-      // 移除了所有越界的 scale 控制属性
-            var iconList = [
+      var iconList = [
         { id: 'customIcon_cg', label: '查岗(上侧)', target: '#cardIcon1 img', live: '#bgLiveIcon1 img', def: ICON_DEFAULTS.cg },
         { id: 'customIcon_lt', label: '论坛(上侧)', target: '#cardIcon2 img', live: '#bgLiveIcon2 img', def: ICON_DEFAULTS.lt },
         { id: 'customIcon_dockMine', label: 'User(底部)', target: '#dockMine img', def: ICON_DEFAULTS.d1 },
@@ -51,7 +48,6 @@
         '</div>' +
         '<div style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px;">' +
           
-          '<!-- 模块一：超大背景图管理与实时滤镜 -->' +
           '<div style="background:#fff;border-radius:16px;padding:20px;margin-bottom:16px;box-shadow:0 4px 20px rgba(126,163,201,.08);border:1px solid rgba(126,163,201,.15);">' +
             '<div style="font-size:14px;font-weight:800;color:#2e4258;margin-bottom:14px;display:flex;align-items:center;gap:6px;"><div style="width:4px;height:12px;background:#7a9ab8;border-radius:2px;"></div>背景墙纸 (实时预览)</div>' +
             
@@ -74,11 +70,9 @@
             '<button id="bgNewRemoveBtn" type="button" style="width:100%;padding:12px;border:1.5px solid rgba(201,112,107,.4);border-radius:10px;background:rgba(201,112,107,.05);color:#c9706b;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent;">移除背景墙纸</button>' +
           '</div>' +
 
-          '<!-- 模块二：上侧图标样式控制台 -->' +
           '<div style="background:#fff;border-radius:16px;padding:20px;margin-bottom:16px;box-shadow:0 4px 20px rgba(126,163,201,.08);border:1px solid rgba(126,163,201,.15);">' +
             '<div style="font-size:14px;font-weight:800;color:#2e4258;margin-bottom:12px;display:flex;align-items:center;gap:6px;"><div style="width:4px;height:12px;background:#88abda;border-radius:2px;"></div>上侧图标样式</div>' +
             
-            '<!-- 预览台 -->' +
             '<div style="background:linear-gradient(135deg,#f0f5fa,#e1edf7);border-radius:14px;padding:30px 0 40px;display:flex;justify-content:center;gap:40px;margin-bottom:20px;border:1px solid rgba(126,163,201,.2);box-shadow:inset 0 4px 12px rgba(0,0,0,0.02);">' +
                '<div id="bgLiveIcon1" style="width:65px;height:65px;border-radius:15px;background:#fff;transition:all 0.1s;display:flex;align-items:center;justify-content:center;"><img src="'+(App.LS.get('customIcon_cg')||ICON_DEFAULTS.cg)+'" style="width:100%;height:100%;object-fit:cover;border-radius:15px;' + noImgDrag + '"></div>' +
                '<div id="bgLiveIcon2" style="width:65px;height:65px;border-radius:15px;background:#fff;transition:all 0.1s;display:flex;align-items:center;justify-content:center;"><img src="'+(App.LS.get('customIcon_lt')||ICON_DEFAULTS.lt)+'" style="width:100%;height:100%;object-fit:cover;border-radius:15px;' + noImgDrag + '"></div>' +
@@ -103,7 +97,6 @@
             '</div>' +
           '</div>' +
 
-          '<!-- 模块三：单独图片替换网格 -->' +
           '<div style="background:#fff;border-radius:16px;padding:20px;margin-bottom:30px;box-shadow:0 4px 20px rgba(126,163,201,.08);border:1px solid rgba(126,163,201,.15);">' +
             '<div style="font-size:14px;font-weight:800;color:#2e4258;margin-bottom:14px;display:flex;align-items:center;gap:6px;"><div style="width:4px;height:12px;background:#c9706b;border-radius:2px;"></div>点击对应方块替换图标</div>' +
             '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px 12px;" id="bgIconGridManager"></div>' +
@@ -111,291 +104,201 @@
 
         '</div>';
 
-      // ==================== 事件绑定与逻辑 ====================
+      // ==================== 事件绑定 ====================
       
       function closePanel() {
-        if(App.closePanel) { App.closePanel(); }
-        else {
-           panel.style.transform = 'translateX(100%)';
-           panel.style.opacity = '0';
-           setTimeout(function(){ panel.classList.remove('show'); panel.classList.add('hidden'); }, 350);
-        }
+        if(App.closePanel) App.closePanel();
+        else { panel.style.transform='translateX(100%)'; panel.style.opacity='0'; setTimeout(function(){ panel.classList.remove('show'); panel.classList.add('hidden'); },350); }
       }
       panel.querySelector('#bgCloseBtnTop').addEventListener('click', closePanel);
 
-      var _sw = {active: false, sx: 0, sy: 0, locked: false, dir: ''};
+      // 右滑返回
+      var _sw = {active:false, sx:0, sy:0, locked:false, dir:''};
       panel.addEventListener('touchstart', function(e){
-        var t = e.touches[0];
-        if(t.clientX - panel.getBoundingClientRect().left > 50) return;
-        _sw = {active: true, sx: t.clientX, sy: t.clientY, locked: false, dir: ''};
-      }, {passive: true});
-
+        var t=e.touches[0]; if(t.clientX - panel.getBoundingClientRect().left > 50) return;
+        _sw = {active:true, sx:t.clientX, sy:t.clientY, locked:false, dir:''};
+      }, {passive:true});
       panel.addEventListener('touchmove', function(e){
-        if(!_sw.active) return;
-        var t = e.touches[0];
-        var dx = t.clientX - _sw.sx;
-        var dy = t.clientY - _sw.sy;
-        if(!_sw.locked){
-          if(Math.abs(dx) < 10 && Math.abs(dy) < 10) return;
-          _sw.locked = true;
-          _sw.dir = Math.abs(dx) > Math.abs(dy) ? 'h' : 'v';
-        }
-        if(_sw.dir === 'h' && dx > 0){
-          e.preventDefault();
-          panel.style.transform = 'translateX(' + Math.min(dx, panel.offsetWidth) + 'px)';
-          panel.style.opacity = String(1 - dx / panel.offsetWidth * 0.5);
-        }
-      }, {passive: false});
-
+        if(!_sw.active) return; var t=e.touches[0]; var dx=t.clientX-_sw.sx, dy=t.clientY-_sw.sy;
+        if(!_sw.locked){ if(Math.abs(dx)<10&&Math.abs(dy)<10) return; _sw.locked=true; _sw.dir=Math.abs(dx)>Math.abs(dy)?'h':'v'; }
+        if(_sw.dir==='h'&&dx>0){ e.preventDefault(); panel.style.transform='translateX('+Math.min(dx,panel.offsetWidth)+'px)'; panel.style.opacity=String(1-dx/panel.offsetWidth*0.5); }
+      }, {passive:false});
       panel.addEventListener('touchend', function(e){
-        if(!_sw.active) return;
-        _sw.active = false;
-        if(_sw.dir !== 'h') { panel.style.transform = ''; panel.style.opacity = ''; return; }
-        var dx = e.changedTouches[0].clientX - _sw.sx;
-        if(dx > panel.offsetWidth * 0.3){
-          panel.style.transition = 'transform .25s, opacity .25s';
-          panel.style.transform = 'translateX(100%)';
-          panel.style.opacity = '0';
-          setTimeout(function(){
-            panel.style.transition = ''; panel.style.transform = ''; panel.style.opacity = '';
-            closePanel();
-          }, 260);
-        } else {
-          panel.style.transition = 'transform .2s, opacity .2s';
-          panel.style.transform = ''; panel.style.opacity = '';
-          setTimeout(function(){ panel.style.transition = ''; }, 220);
-        }
-      }, {passive: true});
+        if(!_sw.active) return; _sw.active=false;
+        if(_sw.dir!=='h'){ panel.style.transform=''; panel.style.opacity=''; return; }
+        var dx=e.changedTouches[0].clientX-_sw.sx;
+        if(dx>panel.offsetWidth*0.3){ panel.style.transition='transform .25s,opacity .25s'; panel.style.transform='translateX(100%)'; panel.style.opacity='0'; setTimeout(function(){ panel.style.transition=''; panel.style.transform=''; panel.style.opacity=''; closePanel(); },260); }
+        else { panel.style.transition='transform .2s,opacity .2s'; panel.style.transform=''; panel.style.opacity=''; setTimeout(function(){ panel.style.transition=''; },220); }
+      }, {passive:true});
 
+      // --- 背景墙纸 ---
       var pImg = panel.querySelector('#bgNewPreviewImg');
       var pBox = panel.querySelector('#bgNewPreview');
-      
-      var applyLiveFilter = function(blur, dark) {
-         pImg.style.filter = 'blur(' + blur + 'px) brightness(' + (100 - dark) + '%)';
+      var applyLiveFilter = function(blur,dark){ pImg.style.filter='blur('+blur+'px) brightness('+(100-dark)+'%)'; };
+      if(bgData.src){ pImg.src=bgData.src; pBox.style.display='block'; applyLiveFilter(bgData.blur||0, bgData.dark||30); }
+
+      var fileInput = document.createElement('input'); fileInput.type='file'; fileInput.accept='image/*';
+      fileInput.onchange = function(e){
+        var f=e.target.files[0]; if(!f) return;
+        var r=new FileReader();
+        r.onload = function(ev){
+          var process = function(c){ var d=App.LS.get('bgData')||{blur:0,dark:30}; d.src=c; App.LS.set('bgData',d); pImg.src=c; pBox.style.display='block'; applyLiveFilter(d.blur||0,d.dark||30); Bg.applyBg(d); App.showToast('背景已更换'); };
+          if(App.cropImage) App.cropImage(ev.target.result, process); else process(ev.target.result);
+        };
+        r.readAsDataURL(f);
       };
-
-      if(bgData.src) { 
-         pImg.src = bgData.src; 
-         pBox.style.display = 'block'; 
-         applyLiveFilter(bgData.blur||0, bgData.dark||30);
-      }
-
-      var fileInput = document.createElement('input'); 
-      fileInput.type = 'file'; fileInput.accept = 'image/*';
-      fileInput.onchange = function(e) {
-         var f = e.target.files[0]; if(!f) return;
-         var r = new FileReader();
-         r.onload = function(ev) {
-            var process = function(c) {
-               var currentData = App.LS.get('bgData') || { blur: 0, dark: 30 };
-               currentData.src = c;
-               App.LS.set('bgData', currentData);
-               pImg.src = c; pBox.style.display = 'block';
-               applyLiveFilter(currentData.blur||0, currentData.dark||30);
-               Bg.applyBg(currentData);
-               App.showToast('背景已更换');
-            };
-            if(App.cropImage) App.cropImage(ev.target.result, process);
-            else process(ev.target.result);
-         };
-         r.readAsDataURL(f);
-      };
-
       panel.querySelector('#bgNewUploadArea').addEventListener('click', function(){ fileInput.click(); });
-      
-      var handleBgSlider = function() {
-         var blurV = panel.querySelector('#bgNewBlur').value;
-         var darkV = panel.querySelector('#bgNewDark').value;
-         panel.querySelector('#bgNewBlurVal').textContent = blurV + 'px';
-         panel.querySelector('#bgNewDarkVal').textContent = darkV + '%';
-         applyLiveFilter(blurV, darkV);
-         var data = App.LS.get('bgData') || {};
-         data.blur = blurV; data.dark = darkV;
-         App.LS.set('bgData', data);
-         Bg.applyBg(data); 
+
+      var handleBgSlider = function(){
+        var blurV=panel.querySelector('#bgNewBlur').value, darkV=panel.querySelector('#bgNewDark').value;
+        panel.querySelector('#bgNewBlurVal').textContent=blurV+'px'; panel.querySelector('#bgNewDarkVal').textContent=darkV+'%';
+        applyLiveFilter(blurV, darkV);
+        var d=App.LS.get('bgData')||{}; d.blur=blurV; d.dark=darkV; App.LS.set('bgData',d); Bg.applyBg(d);
       };
       panel.querySelector('#bgNewBlur').addEventListener('input', handleBgSlider);
       panel.querySelector('#bgNewDark').addEventListener('input', handleBgSlider);
-      
+
       panel.querySelector('#bgNewRemoveBtn').addEventListener('click', function(){
-         App.LS.remove('bgData');
-         pImg.src = ''; pBox.style.display = 'none';
-         Bg.applyBg({});
-         App.showToast('背景已移除');
+        App.LS.remove('bgData'); pImg.src=''; pBox.style.display='none'; Bg.applyBg({}); App.showToast('背景已移除');
       });
 
+      // --- 上侧图标样式 ---
       var bSlider = panel.querySelector('#bgNewIconBorder');
       var sSlider = panel.querySelector('#bgNewIconShadow');
       var live1 = panel.querySelector('#bgLiveIcon1');
       var live2 = panel.querySelector('#bgLiveIcon2');
 
-      var getShadowCss = function(w, s, bC, sC) {
-        return 'border: ' + w + 'px solid ' + bC + '; ' +
-               'box-shadow: ' + s + 'px ' + s + 'px 0 ' + sC + '; ';
+      var updateIconStyle = function(){
+        var w=bSlider.value, s=sSlider.value;
+        panel.querySelector('#bgNewIconBorderVal').textContent=w+'px';
+        panel.querySelector('#bgNewIconShadowVal').textContent=s+'px';
+        var css = 'border:'+w+'px solid '+iconConfig.borderColor+'; box-shadow:'+s+'px '+s+'px 0 '+iconConfig.shadowColor+'; border-radius:15px;';
+        live1.style.cssText = 'width:65px;height:65px;border-radius:15px;background:#fff;transition:all 0.1s;display:flex;align-items:center;justify-content:center;overflow:hidden;'+css;
+        live2.style.cssText = 'width:65px;height:65px;border-radius:15px;background:#fff;transition:all 0.1s;display:flex;align-items:center;justify-content:center;overflow:hidden;'+css;
+        iconConfig.borderW=parseFloat(w); iconConfig.shadow=parseInt(s);
+        App.LS.set('topIconConfig', iconConfig); Bg.applyTopIconStyle(iconConfig);
       };
-
-      var updateIconStyle = function() {
-        var w = bSlider.value, s = sSlider.value;
-        panel.querySelector('#bgNewIconBorderVal').textContent = w + 'px';
-        panel.querySelector('#bgNewIconShadowVal').textContent = s + 'px';
-        
-        live1.style.cssText += getShadowCss(w, s, iconConfig.borderColor, iconConfig.shadowColor);
-        live2.style.cssText += getShadowCss(w, s, iconConfig.borderColor, iconConfig.shadowColor);
-
-        iconConfig.borderW = parseFloat(w);
-        iconConfig.shadow = parseInt(s);
-        App.LS.set('topIconConfig', iconConfig);
-        Bg.applyTopIconStyle(iconConfig);
-      };
-
       updateIconStyle();
       bSlider.addEventListener('input', updateIconStyle);
       sSlider.addEventListener('input', updateIconStyle);
 
-      function bindColorDot(dotId, key) {
-        panel.querySelector(dotId).addEventListener('click', function(e) {
-          e.stopPropagation();
-          if(!App.openColorPicker) return;
-          App.openColorPicker(iconConfig[key], function(hex){
-            iconConfig[key] = hex;
-            panel.querySelector(dotId).style.background = hex;
-            updateIconStyle();
-          }, function(hex){
-            iconConfig[key] = hex;
-            panel.querySelector(dotId).style.background = hex;
-            updateIconStyle();
-          });
-        });
-      }
-            // ★ 统一颜色：一个色块同时控制边框和阴影
-      panel.querySelector('#bgDotUnified').addEventListener('click', function(e) {
-        e.stopPropagation();
-        if(!App.openColorPicker) return;
+      // 统一颜色
+      panel.querySelector('#bgDotUnified').addEventListener('click', function(e){
+        e.stopPropagation(); if(!App.openColorPicker) return;
         App.openColorPicker(iconConfig.borderColor, function(hex){
-          iconConfig.borderColor = hex;
-          iconConfig.shadowColor = hex;
-          panel.querySelector('#bgDotUnified').style.background = hex;
-          updateIconStyle();
+          iconConfig.borderColor=hex; iconConfig.shadowColor=hex;
+          panel.querySelector('#bgDotUnified').style.background=hex; updateIconStyle();
         }, function(hex){
-          iconConfig.borderColor = hex;
-          iconConfig.shadowColor = hex;
-          panel.querySelector('#bgDotUnified').style.background = hex;
-          updateIconStyle();
+          iconConfig.borderColor=hex; iconConfig.shadowColor=hex;
+          panel.querySelector('#bgDotUnified').style.background=hex; updateIconStyle();
         });
       });
 
-      // ★ 恢复默认颜色
-      panel.querySelector('#bgResetColor').addEventListener('click', function(e) {
+      // 恢复默认颜色
+      panel.querySelector('#bgResetColor').addEventListener('click', function(e){
         e.stopPropagation();
-        iconConfig.borderColor = '#dcebff';
-        iconConfig.shadowColor = '#dcebff';
-        iconConfig.borderW = 1.5;
-        iconConfig.shadow = 4;
-        panel.querySelector('#bgDotUnified').style.background = '#dcebff';
-        bSlider.value = 1.5; panel.querySelector('#bgNewIconBorderVal').textContent = '1.5px';
-        sSlider.value = 4; panel.querySelector('#bgNewIconShadowVal').textContent = '4px';
-        App.LS.set('topIconConfig', iconConfig);
-        Bg.applyTopIconStyle(iconConfig);
-        updateIconStyle();
+        iconConfig.borderColor='#dcebff'; iconConfig.shadowColor='#dcebff'; iconConfig.borderW=1.5; iconConfig.shadow=4;
+        panel.querySelector('#bgDotUnified').style.background='#dcebff';
+        bSlider.value=1.5; panel.querySelector('#bgNewIconBorderVal').textContent='1.5px';
+        sSlider.value=4; panel.querySelector('#bgNewIconShadowVal').textContent='4px';
+        App.LS.set('topIconConfig', iconConfig); Bg.applyTopIconStyle(iconConfig); updateIconStyle();
         App.showToast('已恢复默认颜色');
       });
 
+      // --- 图标替换网格 ---
       var grid = panel.querySelector('#bgIconGridManager');
 
-      iconList.forEach(function(ic) {
+      iconList.forEach(function(ic){
+        var currentSrc = App.LS.get(ic.id) || ic.def;
         var box = document.createElement('div');
         box.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;-webkit-tap-highlight-color:transparent;';
-        box.innerHTML = 
+        box.innerHTML =
           '<div style="width:54px;height:54px;border-radius:14px;border:1px solid rgba(126,163,201,.3);overflow:hidden;background:#f5f5f5;box-shadow:0 4px 10px rgba(0,0,0,0.05);display:flex;align-items:center;justify-content:center;">' +
-            '<img src="' + App.escAttr(App.LS.get(ic.id) || ic.def) + '" style="width:100%;height:100%;object-fit:cover;display:block;' + noImgDrag + '">' +
+            '<img src="'+App.escAttr(currentSrc)+'" style="width:100%;height:100%;object-fit:cover;display:block;'+noImgDrag+'">' +
           '</div>' +
           '<div style="font-size:10px;font-weight:700;color:#5a7a9a;">'+ic.label+'</div>';
-        
-        box.addEventListener('click', function() {
-           var menu = document.createElement('div');
-           menu.style.cssText = 'position:fixed;inset:0;z-index:100030;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.35);';
-           menu.innerHTML = 
-             '<div style="background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-radius:14px;padding:20px;width:240px;box-shadow:0 8px 30px rgba(0,0,0,.15);display:flex;flex-direction:column;gap:10px;">' +
-               '<div style="font-size:13px;font-weight:700;color:#333;text-align:center;margin-bottom:4px;">' + ic.label + '</div>' +
-               '<button id="icUpload" type="button" style="padding:12px;border:1.5px solid #ddd;border-radius:10px;background:#fff;font-size:13px;font-weight:600;color:#333;cursor:pointer;">上传新图片</button>' +
-               '<button id="icDefault" type="button" style="padding:12px;border:1.5px solid #eee;border-radius:10px;background:#fafafa;font-size:13px;font-weight:600;color:#c9706b;cursor:pointer;">恢复默认图标</button>' +
-               '<button id="icCancel" type="button" style="padding:10px;border:none;background:none;font-size:12px;color:#999;cursor:pointer;">取消</button>' +
-             '</div>';
-           document.body.appendChild(menu);
-           
-           menu.addEventListener('click', function(e){ if(e.target===menu) menu.remove(); });
-           menu.querySelector('#icCancel').addEventListener('click', function(){ menu.remove(); });
-           
-           // 恢复默认：只更新链接，绝对不管缩放
-              menu.querySelector('#icDefault').addEventListener('click', function(){
-               menu.remove();
-               App.LS.remove(ic.id);
-               box.querySelector('img').src = ic.def;
-               
-               var tEl = document.querySelector(ic.target);
-               if(tEl) { tEl.src = ic.def; tEl.classList.remove('img-fill'); }
-               if(ic.live) {
-                   var liveImg = panel.querySelector(ic.live);
-                   if(liveImg) { liveImg.src = ic.def; }
-               }
-               App.showToast('已恢复默认图标');
-           });
 
-           // 上传新图：只更新链接，绝对不管缩放
-           menu.querySelector('#icUpload').addEventListener('click', function(){
-               menu.remove();
-               var ipt = document.createElement('input'); ipt.type = 'file'; ipt.accept = 'image/*';
-               ipt.onchange = function(e) {
-                  var f2 = e.target.files[0]; if(!f2) return;
-                  var rd = new FileReader();
-                  rd.onload = function(ev) {
-                      var process = function(c) {
-                        App.LS.set(ic.id, c);
-                        box.querySelector('img').src = c;
+        box.addEventListener('click', function(){
+          var menu = document.createElement('div');
+          menu.style.cssText = 'position:fixed;inset:0;z-index:100030;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.35);';
+          menu.innerHTML =
+            '<div style="background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-radius:14px;padding:20px;width:240px;box-shadow:0 8px 30px rgba(0,0,0,.15);display:flex;flex-direction:column;gap:10px;">' +
+              '<div style="font-size:13px;font-weight:700;color:#333;text-align:center;margin-bottom:4px;">'+ic.label+'</div>' +
+              '<button id="icUpload" type="button" style="padding:12px;border:1.5px solid #ddd;border-radius:10px;background:#fff;font-size:13px;font-weight:600;color:#333;cursor:pointer;">上传新图片</button>' +
+              '<button id="icDefault" type="button" style="padding:12px;border:1.5px solid #eee;border-radius:10px;background:#fafafa;font-size:13px;font-weight:600;color:#c9706b;cursor:pointer;">恢复默认图标</button>' +
+              '<button id="icCancel" type="button" style="padding:10px;border:none;background:none;font-size:12px;color:#999;cursor:pointer;">取消</button>' +
+            '</div>';
+          document.body.appendChild(menu);
 
-                        var tEl = document.querySelector(ic.target);
-                        if(tEl) { tEl.src = c; tEl.classList.add('img-fill'); }
-                        if(ic.live) {
-                          var liveImg = panel.querySelector(ic.live);
-                          if(liveImg) { liveImg.src = c; }
-                        }
-                        App.showToast(ic.label + ' 图标已更换');
-                     };
-                     if(App.cropImage) App.cropImage(ev.target.result, process);
-                     else process(ev.target.result);
-                  };
-                  rd.readAsDataURL(f2);
-               };
-               ipt.click();
-           });
+          menu.addEventListener('click', function(e){ if(e.target===menu) menu.remove(); });
+          menu.querySelector('#icCancel').addEventListener('click', function(){ menu.remove(); });
+
+          // ★ 恢复默认：删除存储 → 用硬编码默认图 → 去掉 img-fill 类名
+          menu.querySelector('#icDefault').addEventListener('click', function(){
+            menu.remove();
+            App.LS.remove(ic.id);
+            // 网格小图恢复
+            box.querySelector('img').src = ic.def;
+            // 页面上的真身恢复
+            var tEl = document.querySelector(ic.target);
+            if(tEl){ tEl.src = ic.def; tEl.classList.remove('img-fill'); }
+            // 预览台恢复
+            if(ic.live){ var liveImg = panel.querySelector(ic.live); if(liveImg) liveImg.src = ic.def; }
+            App.showToast('已恢复默认图标');
+          });
+
+          // ★ 上传新图：存储 → 更新所有位置 → 加上 img-fill 类名撑满
+          menu.querySelector('#icUpload').addEventListener('click', function(){
+            menu.remove();
+            var ipt = document.createElement('input'); ipt.type='file'; ipt.accept='image/*';
+            ipt.onchange = function(e){
+              var f2=e.target.files[0]; if(!f2) return;
+              var rd=new FileReader();
+              rd.onload = function(ev){
+                var process = function(c){
+                  App.LS.set(ic.id, c);
+                  // 网格小图
+                  box.querySelector('img').src = c;
+                  // 页面真身
+                  var tEl = document.querySelector(ic.target);
+                  if(tEl){ tEl.src = c; tEl.classList.add('img-fill'); }
+                  // 预览台
+                  if(ic.live){ var liveImg = panel.querySelector(ic.live); if(liveImg) liveImg.src = c; }
+                  App.showToast(ic.label+' 图标已更换');
+                };
+                if(App.cropImage) App.cropImage(ev.target.result, process);
+                else process(ev.target.result);
+              };
+              rd.readAsDataURL(f2);
+            };
+            ipt.click();
+          });
         });
         grid.appendChild(box);
       });
     },
 
-    applyBg: function(data) {
-       var layer = App.$('#bgLayer'); if(!layer) return;
-       if(data && data.src) {
-         layer.style.backgroundImage = 'url(' + data.src + ')';
-         layer.style.filter = 'blur(' + (data.blur||0) + 'px) brightness(' + (100 - (data.dark||0)) + '%)';
-       } else {
-         layer.style.backgroundImage = '';
-         layer.style.filter = 'blur(' + (data.blur||0) + 'px) brightness(' + (100 - (data.dark||0)) + '%)'; 
-       }
+    applyBg: function(data){
+      var layer = App.$('#bgLayer'); if(!layer) return;
+      if(data && data.src){
+        layer.style.backgroundImage = 'url('+data.src+')';
+        layer.style.filter = 'blur('+(data.blur||0)+'px) brightness('+(100-(data.dark||0))+'%)';
+      } else {
+        layer.style.backgroundImage = '';
+        layer.style.filter = '';
+      }
     },
 
-    applyTopIconStyle: function(cfg) {
+    applyTopIconStyle: function(cfg){
       var styleId = 'topIconDynamicStyle';
       var styleEl = document.getElementById(styleId);
-      if(!styleEl) { styleEl = document.createElement('style'); styleEl.id = styleId; document.head.appendChild(styleEl); }
-      
-      var bColor = cfg.borderColor || '#dcebff'; 
-      var sColor = cfg.shadowColor || '#adcdea'; 
-
-      styleEl.innerHTML = 
+      if(!styleEl){ styleEl = document.createElement('style'); styleEl.id = styleId; document.head.appendChild(styleEl); }
+      var bColor = cfg.borderColor || '#dcebff';
+      var sColor = cfg.shadowColor || '#dcebff';
+      styleEl.innerHTML =
         '.card-icon-img { ' +
-          'border: ' + cfg.borderW + 'px solid ' + bColor + ' !important; ' +
-          'box-shadow: ' + cfg.shadow + 'px ' + cfg.shadow + 'px 0 ' + sColor + ' !important; ' +
+          'border: '+cfg.borderW+'px solid '+bColor+' !important; ' +
+          'box-shadow: '+cfg.shadow+'px '+cfg.shadow+'px 0 '+sColor+' !important; ' +
           'border-radius: 15px !important; ' +
         '}';
     }
