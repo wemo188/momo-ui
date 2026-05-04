@@ -45,7 +45,7 @@
               '<div class="bm-title">悬浮助手</div>' +
               '<div class="bm-grid">' +
                 tkBlack('api', 'API', 'config') +
-                tkBlack('workshop', '工坊', 'studio') +
+                tkBlack('workshop', '美化', 'studio') +
                 tkBlack('character', '角色', 'role') +
                 tkBlack('preset', '预设', 'preset') +
                 tkBlack('worldbook', '世界书', 'lore') +
@@ -63,10 +63,10 @@
               '<div class="bm-title">美化工坊</div>' +
               '<div class="bm-grid">' +
                 tkWhite('theme', '主题', 'theme') +
-                tkWhite('font', '字体', 'font') +
-                tkWhite('bg', '背景', 'image') +
-                tkWhite('ballset', '悬浮球', 'float') +
-                tkWhite('resetLayout', '恢复', 'reset') +
+                tkWhite('font', '字体', '配置') +
+                tkWhite('bg', '背景', '图标') +
+                tkWhite('ballset', '悬浮球', '样式') +
+                tkWhite('resetLayout', '恢复', '布局') +
               '</div>' +
               '<div class="bm-bottom-line"></div>' +
             '</div>' +
