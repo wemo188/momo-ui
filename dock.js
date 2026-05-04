@@ -28,11 +28,10 @@
       };
       var bgRgb = hexToRgb(c.bgColor);
       style.innerHTML = 
-        '#dockBar { background: rgba(' + bgRgb + ',' + (c.bgAlpha/100) + ') !important; backdrop-filter: blur(' + c.blur + 'px) !important; -webkit-backdrop-filter: blur(' + c.blur + 'px) !important; }' +
-        '#dockBar .mk-card { border: ' + c.borderW + 'px solid ' + c.borderColor + ' !important; }'+
-        '.dock-item { -webkit-touch-callout: none !important; -webkit-user-select: none !important; user-select: none !important; }' +
-        '.mk-card img { pointer-events: none !important; -webkit-user-drag: none !important; }';
-    },
+  '#dockBar { background: rgba(' + bgRgb + ',' + (c.bgAlpha/100) + ') !important; backdrop-filter: blur(' + c.blur + 'px) !important; -webkit-backdrop-filter: blur(' + c.blur + 'px) !important; border: ' + c.borderW + 'px solid ' + c.borderColor + ' !important; }' +
+  '#dockBar .mk-card { border: ' + c.borderW + 'px solid ' + c.borderColor + ' !important; }'+
+  '.dock-item { -webkit-touch-callout: none !important; -webkit-user-select: none !important; user-select: none !important; }' +
+  '.mk-card img { pointer-events: none !important; -webkit-user-drag: none !important; }';
     openEdit: function() {
       var old = App.$('#dockEditOverlay'); if(old) old.remove();
       var cfgSnapshot = JSON.parse(JSON.stringify(Dock.config));
