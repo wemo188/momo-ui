@@ -30,9 +30,8 @@
         if (!FontDB.db) { reject('DB not ready'); return; }
         var tx = FontDB.db.transaction([FontDB.storeName], 'readwrite');
         var store = tx.objectStore(FontDB.storeName);
-        var request = store.put({ name: name, dataUrl: dataUrl, time: Date.now() });
-        request.onsuccess = function() { resolve(); };
-        request.onerror = function() { reject(request.error); };
+        store.put({ name: name, dataUrl: dataUrl, time: Date.now() }).onsuccess = function() { resolve(); };
+        store.put({ name: name, dataUrl: dataUrl, time: Date.now() }).onerror = function() { reject(); };
       });
     },
 
@@ -40,21 +39,9 @@
       return new Promise(function(resolve, reject) {
         if (!FontDB.db) { reject('DB not ready'); return; }
         var tx = FontDB.db.transaction([FontDB.storeName], 'readonly');
-        var store = tx.objectStore(FontDB.storeName);
-        var request = store.get(name);
-        request.onsuccess = function() { resolve(request.result); };
-        request.onerror = function() { reject(request.error); };
-      });
-    },
-
-    deleteFont: function(name) {
-      return new Promise(function(resolve, reject) {
-        if (!FontDB.db) { reject('DB not ready'); return; }
-        var tx = FontDB.db.transaction([FontDB.storeName], 'readwrite');
-        var store = tx.objectStore(FontDB.storeName);
-        var request = store.delete(name);
-        request.onsuccess = function() { resolve(); };
-        request.onerror = function() { reject(request.error); };
+        var req = tx.objectStore(FontDB.storeName).get(name);
+        req.onsuccess = function() { resolve(req.result); };
+        req.onerror = function() { reject(); };
       });
     }
   };
@@ -62,17 +49,13 @@
   // ============================
   //  文字卡片
   // ============================
+  var DRAG_DELAY = 500;
+
   var Eden = {
     data: {},
-    dragStartX: 0,
-    dragStartY: 0,
-    originalLeft: 0,
-    originalTop: 0,
-    isDragging: false,
-    dragTimer: null,
 
     DEFAULTS: {
-      text: '文字填写区域，可以多行',
+      text: '全世界 最好的你˶ᵒ ᵕ ˂˶️ಣ',
       fontSize: 38,
       rotate: 0,
       spacing: 2,
@@ -86,32 +69,25 @@
     load: function() {
       var saved = App.LS.get('edenCard');
       var d = Eden.DEFAULTS;
-      if (saved) {
-        Eden.data.text = saved.text != null ? saved.text : d.text;
-        Eden.data.fontSize = saved.fontSize != null ? saved.fontSize : d.fontSize;
-        Eden.data.rotate = saved.rotate != null ? saved.rotate : d.rotate;
-        Eden.data.spacing = saved.spacing != null ? saved.spacing : d.spacing;
-        Eden.data.fontColor = saved.fontColor || d.fontColor;
-        Eden.data.fontName = saved.fontName || '';
-        Eden.data.fontUrl = saved.fontUrl || '';
-        Eden.data.posX = saved.posX != null ? saved.posX : d.posX;
-        Eden.data.posY = saved.posY != null ? saved.posY : d.posY;
-      } else {
-        Eden.data = JSON.parse(JSON.stringify(d));
-      }
+      Eden.data = saved ? {
+        text: saved.text != null ? saved.text : d.text,
+        fontSize: saved.fontSize != null ? saved.fontSize : d.fontSize,
+        rotate: saved.rotate != null ? saved.rotate : d.rotate,
+        spacing: saved.spacing != null ? saved.spacing : d.spacing,
+        fontColor: saved.fontColor || d.fontColor,
+        fontName: saved.fontName || '',
+        fontUrl: saved.fontUrl || '',
+        posX: saved.posX != null ? saved.posX : d.posX,
+        posY: saved.posY != null ? saved.posY : d.posY
+      } : JSON.parse(JSON.stringify(d));
     },
 
-    save: function() {
-      App.LS.set('edenCard', Eden.data);
-    },
+    save: function() { App.LS.set('edenCard', Eden.data); },
 
     loadFontFromDB: function(fontName) {
       if (!fontName) return Promise.resolve(false);
       return FontDB.getFont(fontName).then(function(result) {
-        if (result && result.dataUrl) {
-          return Eden.loadFontFromUrl(result.dataUrl, fontName);
-        }
-        return false;
+        return result && result.dataUrl ? Eden.loadFontFromUrl(result.dataUrl, fontName) : false;
       }).catch(function() { return false; });
     },
 
@@ -123,24 +99,20 @@
         var textEl = App.$('#edenText');
         if (textEl) textEl.style.fontFamily = "'" + fontName + "', cursive";
         return true;
-      }).catch(function() {
-        return false;
-      });
+      }).catch(function() { return false; });
     },
 
     uploadAndSaveFont: function(file) {
-      var self = this;
       return new Promise(function(resolve, reject) {
         var reader = new FileReader();
         reader.onload = function(ev) {
           var dataUrl = ev.target.result;
           var fontName = 'EdenFont_' + Date.now() + '_' + file.name.replace(/[^a-zA-Z0-9]/g, '_');
-          
           FontDB.saveFont(fontName, dataUrl).then(function() {
-            self.loadFontFromUrl(dataUrl, fontName).then(function() {
-              self.data.fontName = fontName;
-              self.data.fontUrl = '';
-              self.save();
+            Eden.loadFontFromUrl(dataUrl, fontName).then(function() {
+              Eden.data.fontName = fontName;
+              Eden.data.fontUrl = '';
+              Eden.save();
               resolve(fontName);
             }).catch(reject);
           }).catch(reject);
@@ -161,254 +133,242 @@
       el.style.color = d.fontColor || '#1a1a1a';
       el.style.whiteSpace = 'pre-wrap';
       el.style.wordBreak = 'break-word';
-      
+
       var card = App.$('#edenCard');
       if (card && (d.posX || d.posY)) {
         card.style.transform = 'translate(' + d.posX + 'px, ' + d.posY + 'px)';
       }
-      
-      if (d.fontName) {
-        Eden.loadFontFromDB(d.fontName);
-      } else if (d.fontUrl) {
-        Eden.loadFontFromUrl(d.fontUrl);
-      }
+
+      if (d.fontName) Eden.loadFontFromDB(d.fontName);
+      else if (d.fontUrl) Eden.loadFontFromUrl(d.fontUrl);
     },
 
     bindDrag: function() {
       var card = App.$('#edenCard');
       if (!card) return;
-      
       var startX, startY, startPosX, startPosY, longPressed = false, timer, moved = false;
-      
+
       card.addEventListener('touchstart', function(e) {
         if (e.target.closest('.eden-ctrl-wrap')) return;
-        
         var touch = e.touches[0];
         startX = touch.clientX;
         startY = touch.clientY;
         longPressed = false;
         moved = false;
-        
-        var transform = card.style.transform;
-        var match = transform.match(/translate\(([-\d.]+)px,\s*([-\d.]+)px\)/);
+        var match = (card.style.transform || '').match(/translate\(([-\d.]+)px,\s*([-\d.]+)px\)/);
         startPosX = match ? parseFloat(match[1]) : (Eden.data.posX || 0);
         startPosY = match ? parseFloat(match[2]) : (Eden.data.posY || 0);
-        
         timer = setTimeout(function() {
           longPressed = true;
           card.classList.add('dragging');
           if (navigator.vibrate) navigator.vibrate(15);
-        }, 500);
+        }, DRAG_DELAY);
       }, { passive: true });
-      
+
       card.addEventListener('touchmove', function(e) {
         var touch = e.touches[0];
         if (timer && !longPressed) {
-          if (Math.abs(touch.clientX - startX) > 8 || Math.abs(touch.clientY - startY) > 8) {
-            clearTimeout(timer);
-            timer = null;
-          }
+          if (Math.abs(touch.clientX - startX) > 8 || Math.abs(touch.clientY - startY) > 8) { clearTimeout(timer); timer = null; }
           return;
         }
         if (!longPressed) return;
-        
         e.preventDefault();
         moved = true;
-        
-        var dx = touch.clientX - startX;
-        var dy = touch.clientY - startY;
-        var newX = startPosX + dx;
-        var newY = startPosY + dy;
-        
-        card.style.transform = 'translate(' + newX + 'px, ' + newY + 'px)';
-        Eden.data.posX = newX;
-        Eden.data.posY = newY;
+        card.style.transform = 'translate(' + (startPosX + touch.clientX - startX) + 'px, ' + (startPosY + touch.clientY - startY) + 'px)';
+        Eden.data.posX = startPosX + touch.clientX - startX;
+        Eden.data.posY = startPosY + touch.clientY - startY;
       }, { passive: false });
-      
+
       card.addEventListener('touchend', function(e) {
         clearTimeout(timer);
         timer = null;
         card.classList.remove('dragging');
-        
-        if (longPressed && moved) {
-          Eden.save();
-          e.stopPropagation();
-        }
+        if (longPressed && moved) { Eden.save(); e.stopPropagation(); }
         longPressed = false;
         moved = false;
       });
     },
 
     openEdit: function() {
-  var old = App.$('#edenCtrlWrap');
-  if (old) { old.remove(); return; }
+      var old = App.$('#edenEditOverlay');
+      if (old) { old.remove(); return; }
 
-  // 强制重新加载最新保存的数据
-  var saved = App.LS.get('edenCard');
-  if (saved) {
-    Eden.data.text = saved.text != null ? saved.text : Eden.DEFAULTS.text;
-    Eden.data.fontSize = saved.fontSize != null ? saved.fontSize : Eden.DEFAULTS.fontSize;
-    Eden.data.rotate = saved.rotate != null ? saved.rotate : Eden.DEFAULTS.rotate;
-    Eden.data.spacing = saved.spacing != null ? saved.spacing : Eden.DEFAULTS.spacing;
-    Eden.data.fontColor = saved.fontColor || Eden.DEFAULTS.fontColor;
-    Eden.data.fontName = saved.fontName || '';
-    Eden.data.fontUrl = saved.fontUrl || '';
-  }
+      // 重新加载最新数据
+      var saved = App.LS.get('edenCard');
+      if (saved) {
+        Object.keys(Eden.DEFAULTS).forEach(function(k) {
+          Eden.data[k] = saved[k] != null ? saved[k] : Eden.DEFAULTS[k];
+        });
+      }
 
-  var d = Eden.data;
-  var wrap = document.createElement('div');
-  wrap.id = 'edenCtrlWrap';
-  wrap.className = 'eden-ctrl-wrap';
-  wrap.innerHTML =
-    '<div class="eden-ctrl-panel">' +
-      '<div class="eden-ctrl-title">文字卡片</div>' +
+      var d = Eden.data;
 
-      '<div class="eden-ctrl-section">内容</div>' +
+      var overlay = document.createElement('div');
+      overlay.id = 'edenEditOverlay';
+      overlay.className = 'pc-edit-overlay';
 
-      '<div class="eden-ctrl-row">' +
-        '<label>字体</label>' +
-        '<input type="text" id="edenFontUrl" placeholder="字体URL（留空用全局字体）" value="' + App.esc(d.fontUrl || '') + '">' +
-        '<label class="eden-font-upload-btn" for="edenFontFile">' +
-          '<svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>' +
-        '</label>' +
-        '<input type="file" id="edenFontFile" accept=".ttf,.otf,.woff,.woff2" hidden>' +
-      '</div>' +
+      var panel = document.createElement('div');
+      panel.className = 'pc-edit-panel';
+      panel.style.width = '280px';
+      panel.style.height = 'auto';
+      panel.style.maxHeight = '420px';
 
-      '<div class="eden-ctrl-row">' +
-        '<label>文字</label>' +
-        '<textarea id="edenTextInput" rows="3" placeholder="输入显示的文字（支持换行）..." style="flex:1; padding:8px 10px; font-size:13px; color:#1a1a1a; background:#f5f5f5; border:1px solid rgba(0,0,0,0.06); border-radius:8px; outline:none; font-family:inherit; resize:vertical;">' + App.esc(d.text || '') + '</textarea>' +
-      '</div>' +
+      panel.innerHTML =
+        '<div class="pc-header">文字卡片<div class="pc-close-btn" id="edenCloseBtn">×</div></div>' +
+        '<div class="pc-body" style="gap:8px;">' +
 
-      '<div class="eden-ctrl-divider"></div>' +
-      '<div class="eden-ctrl-section">样式</div>' +
+          '<div class="pc-group"><span class="pc-label">文字内容</span>' +
+            '<textarea id="edenTextInput" rows="2" style="width:100%;padding:7px 10px;font-size:12px;color:#000;background:rgba(255,255,255,0.5);border:1px solid rgba(0,0,0,0.15);border-radius:8px;outline:none;font-family:inherit;resize:vertical;box-sizing:border-box;">' + App.esc(d.text || '') + '</textarea>' +
+          '</div>' +
 
-      '<div class="eden-ctrl-row">' +
-        '<label>字号</label>' +
-        '<input type="range" id="edenSize" min="14" max="60" value="' + (d.fontSize || 28) + '">' +
-        '<span class="eden-ctrl-val" id="edenSizeVal">' + (d.fontSize || 28) + 'px</span>' +
-      '</div>' +
+          '<div class="pc-group"><span class="pc-label">字体</span>' +
+            '<div style="display:flex;gap:6px;align-items:center;">' +
+              '<input type="text" class="pc-input" id="edenFontUrl" placeholder="字体URL（留空用全局）" value="' + App.esc(d.fontUrl || '') + '" style="flex:1;">' +
+              '<label style="width:30px;height:30px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.5);border:1px solid rgba(0,0,0,0.15);border-radius:8px;cursor:pointer;flex-shrink:0;" for="edenFontFile">' +
+                '<svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:#000;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>' +
+              '</label>' +
+              '<input type="file" id="edenFontFile" accept=".ttf,.otf,.woff,.woff2" hidden>' +
+            '</div>' +
+          '</div>' +
 
-      '<div class="eden-ctrl-row">' +
-        '<label>倾斜</label>' +
-        '<input type="range" id="edenRotate" min="-20" max="20" value="' + (d.rotate || 0) + '">' +
-        '<span class="eden-ctrl-val" id="edenRotateVal">' + (d.rotate || 0) + '°</span>' +
-      '</div>' +
+          '<div class="pc-group"><span class="pc-label">字号</span>' +
+            '<div class="pc-slider-row"><input type="range" class="pc-slider" id="edenSize" min="14" max="60" value="' + (d.fontSize || 28) + '"><span class="pc-slider-val" id="edenSizeVal">' + (d.fontSize || 28) + 'px</span></div>' +
+          '</div>' +
 
-      '<div class="eden-ctrl-row">' +
-        '<label>间距</label>' +
-        '<input type="range" id="edenSpacing" min="0" max="20" value="' + (d.spacing || 2) + '">' +
-        '<span class="eden-ctrl-val" id="edenSpacingVal">' + (d.spacing || 2) + 'px</span>' +
-      '</div>' +
+          '<div class="pc-group"><span class="pc-label">倾斜</span>' +
+            '<div class="pc-slider-row"><input type="range" class="pc-slider" id="edenRotate" min="-20" max="20" value="' + (d.rotate || 0) + '"><span class="pc-slider-val" id="edenRotateVal">' + (d.rotate || 0) + '°</span></div>' +
+          '</div>' +
 
-      '<div class="eden-ctrl-row">' +
-        '<label>字色</label>' +
-        '<input type="color" id="edenColor" value="' + (d.fontColor || '#1a1a1a') + '">' +
-      '</div>' +
+          '<div class="pc-group"><span class="pc-label">间距</span>' +
+            '<div class="pc-slider-row"><input type="range" class="pc-slider" id="edenSpacing" min="0" max="20" value="' + (d.spacing || 2) + '"><span class="pc-slider-val" id="edenSpacingVal">' + (d.spacing || 2) + 'px</span></div>' +
+          '</div>' +
 
-      '<div class="eden-ctrl-btns">' +
-        '<button class="eden-ctrl-save" id="edenSave" type="button">保存</button>' +
-        '<button class="eden-ctrl-reset" id="edenReset" type="button">重置</button>' +
-      '</div>' +
-    '</div>';
+          '<div class="pc-group"><span class="pc-label">字色</span>' +
+            '<div class="pc-dot" id="edenColorDot" style="background:' + (d.fontColor || '#1a1a1a') + ';width:28px;height:28px;border-radius:8px;"></div>' +
+          '</div>' +
 
-  document.body.appendChild(wrap);
+        '</div>' +
+        '<div class="pc-footer">' +
+          '<button class="pc-btn pc-btn-save" id="edenSave" type="button">保 存</button>' +
+          '<button class="pc-btn pc-btn-cancel" id="edenReset" type="button">重 置</button>' +
+        '</div>';
 
-  wrap.addEventListener('touchstart', function(e) { e.stopPropagation(); }, { passive: false });
-  wrap.addEventListener('touchmove', function(e) { e.stopPropagation(); }, { passive: false });
+      overlay.appendChild(panel);
+      document.body.appendChild(overlay);
 
-  App.$('#edenFontFile').addEventListener('change', function(e) {
-    var file = e.target.files[0];
-    if (!file) return;
-    App.showToast('上传中...');
-    Eden.uploadAndSaveFont(file).then(function(fontName) {
-      App.$('#edenFontUrl').value = '(已保存) ' + file.name;
-      App.showToast('字体已保存，刷新不会丢失');
-    }).catch(function() {
-      App.showToast('上传失败');
-    });
-  });
-
-  function getCfg() {
-    return {
-      text: App.$('#edenTextInput').value,
-      fontSize: parseInt(App.$('#edenSize').value),
-      rotate: parseInt(App.$('#edenRotate').value),
-      spacing: parseInt(App.$('#edenSpacing').value),
-      fontColor: App.$('#edenColor').value,
-      fontUrl: App.$('#edenFontUrl').value.trim()
-    };
-  }
-
-  function updateLabels() {
-    App.$('#edenSizeVal').textContent = App.$('#edenSize').value + 'px';
-    App.$('#edenRotateVal').textContent = App.$('#edenRotate').value + '°';
-    App.$('#edenSpacingVal').textContent = App.$('#edenSpacing').value + 'px';
-  }
-
-  function preview() {
-    updateLabels();
-    var cfg = getCfg();
-    var el = App.$('#edenText');
-    if (!el) return;
-    el.textContent = cfg.text || '';
-    el.style.fontSize = cfg.fontSize + 'px';
-    el.style.transform = 'rotate(' + cfg.rotate + 'deg)';
-    el.style.letterSpacing = cfg.spacing + 'px';
-    el.style.color = cfg.fontColor;
-    el.style.whiteSpace = 'pre-wrap';
-    el.style.wordBreak = 'break-word';
-  }
-
-  ['edenSize', 'edenRotate', 'edenSpacing', 'edenColor', 'edenTextInput'].forEach(function(id) {
-    var el = App.$('#' + id);
-    if (el) el.addEventListener('input', preview);
-  });
-
-  App.$('#edenFontUrl').addEventListener('change', function() {
-    var url = this.value.trim();
-    if (url && !url.startsWith('(已保存)')) {
-      Eden.loadFontFromUrl(url);
-    }
-  });
-
-  App.$('#edenSave').addEventListener('click', function() {
-    var cfg = getCfg();
-    if (cfg.fontUrl && !cfg.fontUrl.startsWith('(已保存)')) {
-      Eden.data.fontName = '';
-      Eden.data.fontUrl = cfg.fontUrl;
-    }
-    Eden.data.text = cfg.text;
-    Eden.data.fontSize = cfg.fontSize;
-    Eden.data.rotate = cfg.rotate;
-    Eden.data.spacing = cfg.spacing;
-    Eden.data.fontColor = cfg.fontColor;
-    Eden.save();
-    Eden.apply();
-    wrap.remove();
-    App.showToast('已保存');
-  });
-
-  App.$('#edenReset').addEventListener('click', function() {
-    Eden.data = JSON.parse(JSON.stringify(Eden.DEFAULTS));
-    Eden.save();
-    Eden.apply();
-    wrap.remove();
-    App.showToast('已重置');
-  });
-
-  setTimeout(function() {
-    function dismiss(e) {
-      if (wrap.contains(e.target)) return;
+      // 定位到卡片附近
       var edenCard = App.$('#edenCard');
-      if (edenCard && edenCard.contains(e.target)) return;
-      wrap.remove();
-      document.removeEventListener('touchstart', dismiss, true);
-      document.removeEventListener('click', dismiss);
-    }
-    document.addEventListener('touchstart', dismiss, true);
-    document.addEventListener('click', dismiss);
-  }, 100);
-},
+      if (edenCard) {
+        var rect = edenCard.getBoundingClientRect();
+        var left = rect.left + rect.width / 2 - 140;
+        if (left < 8) left = 8;
+        if (left + 280 > window.innerWidth - 8) left = window.innerWidth - 288;
+        var top = rect.bottom + 8;
+        if (top + 420 > window.innerHeight - 10) top = Math.max(10, rect.top - 430);
+        panel.style.left = left + 'px';
+        panel.style.top = top + 'px';
+      }
+
+      // 拖拽面板
+      if (App.modules.cards && App.modules.cards._bindPanelDrag) {
+        App.modules.cards._bindPanelDrag(panel);
+      }
+
+      // 当前字色
+      var currentFontColor = d.fontColor || '#1a1a1a';
+
+      // 字体上传
+      panel.querySelector('#edenFontFile').addEventListener('change', function(e) {
+        var file = e.target.files[0];
+        if (!file) return;
+        App.showToast('上传中...');
+        Eden.uploadAndSaveFont(file).then(function() {
+          panel.querySelector('#edenFontUrl').value = '(已保存) ' + file.name;
+          App.showToast('字体已保存');
+        }).catch(function() { App.showToast('上传失败'); });
+      });
+
+      // 实时预览
+      function preview() {
+        panel.querySelector('#edenSizeVal').textContent = panel.querySelector('#edenSize').value + 'px';
+        panel.querySelector('#edenRotateVal').textContent = panel.querySelector('#edenRotate').value + '°';
+        panel.querySelector('#edenSpacingVal').textContent = panel.querySelector('#edenSpacing').value + 'px';
+        var el = App.$('#edenText');
+        if (!el) return;
+        el.textContent = panel.querySelector('#edenTextInput').value || '';
+        el.style.fontSize = panel.querySelector('#edenSize').value + 'px';
+        el.style.transform = 'rotate(' + panel.querySelector('#edenRotate').value + 'deg)';
+        el.style.letterSpacing = panel.querySelector('#edenSpacing').value + 'px';
+        el.style.color = currentFontColor;
+        el.style.whiteSpace = 'pre-wrap';
+        el.style.wordBreak = 'break-word';
+      }
+
+      ['edenSize', 'edenRotate', 'edenSpacing', 'edenTextInput'].forEach(function(id) {
+        var el = panel.querySelector('#' + id);
+        if (el) el.addEventListener('input', preview);
+      });
+
+      // 字色用调色盘
+      panel.querySelector('#edenColorDot').addEventListener('click', function(e) {
+        e.stopPropagation();
+        if (!App.openColorPicker) return;
+        App.openColorPicker(currentFontColor, function(hex) {
+          currentFontColor = hex;
+          panel.querySelector('#edenColorDot').style.background = hex;
+          preview();
+        }, function(hex) {
+          currentFontColor = hex;
+          panel.querySelector('#edenColorDot').style.background = hex;
+          preview();
+        }, 'eden_fontColor');
+      });
+
+      // 字体URL
+      panel.querySelector('#edenFontUrl').addEventListener('change', function() {
+        var url = this.value.trim();
+        if (url && !url.startsWith('(已保存)')) Eden.loadFontFromUrl(url);
+      });
+
+      // 保存
+      panel.querySelector('#edenSave').addEventListener('click', function(e) {
+        e.stopPropagation();
+        var fontUrl = panel.querySelector('#edenFontUrl').value.trim();
+        if (fontUrl && !fontUrl.startsWith('(已保存)')) {
+          Eden.data.fontName = '';
+          Eden.data.fontUrl = fontUrl;
+        }
+        Eden.data.text = panel.querySelector('#edenTextInput').value;
+        Eden.data.fontSize = parseInt(panel.querySelector('#edenSize').value);
+        Eden.data.rotate = parseInt(panel.querySelector('#edenRotate').value);
+        Eden.data.spacing = parseInt(panel.querySelector('#edenSpacing').value);
+        Eden.data.fontColor = currentFontColor;
+        Eden.save();
+        Eden.apply();
+        overlay.remove();
+        App.showToast('已保存');
+      });
+
+      // 重置
+      panel.querySelector('#edenReset').addEventListener('click', function(e) {
+        e.stopPropagation();
+        Eden.data = JSON.parse(JSON.stringify(Eden.DEFAULTS));
+        Eden.save();
+        Eden.apply();
+        overlay.remove();
+        App.showToast('已重置');
+      });
+
+      // 关闭
+      panel.querySelector('#edenCloseBtn').addEventListener('click', function(e) {
+        e.stopPropagation();
+        overlay.remove();
+      });
+
+      overlay.addEventListener('click', function(e) {
+        if (e.target === overlay) overlay.remove();
+      });
+    },
 
     init: function() {
       FontDB.init().then(function() {
@@ -416,28 +376,23 @@
         Eden.apply();
         Eden.bindDrag();
         var el = App.$('#edenCard');
-        if (el) {
-          el.addEventListener('click', function(e) {
-            if (Eden.isDragging) return;
-            e.stopPropagation();
-            Eden.openEdit();
-          });
-        }
+        if (el) el.addEventListener('click', function(e) {
+          e.stopPropagation();
+          Eden.openEdit();
+        });
       }).catch(function() {
         Eden.load();
         Eden.apply();
         Eden.bindDrag();
         var el = App.$('#edenCard');
-        if (el) {
-          el.addEventListener('click', function(e) {
-            if (Eden.isDragging) return;
-            e.stopPropagation();
-            Eden.openEdit();
-          });
-        }
+        if (el) el.addEventListener('click', function(e) {
+          e.stopPropagation();
+          Eden.openEdit();
+        });
       });
     }
   };
 
   App.register('eden', Eden);
 })();
+
