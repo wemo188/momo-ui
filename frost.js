@@ -163,7 +163,7 @@
         '<div class="pc-header">文字卡片<div class="pc-close-btn" id="edenCloseBtn">×</div></div>' +
         '<div class="pc-body" style="gap:8px;">' +
           '<div class="pc-group"><span class="pc-label">文字内容</span>' +
-            '<textarea id="edenTextInput" rows="2" style="width:100%;padding:7px 10px;font-size:12px;color:#000;background:rgba(255,255,255,0.5);border:1px solid rgba(0,0,0,0.15);border-radius:8px;outline:none;font-family:inherit;resize:vertical;box-sizing:border-box;">' + App.esc(d.text || '') + '</textarea>' +
+            '<textarea id="edenTextInput" rows="4" style="width:100%;padding:7px 10px;font-size:12px;color:#000;background:rgba(255,255,255,0.5);border:1px solid rgba(0,0,0,0.15);border-radius:8px;outline:none;font-family:inherit;resize:vertical;box-sizing:border-box;">' + App.esc(d.text || '') + '</textarea>' +
           '</div>' +
           '<div class="pc-group"><span class="pc-label">字体</span>' +
             '<select id="edenFontSelect" style="width:100%;padding:7px 10px;font-size:12px;color:#000;background:rgba(255,255,255,0.5);border:1px solid rgba(0,0,0,0.15);border-radius:8px;outline:none;font-family:inherit;-webkit-appearance:none;appearance:none;cursor:pointer;">' +
@@ -294,9 +294,19 @@
     init: function() {
       Eden.load(); Eden.apply(); Eden.bindDrag();
       var el = App.$('#edenCard');
-      if (el) el.addEventListener('click', function(e) {
-        e.stopPropagation(); Eden.openEdit();
-      });
+if (el) {
+  var _tapCount = 0, _tapTimer = null;
+  el.addEventListener('click', function(e) {
+    e.stopPropagation();
+    _tapCount++;
+    if (_tapCount === 1) {
+      _tapTimer = setTimeout(function() { _tapCount = 0; }, 350);
+    } else if (_tapCount >= 2) {
+      clearTimeout(_tapTimer);
+      _tapCount = 0;
+      Eden.openEdit();
+    }
+  });
     }
   };
 
