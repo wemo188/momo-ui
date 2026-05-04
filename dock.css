@@ -39,6 +39,7 @@
 
 #dockBar.hide-labels .dock-item {
   gap: 0;
+  justify-content: center;
 }
 
 .dock-label {
