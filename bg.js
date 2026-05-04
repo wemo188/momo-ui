@@ -125,8 +125,8 @@
         { id: 'customIcon_lt', label: '论坛', target: '#cardIcon2 img', def: getOrigSrc('#cardIcon2 img') },
         { id: 'customIcon_dockMine', label: 'User', target: '#dockMine img', def: getOrigSrc('#dockMine img') },
         { id: 'customIcon_dockLong', label: 'Char', target: '#dockLong img', def: getOrigSrc('#dockLong img') },
-        { id: 'customIcon_dockShort', label: '聊天', target: '#dockShort img', def: getOrigSrc('#dockShort img') },
-        { id: 'customIcon_dockCheck', label: '线下', target: '#dockCheck img', def: getOrigSrc('#dockCheck img') }
+        { id: 'customIcon_dockCheck', label: '线下', target: '#dockCheck img', def: getOrigSrc('#dockCheck img') },
+        { id: 'customIcon_dockShort', label: '微信', target: '#dockShort img', def: getOrigSrc('#dockShort img') }
       ];
       grid.innerHTML = icons.map(function(ic) {
         var src = App.LS.get(ic.id) || ic.def;
