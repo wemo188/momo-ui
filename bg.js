@@ -9,10 +9,12 @@
       var bgData = App.LS.get('bgData') || {};
       Bg.applyBg(bgData);
       
-      var iconConfig = App.LS.get('topIconConfig') || { borderW: 1.5, shadow: 4 };
+      // 加入了颜色配置，兼容之前的旧数据
+      var iconConfig = App.LS.get('topIconConfig') || { borderW: 1.5, shadow: 4, borderColor: '#dcebff', shadowColor: '#adcdea' };
+      if(!iconConfig.borderColor) iconConfig.borderColor = '#dcebff';
+      if(!iconConfig.shadowColor) iconConfig.shadowColor = '#adcdea';
       Bg.applyTopIconStyle(iconConfig);
 
-      // 2. 改造面板为标准全屏
       var panel = App.$('#bgPanel');
       if(!panel) return;
       
@@ -28,10 +30,14 @@
         d4: App.LS.get('customIcon_dockCheck') || 'https://iili.io/BghjowQ.md.jpg'
       };
 
+      // 防长按菜单的神圣护甲 CSS，用于所有 img
+      var noImgDrag = 'pointer-events:none; -webkit-touch-callout:none; user-select:none; -webkit-user-drag:none;';
+
       // 注入全屏 HTML
       panel.innerHTML = 
         '<div style="display:flex;align-items:center;justify-content:space-between;padding:56px 16px 12px;background:#fff;border-bottom:1px solid rgba(126,163,201,.2);flex-shrink:0;z-index:10;">' +
-          '<button id="bgCloseBtnTop" style="width:36px;height:36px;display:flex;align-items:center;justify-content:center;background:none;border:none;cursor:pointer;-webkit-tap-highlight-color:transparent;"><svg viewBox="0 0 24 24" style="width:22px;height:22px;fill:none;stroke:#7a9ab8;stroke-width:2.5;stroke-linecap:round;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>' +
+          '<!-- ★ 这里换成了极其酷炫的关机符号 -->' +
+          '<button id="bgCloseBtnTop" style="width:36px;height:36px;display:flex;align-items:center;justify-content:center;background:none;border:none;cursor:pointer;-webkit-tap-highlight-color:transparent;"><svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:none;stroke:#7a9ab8;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg></button>' +
           '<span style="font-size:16px;font-weight:800;color:#2e4258;letter-spacing:1px;">背景与图标管理</span>' +
           '<div style="width:36px;"></div>' +
         '</div>' +
@@ -44,7 +50,7 @@
             '<div id="bgNewUploadArea" style="width:100%;height:54px;border:2px dashed rgba(126,163,201,.4);border-radius:12px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:13px;font-weight:700;color:#7a9ab8;cursor:pointer;background:rgba(126,163,201,.05);margin-bottom:16px;-webkit-tap-highlight-color:transparent;"><svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>点击上传并裁剪新壁纸</div>' +
             
             '<div id="bgNewPreview" style="width:100%;height:220px;border-radius:12px;overflow:hidden;margin-bottom:16px;border:1px solid #eee;display:none;background:#111;position:relative;">' +
-               '<img id="bgNewPreviewImg" style="width:100%;height:100%;object-fit:cover;display:block;transform:scale(1.05);">' +
+               '<img id="bgNewPreviewImg" style="width:100%;height:100%;object-fit:cover;display:block;transform:scale(1.05);' + noImgDrag + '">' +
             '</div>' +
             
             '<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">' +
@@ -60,14 +66,29 @@
             '<button id="bgNewRemoveBtn" type="button" style="width:100%;padding:12px;border:1.5px solid rgba(201,112,107,.4);border-radius:10px;background:rgba(201,112,107,.05);color:#c9706b;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent;">移除背景墙纸</button>' +
           '</div>' +
 
-          '<!-- 模块二：上侧图标硬阴影预览台 -->' +
+          '<!-- 模块二：上侧图标硬阴影与颜色预览台 -->' +
           '<div style="background:#fff;border-radius:16px;padding:20px;margin-bottom:16px;box-shadow:0 4px 20px rgba(126,163,201,.08);border:1px solid rgba(126,163,201,.15);">' +
-            '<div style="font-size:14px;font-weight:800;color:#2e4258;margin-bottom:12px;display:flex;align-items:center;gap:6px;"><div style="width:4px;height:12px;background:#88abda;border-radius:2px;"></div>上侧图标框线与阴影</div>' +
+            '<div style="font-size:14px;font-weight:800;color:#2e4258;margin-bottom:12px;display:flex;align-items:center;gap:6px;"><div style="width:4px;height:12px;background:#88abda;border-radius:2px;"></div>上侧图标样式</div>' +
             
             '<!-- 预览台 -->' +
             '<div style="background:linear-gradient(135deg,#f0f5fa,#e1edf7);border-radius:14px;padding:30px 0 40px;display:flex;justify-content:center;gap:40px;margin-bottom:20px;border:1px solid rgba(126,163,201,.2);box-shadow:inset 0 4px 12px rgba(0,0,0,0.02);">' +
-               '<div id="bgLiveIcon1" style="width:65px;height:65px;border-radius:15px;background:#fff;transition:all 0.1s;"><img src="'+iconDef.cg+'" style="width:100%;height:100%;object-fit:cover;border-radius:15px;pointer-events:none;"></div>' +
-               '<div id="bgLiveIcon2" style="width:65px;height:65px;border-radius:15px;background:#fff;transition:all 0.1s;"><img src="'+iconDef.lt+'" style="width:100%;height:100%;object-fit:cover;border-radius:15px;pointer-events:none;"></div>' +
+               '<div id="bgLiveIcon1" style="width:65px;height:65px;border-radius:15px;background:#fff;transition:all 0.1s;"><img src="'+iconDef.cg+'" style="width:100%;height:100%;object-fit:cover;border-radius:15px;' + noImgDrag + '"></div>' +
+               '<div id="bgLiveIcon2" style="width:65px;height:65px;border-radius:15px;background:#fff;transition:all 0.1s;"><img src="'+iconDef.lt+'" style="width:100%;height:100%;object-fit:cover;border-radius:15px;' + noImgDrag + '"></div>' +
+            '</div>' +
+
+            '<!-- ★ 颜色设置区 -->' +
+            '<div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">' +
+              '<span style="font-size:12px;font-weight:700;color:#5a7a9a;width:50px;">颜色设置</span>' +
+              '<div style="display:flex;gap:16px;">' +
+                '<div style="display:flex;flex-direction:column;align-items:center;gap:6px;">' +
+                  '<div id="bgDotBorder" style="width:24px;height:24px;border-radius:50%;border:1.5px solid rgba(0,0,0,0.1);background:'+iconConfig.borderColor+';cursor:pointer;-webkit-tap-highlight-color:transparent;"></div>' +
+                  '<span style="font-size:9px;font-weight:700;color:#555;">边框色</span>' +
+                '</div>' +
+                '<div style="display:flex;flex-direction:column;align-items:center;gap:6px;">' +
+                  '<div id="bgDotShadow" style="width:24px;height:24px;border-radius:50%;border:1.5px solid rgba(0,0,0,0.1);background:'+iconConfig.shadowColor+';cursor:pointer;-webkit-tap-highlight-color:transparent;"></div>' +
+                  '<span style="font-size:9px;font-weight:700;color:#555;">阴影色</span>' +
+                '</div>' +
+              '</div>' +
             '</div>' +
 
             '<div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">' +
@@ -107,7 +128,6 @@
       var _sw = {active: false, sx: 0, sy: 0, locked: false, dir: ''};
       panel.addEventListener('touchstart', function(e){
         var t = e.touches[0];
-        // 只有从屏幕左侧边缘 (<= 50px) 向右滑才生效
         if(t.clientX - panel.getBoundingClientRect().left > 50) return;
         _sw = {active: true, sx: t.clientX, sy: t.clientY, locked: false, dir: ''};
       }, {passive: true});
@@ -178,10 +198,9 @@
                pImg.src = c; pBox.style.display = 'block';
                applyLiveFilter(currentData.blur||0, currentData.dark||30);
                
-               Bg.applyBg(currentData); // 瞬间上主墙！
+               Bg.applyBg(currentData); // 瞬间上主墙
                App.showToast('背景已更换');
             };
-            // 强制裁剪
             if(App.cropImage) App.cropImage(ev.target.result, process);
             else process(ev.target.result);
          };
@@ -196,10 +215,8 @@
          panel.querySelector('#bgNewBlurVal').textContent = blurV + 'px';
          panel.querySelector('#bgNewDarkVal').textContent = darkV + '%';
          
-         // 实时改变内部预览
          applyLiveFilter(blurV, darkV);
 
-         // 实时改变外层真实背景
          var data = App.LS.get('bgData') || {};
          data.blur = blurV; data.dark = darkV;
          App.LS.set('bgData', data);
@@ -215,18 +232,16 @@
          App.showToast('背景已移除');
       });
 
-      // 4. 上侧图标的硬阴影与边框控制
+      // 4. 上侧图标的硬阴影、边框控制及颜色配置
       var bSlider = panel.querySelector('#bgNewIconBorder');
       var sSlider = panel.querySelector('#bgNewIconShadow');
       var live1 = panel.querySelector('#bgLiveIcon1');
       var live2 = panel.querySelector('#bgLiveIcon2');
 
-      // 组装硬阴影和边框的 CSS 字符串
-      var getShadowCss = function(w, s) {
-        var borderColor = 'rgba(220,235,255,0.9)'; 
-        var shadowColor = 'rgba(173,205,234,0.9)'; 
-        return 'border: ' + w + 'px solid ' + borderColor + '; ' +
-               'box-shadow: ' + s + 'px ' + s + 'px 0 ' + shadowColor + '; ';
+      // 获取动态 CSS
+      var getShadowCss = function(w, s, bC, sC) {
+        return 'border: ' + w + 'px solid ' + bC + '; ' +
+               'box-shadow: ' + s + 'px ' + s + 'px 0 ' + sC + '; ';
       };
 
       var updateIconStyle = function() {
@@ -234,14 +249,15 @@
         panel.querySelector('#bgNewIconBorderVal').textContent = w + 'px';
         panel.querySelector('#bgNewIconShadowVal').textContent = s + 'px';
         
-        // 实时渲染内部的预览台 (赋予硬阴影)
-        live1.style.cssText += getShadowCss(w, s);
-        live2.style.cssText += getShadowCss(w, s);
+        // 实时渲染内部的预览台
+        live1.style.cssText += getShadowCss(w, s, iconConfig.borderColor, iconConfig.shadowColor);
+        live2.style.cssText += getShadowCss(w, s, iconConfig.borderColor, iconConfig.shadowColor);
 
         // 同步保存并应用到外部真实环境
-        var cfg = { borderW: parseFloat(w), shadow: parseInt(s) };
-        App.LS.set('topIconConfig', cfg);
-        Bg.applyTopIconStyle(cfg);
+        iconConfig.borderW = parseFloat(w);
+        iconConfig.shadow = parseInt(s);
+        App.LS.set('topIconConfig', iconConfig);
+        Bg.applyTopIconStyle(iconConfig);
       };
 
       // 初始化预览台样式
@@ -250,7 +266,26 @@
       bSlider.addEventListener('input', updateIconStyle);
       sSlider.addEventListener('input', updateIconStyle);
 
-      // 5. 所有图标替换网格 (全部强制裁剪)
+      // ★ 绑定颜色选择器
+      function bindColorDot(dotId, key) {
+        panel.querySelector(dotId).addEventListener('click', function(e) {
+          e.stopPropagation();
+          if(!App.openColorPicker) return;
+          App.openColorPicker(iconConfig[key], function(hex){
+            iconConfig[key] = hex;
+            panel.querySelector(dotId).style.background = hex;
+            updateIconStyle(); // 实时应用颜色并保存
+          }, function(hex){
+            iconConfig[key] = hex;
+            panel.querySelector(dotId).style.background = hex;
+            updateIconStyle();
+          });
+        });
+      }
+      bindColorDot('#bgDotBorder', 'borderColor');
+      bindColorDot('#bgDotShadow', 'shadowColor');
+
+      // 5. 所有图标替换网格 (添加无敌抗选护甲)
       var grid = panel.querySelector('#bgIconGridManager');
       var iconList = [
         { id: 'customIcon_cg', label: '查岗(上侧)', target: '#cardIcon1 img', live: '#bgLiveIcon1 img', def: iconDef.cg },
@@ -266,7 +301,7 @@
         box.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;-webkit-tap-highlight-color:transparent;';
         box.innerHTML = 
           '<div style="width:54px;height:54px;border-radius:14px;border:1px solid rgba(126,163,201,.3);overflow:hidden;background:#f5f5f5;box-shadow:0 4px 10px rgba(0,0,0,0.05);">' +
-            '<img src="'+App.escAttr(ic.def)+'" style="width:100%;height:100%;object-fit:cover;display:block;">' +
+            '<img src="'+App.escAttr(ic.def)+'" style="width:100%;height:100%;object-fit:cover;display:block;' + noImgDrag + '">' +
           '</div>' +
           '<div style="font-size:10px;font-weight:700;color:#5a7a9a;">'+ic.label+'</div>';
         
@@ -283,7 +318,7 @@
                     if(tEl) tEl.src = c; // 更新外部的真实图标
                     if(ic.live) {
                       var liveImg = panel.querySelector(ic.live);
-                      if(liveImg) liveImg.src = c; // 如果是上方图标，更新预览台图片
+                      if(liveImg) liveImg.src = c; // 更新上方预览台
                     }
                     App.showToast(ic.label + ' 图标已更换');
                  };
@@ -299,21 +334,6 @@
       });
     },
 
-    // 辅助方法：压缩
-    compress: function(src, cb) {
-       var img = new Image();
-       img.onload = function() {
-          var cvs = document.createElement('canvas'), max = 1920;
-          var w = img.width, h = img.height;
-          if(w>h) { if(w>max){h=h*max/w;w=max;} } else { if(h>max){w=w*max/h;h=max;} }
-          cvs.width = w; cvs.height = h;
-          cvs.getContext('2d').drawImage(img,0,0,w,h);
-          cb(cvs.toDataURL('image/jpeg', 0.85));
-       };
-       img.src = src;
-    },
-
-    // 应用外部背景墙纸
     applyBg: function(data) {
        var layer = App.$('#bgLayer'); if(!layer) return;
        if(data && data.src) {
@@ -325,19 +345,19 @@
        }
     },
 
-    // 注入外部上侧图标的硬阴影与淡蓝边框
     applyTopIconStyle: function(cfg) {
       var styleId = 'topIconDynamicStyle';
       var styleEl = document.getElementById(styleId);
       if(!styleEl) { styleEl = document.createElement('style'); styleEl.id = styleId; document.head.appendChild(styleEl); }
       
-      var borderColor = 'rgba(220,235,255,0.9)'; 
-      var shadowColor = 'rgba(173,205,234,0.9)'; 
+      // 读取动态配置颜色，否则给默认值
+      var bColor = cfg.borderColor || '#dcebff'; 
+      var sColor = cfg.shadowColor || '#adcdea'; 
 
       styleEl.innerHTML = 
         '.card-icon-img { ' +
-          'border: ' + cfg.borderW + 'px solid ' + borderColor + ' !important; ' +
-          'box-shadow: ' + cfg.shadow + 'px ' + cfg.shadow + 'px 0 ' + shadowColor + ' !important; ' +
+          'border: ' + cfg.borderW + 'px solid ' + bColor + ' !important; ' +
+          'box-shadow: ' + cfg.shadow + 'px ' + cfg.shadow + 'px 0 ' + sColor + ' !important; ' +
           'border-radius: 15px !important; ' +
         '}';
     }
