@@ -245,7 +245,7 @@ var Cards={
           '<span class="pc-label">统一配色（同步变化）</span>'+
          '<div class="pc-palette-grid">'+
   '<div class="pc-palette-item"><div class="pc-dot" id="sbDotUnified" style="background:'+sb.border+';"></div><span class="pc-dot-lbl">统一配色</span></div>'+
-'</div>'
+'</div>'+
         '</div>'+
       '</div>'+
       '<div class="pc-footer">'+
