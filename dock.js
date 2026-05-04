@@ -66,7 +66,7 @@
       overlay.appendChild(panel); document.body.appendChild(overlay);
       var dockRect = App.$('#dockBar').getBoundingClientRect(); var top = dockRect.top - panel.offsetHeight - 20; if (top < 10) top = 10;
       panel.style.left = Math.max(10, (window.innerWidth / 2 - 140)) + 'px'; panel.style.top = top + 'px';
-      if(App.modules.cards && App.modules.cards._bindPanelDrag) App.modules.cards._bindPanelDrag(panel, '#dockDragHandle');
+      if(App.modules.cards && App.modules.cards._bindPanelDrag) App.modules.cards._bindPanelDrag(panel);
 
       function preview() { Dock.applyConfig(cfg); }
       function closeAndRevert() { Dock.applyConfig(cfgSnapshot); overlay.remove(); }
