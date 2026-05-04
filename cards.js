@@ -309,16 +309,31 @@ var Cards={
         function(hex){sb[key]=hex;panel.querySelector(dotId).style.background=hex;Cards._sbData=sb;Cards.applySBColors();},callerId);
       });
     }
-    bindColorDot('#sbDotBorder','border','sb_border');
-    bindColorDot('#sbDotShadow','shadow','sb_shadow');
-    bindColorDot('#sbDotText','textC','sb_text');
+    
+    panel.querySelector('#sbDotUnified').addEventListener('click', function(e){
+  e.stopPropagation();
+  if(!App.openColorPicker) return;
+  App.openColorPicker(sb.border, function(hex){
+    sb.border = hex;
+    sb.shadow = hex;
+    sb.textC = hex;
+    panel.querySelector('#sbDotUnified').style.background = hex;
+    Cards._sbData = sb;
+    Cards.applySBColors();
+  }, function(hex){
+    sb.border = hex;
+    sb.shadow = hex;
+    sb.textC = hex;
+    panel.querySelector('#sbDotUnified').style.background = hex;
+    Cards._sbData = sb;
+    Cards.applySBColors();
+  }, 'sb_unified');
+});
 
     panel.querySelector('#sbResetBtn').addEventListener('click',function(e){
       e.stopPropagation();
       sb.border='#adcdea';sb.shadow='rgba(173,205,234,0.9)';sb.textC='#adcdea';
-      panel.querySelector('#sbDotBorder').style.background=sb.border;
-      panel.querySelector('#sbDotShadow').style.background=sb.shadow;
-      panel.querySelector('#sbDotText').style.background=sb.textC;
+      panel.querySelector('#sbDotUnified').style.background=sb.border;
       Cards._sbData=sb;Cards.applySBColors();App.showToast('已重置');
     });
 
