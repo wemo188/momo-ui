@@ -82,10 +82,15 @@ var Font={
     return 1;
   },
 
-  apply:function(){
-    var family=Font.getFamily(Font.config.selected||'系统默认');
-    document.body.style.fontFamily=family;
-  },
+ apply: function(){
+  var name = Font.config.selected || '系统默认';
+  var family = Font.getFamily(name);
+  var scale = Font.getScale(name);
+  document.body.style.fontFamily = family;
+  
+  // 用 CSS 变量控制全局字体缩放
+  document.documentElement.style.setProperty('--font-scale', scale);
+},
 
   open:function(){
     Font.load();
