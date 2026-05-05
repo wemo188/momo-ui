@@ -93,15 +93,15 @@ var Cards={
     area.style.setProperty('--sb-text',sb.textC);
   },
 
-  updateSearchTexts:function(force){
+    updateSearchTexts:function(force){
     var sb=Cards._sbData;
     var leftInput=document.querySelector('.search-input-left');
     var rightInput=document.querySelector('.search-input-right');
     
     if(!sb.charId||!sb.nickname1||!sb.nickname2){
       if(force){
-        if(leftInput){leftInput.value='';leftInput.placeholder='我们相识...';App.LS.remove('searchText_left');}
-        if(rightInput){rightInput.value='';rightInput.placeholder='已经有...天★';App.LS.remove('searchText_right');}
+        if(leftInput){leftInput.value='';leftInput.placeholder='我们相识...';App.LS.remove('searchText_left');App.LS.remove('searchText_left_manual');}
+        if(rightInput){rightInput.value='';rightInput.placeholder='已经有...天★';App.LS.remove('searchText_right');App.LS.remove('searchText_right_manual');}
       }
       return;
     }
@@ -111,9 +111,12 @@ var Cards={
     var leftText=sb.nickname1+'，我们已经_';
     var rightText='_相识'+dayStr+'天了，'+sb.nickname2;
     
+    var leftManual=App.LS.get('searchText_left_manual');
+    var rightManual=App.LS.get('searchText_right_manual');
+    
     if(force){
-      if(leftInput){leftInput.value=leftText;leftInput.placeholder='';App.LS.set('searchText_left',leftText);}
-      if(rightInput){rightInput.value=rightText;rightInput.placeholder='';App.LS.set('searchText_right',rightText);}
+      if(!leftManual&&leftInput){leftInput.value=leftText;leftInput.placeholder='';App.LS.set('searchText_left',leftText);}
+      if(!rightManual&&rightInput){rightInput.value=rightText;rightInput.placeholder='';App.LS.set('searchText_right',rightText);}
     } else {
       var savedLeft=App.LS.get('searchText_left');
       var savedRight=App.LS.get('searchText_right');
@@ -171,7 +174,7 @@ var Cards={
     Cards.updateSearchTexts();
   },
 
-    bindSearchUpload:function(){
+      bindSearchUpload:function(){
     var leftInput=document.querySelector('.search-input-left');
     var rightInput=document.querySelector('.search-input-right');
 
@@ -180,11 +183,11 @@ var Cards={
     if(leftSaved&&leftInput)leftInput.value=leftSaved;
     if(rightSaved&&rightInput)rightInput.value=rightSaved;
 
-    if(leftInput)leftInput.addEventListener('input',function(){App.LS.set('searchText_left',this.value);});
-    if(rightInput)rightInput.addEventListener('input',function(){App.LS.set('searchText_right',this.value);});
+    if(!this._searchBound){
+      this._searchBound=true;
+      if(leftInput)leftInput.addEventListener('input',function(){App.LS.set('searchText_left',this.value);App.LS.set('searchText_left_manual',true);});
+      if(rightInput)rightInput.addEventListener('input',function(){App.LS.set('searchText_right',this.value);App.LS.set('searchText_right_manual',true);});
 
-    if(!this._searchAvatarBound){
-      this._searchAvatarBound=true;
       Cards._restoreSearchAvatar('avatarPreview1','avatar_search1');
       Cards._restoreSearchAvatar('avatarPreview2','avatar_search2');
 
@@ -416,6 +419,7 @@ var Cards={
       e.stopPropagation();
       sb.border='#adcdea';sb.shadow='rgba(173,205,234,0.9)';sb.textC='#adcdea';
       sb.charId='';sb.nickname1='';sb.nickname2='';
+      App.LS.remove('searchText_left_manual');App.LS.remove('searchText_right_manual');
       panel.querySelector('#sbDotBorder').style.background=sb.border;
       panel.querySelector('#sbDotShadow').style.background=sb.shadow;
       panel.querySelector('#sbDotText').style.background=sb.textC;
