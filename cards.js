@@ -277,11 +277,11 @@ var Cards={
         '</div>'+
 
         '<div class="pc-group"><span class="pc-label">上方称呼（对TA的昵称）</span>'+
-          '<input type="text" class="pc-input" id="sbNickname1" placeholder="例：老公、哥哥..." value="'+App.escAttr(sb.nickname1||'')+'">'+
+          '<input type="text" class="pc-input" id="sbNickname1" value="'+App.escAttr(sb.nickname1||'')+'">'+
         '</div>'+
 
         '<div class="pc-group"><span class="pc-label">下方称呼（TA对你的昵称）</span>'+
-          '<input type="text" class="pc-input" id="sbNickname2" placeholder="例：宝贝、墨墨..." value="'+App.escAttr(sb.nickname2||'')+'">'+
+          '<input type="text" class="pc-input" id="sbNickname2" value="'+App.escAttr(sb.nickname2||'')+'">'+
         '</div>'+
 
         '<div class="pc-group"><span class="pc-label">上方头像</span><div class="pc-av-row">'+
