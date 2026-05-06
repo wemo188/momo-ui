@@ -93,10 +93,14 @@
       if (!card) return;
       var startX, startY, startPosX, startPosY, longPressed = false, timer, moved = false;
 
-      card.addEventListener('touchstart', function(e) {
+       card.addEventListener('touchstart', function(e) {
         if (e.target.closest('#edenEditOverlay')) return;
+        var textEl = card.querySelector('#edenText');
+        if (!textEl || !textEl.textContent.trim()) return;
         if (e.target === card) return;
         var touch = e.touches[0];
+        var range = document.caretRangeFromPoint(touch.clientX, touch.clientY);
+        if (!range || !textEl.contains(range.startContainer)) return;
         startX = touch.clientX; startY = touch.clientY;
         longPressed = false; moved = false;
         var match = (card.style.transform || '').match(/translate\(([-\d.]+)px,\s*([-\d.]+)px\)/);
