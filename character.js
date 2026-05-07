@@ -1,3 +1,4 @@
+
 (function() {
   'use strict';
   var App = window.App;
@@ -88,9 +89,9 @@
         panel.style.transform = 'translateX(0)';
         panel.style.opacity = '1';
       }); });
+      App.bindSwipeBack(panel, function() { Character.close(); });
     },
 
-    /* ★ 修改：close 里清理 body 上残留的调色盘 popup */
     close: function() {
       var panel = App.$('#charPanel');
       if (!panel) return;
@@ -120,9 +121,7 @@
           var idx = String(i + 1).padStart(2, '0');
           var name = App.esc(c.name || '未命名');
           var col = Character.getColors(c, mi);
-          var cfg = MODE_CFG[mi];
 
-          /* ★ 修改：img src 用 escAttr */
           var avatarHtml = c.avatar
             ? '<img src="' + App.escAttr(c.avatar) + '">'
             : '<div class="cl-avatar-empty"></div>';
@@ -216,7 +215,7 @@
       });
 
       panel.querySelector('#clNewBtn').addEventListener('click', function() {
-        if (App.charEdit) App.charEdit.open();
+        if (App.charMgr) App.charMgr.open();
       });
 
       panel.querySelectorAll('.cl-avatar-box').forEach(function(box) {
@@ -251,7 +250,7 @@
       panel.querySelectorAll('.cl-act-edit').forEach(function(btn) {
         btn.addEventListener('click', function(e) {
           e.stopPropagation();
-          if (App.charEdit) App.charEdit.open(btn.dataset.id);
+          if (App.charMgr) App.charMgr.open(btn.dataset.id);
         });
       });
 
@@ -380,19 +379,14 @@
         readAndApply();
       });
 
-      /* ★ 修改：空白处都可以拖动调色盘，排除颜色块、滑块、按钮 */
-popup.addEventListener('touchstart', function(e) {
-  var tag = e.target.tagName.toLowerCase();
-  // 如果触摸的是颜色块、滑块、按钮、label，不触发拖拽
-  if (e.target.closest('.cl-cc') || 
-      e.target.closest('.cl-popup-reset') ||
-      tag === 'input' || 
-      tag === 'label') return;
-  e.stopPropagation();
-  var t = e.touches[0];
-  var rect = popup.getBoundingClientRect();
-  Character._drag = { el: popup, active: true, sx: t.clientX, sy: t.clientY, ox: rect.left, oy: rect.top };
-}, { passive: true });
+      popup.addEventListener('touchstart', function(e) {
+        var tag = e.target.tagName.toLowerCase();
+        if (e.target.closest('.cl-cc') || e.target.closest('.cl-popup-reset') || tag === 'input' || tag === 'label') return;
+        e.stopPropagation();
+        var t = e.touches[0];
+        var rect = popup.getBoundingClientRect();
+        Character._drag = { el: popup, active: true, sx: t.clientX, sy: t.clientY, ox: rect.left, oy: rect.top };
+      }, { passive: true });
 
       popup.addEventListener('click', function(e) { e.stopPropagation(); });
       popup.addEventListener('touchstart', function(e) { e.stopPropagation(); }, { passive: true });
@@ -432,11 +426,10 @@ popup.addEventListener('touchstart', function(e) {
         App.showToast('已删除');
       });
 
-        menu.querySelector('#imgFromAlbum').addEventListener('click', function() {
+      menu.querySelector('#imgFromAlbum').addEventListener('click', function() {
         menu.remove();
         var input = document.createElement('input');
-        input.type = 'file';
-        input.accept = 'image/*';
+        input.type = 'file'; input.accept = 'image/*';
         document.body.appendChild(input);
         input.onchange = function(e) {
           var file = e.target.files[0];
@@ -448,10 +441,7 @@ popup.addEventListener('touchstart', function(e) {
             if (App.cropImage) {
               App.cropImage(src, function(cropped) {
                 var c = Character.getById(charId);
-                if (c) {
-                  c[field] = cropped;
-                  Character.save();
-                }
+                if (c) { c[field] = cropped; Character.save(); }
                 box.innerHTML = '<img src="' + cropped + '">';
               });
             } else {
@@ -462,49 +452,16 @@ popup.addEventListener('touchstart', function(e) {
         };
         input.click();
       });
-      
+
       menu.querySelector('#imgFromUrl').addEventListener('click', function() {
         menu.remove();
-        var urlPanel = document.createElement('div');
-        urlPanel.style.cssText = 'position:fixed;inset:0;z-index:10010;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.35);';
-        urlPanel.innerHTML =
-          '<div style="background:rgba(255,255,255,0.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-radius:14px;padding:20px;width:280px;box-shadow:0 8px 30px rgba(0,0,0,0.15);display:flex;flex-direction:column;gap:12px;">' +
-            '<div style="font-size:13px;font-weight:700;color:#333;text-align:center;letter-spacing:1px;">输入图片URL</div>' +
-            '<input id="imgUrlInput" type="text" placeholder="https://..." style="padding:10px 12px;border:1.5px solid #ddd;border-radius:8px;font-size:13px;outline:none;font-family:inherit;color:#333;">' +
-            '<div id="imgUrlPreview" style="display:none;width:100%;height:120px;border-radius:8px;overflow:hidden;border:1px solid #eee;background:#f5f5f5;"><img style="width:100%;height:100%;object-fit:cover;display:block;"></div>' +
-            '<div style="display:flex;gap:8px;">' +
-              '<button id="imgUrlConfirm" type="button" style="flex:1;padding:11px;border:none;border-radius:10px;background:#1a1a1a;color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">确定</button>' +
-              '<button id="imgUrlCancel" type="button" style="flex:1;padding:11px;border:1.5px solid #ddd;border-radius:10px;background:#fff;color:#666;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">取消</button>' +
-            '</div>' +
-          '</div>';
-        document.body.appendChild(urlPanel);
-
-        urlPanel.addEventListener('click', function(e) { if (e.target === urlPanel) urlPanel.remove(); });
-        urlPanel.querySelector('#imgUrlCancel').addEventListener('click', function() { urlPanel.remove(); });
-
-        var previewBox = urlPanel.querySelector('#imgUrlPreview');
-        var previewImg = previewBox.querySelector('img');
-        urlPanel.querySelector('#imgUrlInput').addEventListener('input', function() {
-          var v = this.value.trim();
-          if (v && (v.startsWith('http://') || v.startsWith('https://'))) {
-            previewImg.src = v;
-            previewBox.style.display = 'block';
-            previewImg.onerror = function() { previewBox.style.display = 'none'; };
-          } else {
-            previewBox.style.display = 'none';
-          }
-        });
-
-           urlPanel.querySelector('#imgUrlConfirm').addEventListener('click', function() {
-          var url = urlPanel.querySelector('#imgUrlInput').value.trim();
-          if (!url) { App.showToast('请输入URL'); return; }
-          urlPanel.remove();
-          var c = Character.getById(charId);
-          if (c) {
-            c[field] = url;
-            Character.save();}
-          box.innerHTML = '<img src="' + App.escAttr(url) + '">';App.showToast('已设置');
-        });
+        var url = prompt('输入图片URL：');
+        if (!url) return;
+        url = url.trim();
+        var c = Character.getById(charId);
+        if (c) { c[field] = url; Character.save(); }
+        box.innerHTML = '<img src="' + App.escAttr(url) + '">';
+        App.showToast('已设置');
       });
     },
 
