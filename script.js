@@ -1713,6 +1713,77 @@ App.init = function() {
   App.initFloatingBall();
   App.runInits();
   App.initMainPages();
+  
+    /* ★ 手机框模式 */
+  App.applyPhoneFrame = function() {
+    var isFrame = App.LS.get('phoneFrameMode');
+    var existing = App.$('#phoneFrame');
+    var body = document.body;
+
+    if (!isFrame) {
+      /* 普通模式：移除手机框 */
+      if (existing) {
+        /* 把内容搬回 body */
+        var screen = existing.querySelector('.pf-screen');
+        if (screen) {
+          while (screen.firstChild) {
+            body.appendChild(screen.firstChild);
+          }
+        }
+        existing.remove();
+      }
+      body.style.overflow = '';
+      body.style.position = '';
+      body.style.background = '';
+      document.documentElement.style.overflow = '';
+      document.documentElement.style.position = '';
+      document.documentElement.style.background = '';
+      return;
+    }
+
+    /* 手机框模式 */
+    if (existing) return; /* 已经有了就不重复创建 */
+
+    /* 解除 body 的 fixed 锁 */
+    body.style.position = 'relative';
+    body.style.overflow = 'visible';
+    body.style.width = '100%';
+    body.style.height = 'auto';
+    document.documentElement.style.overflow = 'auto';
+    document.documentElement.style.position = 'relative';
+    document.documentElement.style.background = '#e8ecf0';
+    body.style.background = 'transparent';
+
+    var frame = document.createElement('div');
+    frame.id = 'phoneFrame';
+    frame.className = 'phone-frame';
+
+    frame.innerHTML =
+      '<div class="pf-btn-left">' +
+        '<div class="pf-btn pf-btn-silent"></div>' +
+        '<div class="pf-btn pf-btn-vol-up"></div>' +
+        '<div class="pf-btn pf-btn-vol-down"></div>' +
+      '</div>' +
+      '<div class="pf-btn-right">' +
+        '<div class="pf-btn pf-btn-power"></div>' +
+      '</div>' +
+      '<div class="pf-notch"></div>' +
+      '<div class="pf-screen"></div>' +
+      '<div class="pf-home-bar"></div>';
+
+    /* 把 body 里的所有元素搬进 screen */
+    var screen = frame.querySelector('.pf-screen');
+    var children = Array.from(body.children);
+    children.forEach(function(child) {
+      if (child === frame) return;
+      screen.appendChild(child);
+    });
+
+    body.appendChild(frame);
+  };
+
+  App.applyPhoneFrame();
+  
 };
 
 })();
