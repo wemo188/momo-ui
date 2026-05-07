@@ -1713,7 +1713,7 @@ App.init = function() {
   App.initFloatingBall();
   App.runInits();
   App.initMainPages();
-  
+
   /* ★ 手机框模式 */
   App.applyPhoneFrame = function() {
     var isFrame = App.LS.get('phoneFrameMode');
@@ -1769,16 +1769,21 @@ App.init = function() {
       var screenW = screenEl.clientWidth;
       var screenH = screenEl.clientHeight;
 
+      /* 用手机框屏幕的宽度作为基准算缩放比 */
+      /* 假设原始设计宽度 = 当前浏览器宽度 */
       var origW = window.innerWidth;
-      var origH = window.innerHeight;
+      var scale = screenW / origW;
 
-      var scaleX = screenW / origW;
-      var scaleY = screenH / origH;
-      var scale = Math.min(scaleX, scaleY);
+      /* 反算：viewport 需要多高才能刚好填满屏幕区域 */
+      var vpW = screenW / scale;   /* 就是 origW */
+      var vpH = screenH / scale;   /* 关键！不用 100vh，用屏幕真实高度反算 */
 
-      viewport.style.width = origW + 'px';
-      viewport.style.height = origH + 'px';
+      viewport.style.width = vpW + 'px';
+      viewport.style.height = vpH + 'px';
       viewport.style.transform = 'scale(' + scale + ')';
+
+      /* 同时覆盖 CSS 变量，让内部组件用正确的高度 */
+      viewport.style.setProperty('--vh', (vpH / 100) + 'px');
     }
 
     setTimeout(calcScale, 50);
