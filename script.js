@@ -1722,7 +1722,6 @@ App.init = function() {
     var html = document.documentElement;
 
     if (!isFrame) {
-      /* 普通模式：移除手机框，把内容搬回 body */
       html.classList.remove('frame-mode');
       if (existing) {
         var vp = existing.querySelector('.pf-viewport');
@@ -1736,12 +1735,10 @@ App.init = function() {
       return;
     }
 
-    /* 已经存在就不重复 */
     if (existing) return;
 
     html.classList.add('frame-mode');
 
-    /* 创建手机框 */
     var frame = document.createElement('div');
     frame.id = 'phoneFrame';
     frame.className = 'phone-frame';
@@ -1755,13 +1752,10 @@ App.init = function() {
       '<div class="pf-btn-right">' +
         '<div class="pf-btn-power"></div>' +
       '</div>' +
-      '<div class="pf-notch"></div>' +
-      '<div class="pf-screen"><div class="pf-viewport"></div></div>' +
-      '<div class="pf-home-bar"></div>';
+      '<div class="pf-screen"><div class="pf-viewport"></div></div>';
 
     var viewport = frame.querySelector('.pf-viewport');
 
-    /* 把 body 里所有子元素搬进 viewport */
     var children = Array.from(body.children);
     children.forEach(function(child) {
       if (child.tagName === 'SCRIPT' || child.tagName === 'LINK' || child.tagName === 'STYLE') return;
@@ -1770,13 +1764,11 @@ App.init = function() {
 
     body.appendChild(frame);
 
-    /* 计算缩放比例 */
     function calcScale() {
       var screenEl = frame.querySelector('.pf-screen');
       var screenW = screenEl.clientWidth;
       var screenH = screenEl.clientHeight;
 
-      /* 用窗口真实尺寸作为原始尺寸 */
       var origW = window.innerWidth;
       var origH = window.innerHeight;
 
@@ -1789,7 +1781,6 @@ App.init = function() {
       viewport.style.transform = 'scale(' + scale + ')';
     }
 
-    /* 初始计算 + 监听 resize */
     setTimeout(calcScale, 50);
     window.addEventListener('resize', calcScale);
   };
