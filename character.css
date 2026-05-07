@@ -1,17 +1,21 @@
+
 /* ====== 页面模式 ====== */
 .cl-page { --page-dark:#111; --page-accent:#88abda; --page-light:#fff; }
 .cl-page.mode-frost { --page-dark:#6b7280; --page-accent:#9ca3af; --page-light:#f3f4f6; }
 .cl-page.mode-mono { --page-dark:#1a1a1a; --page-accent:#1a1a1a; --page-light:#ffffff; }
 
-/* ====== 顶部栏 ====== */
+/* ====== 顶部栏 · 三合一连体 ====== */
 .cl-topbar-wrap {
   margin: 0 auto 16px; max-width: 400px;
-  display: flex; align-items: stretch; justify-content: space-between;
-  padding: 0 4px; gap: 8px; height: 40px;
+  display: flex; align-items: stretch;
+  padding: 0 4px; gap: 0; height: 40px;
 }
 .cl-esc {
   display: inline-flex; align-items: center; justify-content: center;
-  padding: 0 14px; border: 2px solid var(--page-dark); background: var(--page-light);
+  padding: 0 14px;
+  border: 2px solid var(--page-dark);
+  border-right: none;
+  background: var(--page-light);
   font-size: 11px; font-weight: 900; letter-spacing: 2px;
   color: var(--page-dark); cursor: pointer;
   -webkit-tap-highlight-color: transparent; transition: all 0.3s; font-family: inherit;
@@ -19,7 +23,11 @@
 .cl-esc:active { background: var(--page-dark); color: var(--page-light); }
 .cl-mode-btn {
   display: inline-flex; align-items: center; justify-content: center;
-  padding: 0 20px; border: 2px solid var(--page-dark); background: var(--page-light);
+  padding: 0 20px; flex: 1;
+  border-top: 2px solid var(--page-dark);
+  border-bottom: 2px solid var(--page-dark);
+  border-left: none; border-right: none;
+  background: var(--page-light);
   font-size: 20px; font-weight: 500;
   color: var(--page-dark); cursor: pointer;
   -webkit-tap-highlight-color: transparent; transition: all 0.3s; font-family: inherit;
@@ -27,18 +35,25 @@
 .cl-mode-btn:active { background: var(--page-dark); color: var(--page-light); }
 .cl-new-btn {
   display: inline-flex; align-items: center; justify-content: center;
-  padding: 0 14px; border: 2px solid var(--page-dark); background: var(--page-dark);
+  padding: 0 14px;
+  border: 2px solid var(--page-dark);
+  border-left: none;
+  background: var(--page-dark);
   font-size: 11px; font-weight: 900; letter-spacing: 1.5px;
   color: var(--page-light); cursor: pointer;
   -webkit-tap-highlight-color: transparent; transition: all 0.3s; font-family: inherit;
 }
 .cl-new-btn:active { opacity: 0.7; }
-.mode-frost .cl-esc { border-radius: 4px; }
-.mode-frost .cl-mode-btn { border-radius: 4px; }
-.mode-frost .cl-new-btn { border-radius: 4px; background: #9ca3af; border-color: #6b7280; }
-.mode-mono .cl-esc { border: 1.5px solid #1a1a1a; border-radius: 10px; }
-.mode-mono .cl-mode-btn { border: 1.5px solid #1a1a1a; border-radius: 10px; }
-.mode-mono .cl-new-btn { border: 1.5px solid #1a1a1a; border-radius: 10px; }
+
+/* frost 连体 */
+.mode-frost .cl-esc { border-radius: 4px 0 0 4px; border-color: #6b7280; }
+.mode-frost .cl-mode-btn { border-radius: 0; border-top-color: #6b7280; border-bottom-color: #6b7280; }
+.mode-frost .cl-new-btn { border-radius: 0 4px 4px 0; background: #9ca3af; border-color: #6b7280; }
+
+/* mono 连体 */
+.mode-mono .cl-esc { border: 1.5px solid #1a1a1a; border-right: none; border-radius: 10px 0 0 10px; }
+.mode-mono .cl-mode-btn { border-top: 1.5px solid #1a1a1a; border-bottom: 1.5px solid #1a1a1a; border-left: none; border-right: none; border-radius: 0; }
+.mode-mono .cl-new-btn { border: 1.5px solid #1a1a1a; border-left: none; border-radius: 0 10px 10px 0; }
 
 /* ====== 角色卡 · 默认漫画 ====== */
 .char-list-wrap {
@@ -63,9 +78,11 @@
   background: linear-gradient(90deg, var(--card-accent) 25%, var(--card-border-c) 25%, var(--card-border-c) 50%, var(--card-accent) 50%, var(--card-accent) 75%, var(--card-border-c) 75%);
   border-radius: 0 0 var(--card-radius) var(--card-radius); transition: all 0.3s;
 }
+
+/* 卡片头部（缩小） */
 .cl-header {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 14px 20px 12px;
+  padding: 8px 20px 6px;
   border-bottom: var(--card-line) solid var(--card-border-c);
   position: relative; overflow: hidden; transition: all 0.3s;
 }
@@ -120,9 +137,9 @@
 }
 .cl-item-main {
   flex: 1; display: flex; align-items: center;
-  padding: 16px 14px; min-width: 0;
+  padding: 12px 14px; min-width: 0;
   border-right: var(--card-line) solid var(--card-border-c);
-  position: relative; min-height: 120px; transition: all 0.3s;
+  position: relative; min-height: 100px; transition: all 0.3s;
 }
 .cl-cover {
   position: absolute; inset: 0; background: #f0f3f8;
@@ -291,4 +308,3 @@
 .mode-mono .cl-change-label { color: var(--card-border-c); }
 .mode-mono .cl-change-dot:nth-child(1) { background: var(--card-border-c); }
 .mode-mono .cl-change-dot:nth-child(2) { background: var(--card-border-c); }
-
