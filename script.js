@@ -1714,76 +1714,87 @@ App.init = function() {
   App.runInits();
   App.initMainPages();
   
-    /* ★ 手机框模式 */
+  /* ★ 手机框模式 */
   App.applyPhoneFrame = function() {
     var isFrame = App.LS.get('phoneFrameMode');
     var existing = App.$('#phoneFrame');
     var body = document.body;
+    var html = document.documentElement;
 
     if (!isFrame) {
-      /* 普通模式：移除手机框 */
+      /* 普通模式：移除手机框，把内容搬回 body */
+      html.classList.remove('frame-mode');
       if (existing) {
-        /* 把内容搬回 body */
-        var screen = existing.querySelector('.pf-screen');
-        if (screen) {
-          while (screen.firstChild) {
-            body.appendChild(screen.firstChild);
+        var vp = existing.querySelector('.pf-viewport');
+        if (vp) {
+          while (vp.firstChild) {
+            body.appendChild(vp.firstChild);
           }
         }
         existing.remove();
       }
-      body.style.overflow = '';
-      body.style.position = '';
-      body.style.background = '';
-      document.documentElement.style.overflow = '';
-      document.documentElement.style.position = '';
-      document.documentElement.style.background = '';
       return;
     }
 
-    /* 手机框模式 */
-    if (existing) return; /* 已经有了就不重复创建 */
+    /* 已经存在就不重复 */
+    if (existing) return;
 
-    /* 解除 body 的 fixed 锁 */
-    body.style.position = 'relative';
-    body.style.overflow = 'visible';
-    body.style.width = '100%';
-    body.style.height = 'auto';
-    document.documentElement.style.overflow = 'auto';
-    document.documentElement.style.position = 'relative';
-    document.documentElement.style.background = '#e8ecf0';
-    body.style.background = 'transparent';
+    html.classList.add('frame-mode');
 
+    /* 创建手机框 */
     var frame = document.createElement('div');
     frame.id = 'phoneFrame';
     frame.className = 'phone-frame';
 
     frame.innerHTML =
       '<div class="pf-btn-left">' +
-        '<div class="pf-btn pf-btn-silent"></div>' +
-        '<div class="pf-btn pf-btn-vol-up"></div>' +
-        '<div class="pf-btn pf-btn-vol-down"></div>' +
+        '<div class="pf-btn-silent"></div>' +
+        '<div class="pf-btn-vol-up"></div>' +
+        '<div class="pf-btn-vol-down"></div>' +
       '</div>' +
       '<div class="pf-btn-right">' +
-        '<div class="pf-btn pf-btn-power"></div>' +
+        '<div class="pf-btn-power"></div>' +
       '</div>' +
       '<div class="pf-notch"></div>' +
-      '<div class="pf-screen"></div>' +
+      '<div class="pf-screen"><div class="pf-viewport"></div></div>' +
       '<div class="pf-home-bar"></div>';
 
-    /* 把 body 里的所有元素搬进 screen */
-    var screen = frame.querySelector('.pf-screen');
+    var viewport = frame.querySelector('.pf-viewport');
+
+    /* 把 body 里所有子元素搬进 viewport */
     var children = Array.from(body.children);
     children.forEach(function(child) {
-      if (child === frame) return;
-      screen.appendChild(child);
+      if (child.tagName === 'SCRIPT' || child.tagName === 'LINK' || child.tagName === 'STYLE') return;
+      viewport.appendChild(child);
     });
 
     body.appendChild(frame);
+
+    /* 计算缩放比例 */
+    function calcScale() {
+      var screenEl = frame.querySelector('.pf-screen');
+      var screenW = screenEl.clientWidth;
+      var screenH = screenEl.clientHeight;
+
+      /* 用窗口真实尺寸作为原始尺寸 */
+      var origW = window.innerWidth;
+      var origH = window.innerHeight;
+
+      var scaleX = screenW / origW;
+      var scaleY = screenH / origH;
+      var scale = Math.min(scaleX, scaleY);
+
+      viewport.style.width = origW + 'px';
+      viewport.style.height = origH + 'px';
+      viewport.style.transform = 'scale(' + scale + ')';
+    }
+
+    /* 初始计算 + 监听 resize */
+    setTimeout(calcScale, 50);
+    window.addEventListener('resize', calcScale);
   };
 
   App.applyPhoneFrame();
-  
 };
 
 })();
