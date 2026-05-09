@@ -33,7 +33,6 @@
     card.style.setProperty('--pc1', 'hsla('+h+','+bs+'%,'+bl+'%,0.1)');
   }
 
-  /* ★ 关机图标 SVG（统一复用） */
   var POWER_ICON = '<svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:none;stroke:#999;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg>';
 
   var User = {
@@ -43,20 +42,25 @@
     _pages: [],
 
     load: function() { User.list = App.LS.get('userList') || []; },
-    save: function() {
-      App.LS.set('userList', User.list);
-    },
+    save: function() { App.LS.set('userList', User.list); },
     getById: function(id) { for (var i = 0; i < User.list.length; i++) { if (User.list[i].id === id) return User.list[i]; } return null; },
     getActiveUser: function() { var id = App.LS.get('activeUserId'); if (id) { var u = User.getById(id); if (u) return u; } return User.list[0] || null; },
     setActive: function(id) { App.LS.set('activeUserId', id); },
 
-    _pushPage: function(page) {
+    /* ★ pushPage 接受第二个参数：滑动返回的回调 */
+    _pushPage: function(page, onSwipeBack) {
       User._pages.push(page);
       document.body.appendChild(page);
-      /* ★ 绑定滑动返回 */
-      App.bindSwipeBack(page, function() {
-        User._popAll();
-      });
+      if (onSwipeBack) {
+        App.bindSwipeBack(page, function() {
+          /* bindSwipeBack 已经做了滑出动画（translateX(100%) + opacity 0）
+             所以这里只需要从栈里移除 DOM，不要再触发 _popPage 的动画 */
+          var idx = User._pages.indexOf(page);
+          if (idx !== -1) User._pages.splice(idx, 1);
+          setTimeout(function() { if (page.parentNode) page.remove(); }, 260);
+          onSwipeBack();
+        });
+      }
       requestAnimationFrame(function() { requestAnimationFrame(function() {
         page.style.transform = 'translateX(0)'; page.style.opacity = '1';
       }); });
@@ -77,7 +81,13 @@
       });
     },
 
-    /* ★ 新增：替换列表页内容而不销毁/重建页面，避免闪过主页 */
+    /* ★ 直接移除页面（不做动画，配合 bindSwipeBack 使用） */
+    _removePage: function(page) {
+      var idx = User._pages.indexOf(page);
+      if (idx !== -1) User._pages.splice(idx, 1);
+      setTimeout(function() { if (page.parentNode) page.remove(); }, 260);
+    },
+
     _refreshListContent: function() {
       if (!User._pages.length) return;
       var page = User._pages[User._pages.length - 1];
@@ -87,7 +97,7 @@
       var activeUser = User.getActiveUser();
       var activeId = activeUser ? activeUser.id : '';
       scrollArea.innerHTML = User._buildCardsHtml(activeId);
-      User._bindCardEvents(page, activeId);
+      User._bindCardEvents(page);
     },
 
     _makePage: function() {
@@ -102,7 +112,6 @@
       else User.openListPage();
     },
 
-    /* ★ 抽取卡片 HTML 生成逻辑 */
     _buildCardsHtml: function(activeId) {
       if (!User.list.length) {
         return '<div style="padding:60px 20px;text-align:center;color:#bbb;font-size:14px;">暂无用户，点击右上角创建</div>';
@@ -162,9 +171,7 @@
       }).join('');
     },
 
-    /* ★ 抽取卡片事件绑定逻辑 */
-    _bindCardEvents: function(page, activeId) {
-      // 猫爪
+    _bindCardEvents: function(page) {
       page.querySelectorAll('.p14-paw-btn').forEach(function(btn) {
         btn.addEventListener('click', function(e) {
           e.stopPropagation();
@@ -174,14 +181,10 @@
           var isOpen = panel.classList.contains('p14-open');
           page.querySelectorAll('.p14-panel.p14-open').forEach(function(p) { p.classList.remove('p14-open'); });
           page.querySelectorAll('.p14-paw-btn.p14-active').forEach(function(b) { b.classList.remove('p14-active'); });
-          if (!isOpen) {
-            panel.classList.add('p14-open');
-            btn.classList.add('p14-active');
-          }
+          if (!isOpen) { panel.classList.add('p14-open'); btn.classList.add('p14-active'); }
         });
       });
 
-      // 头像
       page.querySelectorAll('.p14-avatar-wrap').forEach(function(wrap) {
         wrap.addEventListener('click', function(e) {
           e.stopPropagation();
@@ -194,7 +197,6 @@
         });
       });
 
-      // 背景上传
       page.querySelectorAll('.p14-bg-upload-btn').forEach(function(btn) {
         btn.addEventListener('click', function(e) {
           e.stopPropagation();
@@ -207,7 +209,6 @@
         });
       });
 
-      // 颜色滑块
       page.querySelectorAll('.p14-hue,.p14-sat,.p14-lit').forEach(function(slider) {
         slider.addEventListener('input', function() {
           var uid = slider.dataset.uid;
@@ -229,7 +230,6 @@
         });
       });
 
-      // 编辑
       page.querySelectorAll('.p14-side-edit').forEach(function(btn) {
         btn.addEventListener('click', function(e) {
           e.stopPropagation();
@@ -237,7 +237,6 @@
         });
       });
 
-      // ★ 启用（原地刷新，不销毁页面）
       page.querySelectorAll('.p14-side-activate').forEach(function(btn) {
         btn.addEventListener('click', function(e) {
           e.stopPropagation();
@@ -247,7 +246,6 @@
         });
       });
 
-      // ★ 重置（原地刷新）
       page.querySelectorAll('.p14-side-reset').forEach(function(btn) {
         btn.addEventListener('click', function(e) {
           e.stopPropagation();
@@ -260,7 +258,6 @@
         });
       });
 
-      // ★ 删除（原地刷新）
       page.querySelectorAll('.p14-del-text').forEach(function(btn) {
         btn.addEventListener('click', function(e) {
           e.stopPropagation();
@@ -292,12 +289,20 @@
         '</div>' +
         '<div class="up-list-scroll" style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 4px 40px;">' + User._buildCardsHtml(activeId) + '</div>';
 
-      User._pushPage(page);
+      /* ★ 列表页：滑动返回 → 关闭全部 */
+      User._pushPage(page, function() {
+        /* 滑动返回时，如果栈里还有残留页面也一起清掉 */
+        var rest = User._pages.splice(0);
+        rest.forEach(function(p) {
+          p.style.transform = 'translateX(100%)'; p.style.opacity = '0';
+          setTimeout(function() { if (p.parentNode) p.remove(); }, 350);
+        });
+      });
 
       page.querySelector('#upListBack').addEventListener('click', function() { User._popAll(); });
       page.querySelector('#upListAdd').addEventListener('click', function() { User.openProfile(null); });
 
-      User._bindCardEvents(page, activeId);
+      User._bindCardEvents(page);
     },
 
     // ====== 图片菜单 ======
@@ -394,16 +399,7 @@
       var today = new Date();
       var dateStr = today.getFullYear() + '.' + String(today.getMonth() + 1).padStart(2, '0') + '.' + String(today.getDate()).padStart(2, '0');
 
-      /* ★ 创建页面：头像框已删除，只在编辑已有用户时显示头像区域 */
-      var showAvatar = !!editId;
-
-      var avatarAreaHtml = '';
-      if (showAvatar) {
-        var avatarHtml = user.avatar
-          ? '<img src="' + App.esc(user.avatar) + '">'
-          : '<svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
-        avatarAreaHtml = '<div class="up-avatar-area"><div class="up-avatar-box" id="upAvatarBox">' + avatarHtml + '</div></div>';
-      }
+      /* ★ 创建页和编辑页都不显示头像框（头像在列表页PSP卡片上改） */
 
       var shortHtml = FIELDS_SHORT.map(function(f) {
         var val = user[f.key] || '';
@@ -447,7 +443,6 @@
             '</div>' +
             '<div class="up-bar-top"></div>' +
             '<div class="up-card-head"><div class="up-card-head-sub">PERSONAL FILE</div><div class="up-card-head-title">个 人 档 案</div></div>' +
-            avatarAreaHtml +
             '<div class="up-sign-area">' +
               (User.sealed
                 ? '<div style="font-size:12px;color:#666;">' + App.esc(user.sign1 || '—') + '</div><div class="up-sign-italic">' + App.esc(user.sign2 || '') + '</div>'
@@ -467,22 +462,14 @@
           '</div>' +
         '</div>';
 
-      User._pushPage(page);
+      /* ★ 编辑/创建页：滑动返回 → 只退一层回到列表页 */
+      User._pushPage(page, function() {
+        /* 什么都不用做，bindSwipeBack 的回调里已经把这个 page 从栈里移除了 */
+      });
 
-      if (!User.sealed && showAvatar) {
-        page.querySelector('#upAvatarBox').addEventListener('click', function() {
-          var box = this;
-          User.showImgMenu(editId || '__new__', 'avatar', function(src) {
-            User.tempAvatar = src;
-            if (src) box.innerHTML = '<img src="' + src + '">';
-            else box.innerHTML = '<svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
-          });
-        });
-      }
-
-      /* ★ 返回按钮现在是关机符号，关闭所有页面 */
+      /* ★ 点击关机按钮 → 只退一层 */
       page.querySelector('.up-profile-back').addEventListener('click', function() {
-        User._popAll();
+        User._popPage();
       });
 
       page.querySelector('.up-profile-rebuild').addEventListener('click', function() {
