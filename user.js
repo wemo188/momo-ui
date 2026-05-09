@@ -49,20 +49,27 @@
     getActiveUser: function() { var id = App.LS.get('activeUserId'); if (id) { var u = User.getById(id); if (u) return u; } return User.list[0] || null; },
     setActive: function(id) { App.LS.set('activeUserId', id); },
 
-    /* ★ 跟角色页一模一样的打开/关闭 */
     open: function() {
-      User.load();
-      var panel = App.$('#userPanel');
-      if (!panel) return;
-      panel.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:10000;background:#fff;display:flex;flex-direction:column;transition:transform 0.35s cubic-bezier(0.32,0.72,0,1),opacity 0.3s;transform:translateX(100%);opacity:0;';
-      if (!User.list.length) User.renderProfile(null);
-      else User.renderList();
-      requestAnimationFrame(function() { requestAnimationFrame(function() {
-        panel.style.transform = 'translateX(0)';
-        panel.style.opacity = '1';
-      }); });
-      App.bindSwipeBack(panel, function() { User.close(); });
-    },
+  User.load();
+  var panel = App.$('#userPanel');
+  if (!panel) return;
+  panel.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:10000;background:#fff;display:flex;flex-direction:column;transition:transform 0.35s cubic-bezier(0.32,0.72,0,1),opacity 0.3s;transform:translateX(100%);opacity:0;';
+  if (!User.list.length) User.renderProfile(null);
+  else User.renderList();
+  requestAnimationFrame(function() { requestAnimationFrame(function() {
+    panel.style.transform = 'translateX(0)';
+    panel.style.opacity = '1';
+  }); });
+  App.bindSwipeBack(panel, function() {
+    /* ★ 如果当前在编辑页，滑动返回到列表页；如果在列表页，关闭面板 */
+    if (User._currentView === 'profile') {
+      if (User.list.length) User.renderList();
+      else User.close();
+    } else {
+      User.close();
+    }
+  });
+},
 
     close: function() {
       var panel = App.$('#userPanel');
