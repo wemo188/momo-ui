@@ -281,6 +281,54 @@ var Offline={
   getWordCount:function(){return App.LS.get('offlineWC_'+Offline.charId)||400;},
   setWordCount:function(n){App.LS.set('offlineWC_'+Offline.charId,n);Offline.wordCount=n;},
 
+pick: function() {
+  if (!App.character || !App.character.list || !App.character.list.length) {
+    App.showToast('请先添加角色');
+    return;
+  }
+  if (App.character.list.length === 1) {
+    Offline.open(App.character.list[0].id);
+    return;
+  }
+
+  var old = document.querySelector('#offlineCharPicker');
+  if (old) old.remove();
+
+  var picker = document.createElement('div');
+  picker.id = 'offlineCharPicker';
+  picker.style.cssText = 'position:fixed;inset:0;z-index:100020;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.35);';
+
+  var listHtml = App.character.list.map(function(c) {
+    var av = c.avatar
+      ? '<img src="' + App.escAttr(c.avatar) + '" style="width:36px;height:36px;border-radius:50%;object-fit:cover;">'
+      : '<div style="width:36px;height:36px;border-radius:50%;background:rgba(126,163,201,.15);display:flex;align-items:center;justify-content:center;"><svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:none;stroke:#adcdea;stroke-width:1.8;"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></div>';
+    return '<div data-cid="' + c.id + '" style="display:flex;align-items:center;gap:12px;padding:12px 16px;cursor:pointer;border-bottom:1px solid rgba(0,0,0,.04);-webkit-tap-highlight-color:transparent;">' +
+      av +
+      '<span style="font-size:14px;font-weight:600;color:#2e4258;">' + App.esc(c.name || '未命名') + '</span>' +
+    '</div>';
+  }).join('');
+
+  picker.innerHTML =
+    '<div style="background:rgba(255,255,255,.95);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-radius:14px;padding:16px 0;width:280px;max-height:60vh;overflow-y:auto;box-shadow:0 8px 30px rgba(0,0,0,.15);">' +
+      '<div style="font-size:14px;font-weight:700;color:#2e4258;text-align:center;padding:0 16px 12px;border-bottom:1px solid rgba(0,0,0,.04);">选择角色</div>' +
+      listHtml +
+      '<div style="text-align:center;padding:12px;">' +
+        '<button type="button" id="olPickCancel" style="background:none;border:none;color:#999;font-size:12px;cursor:pointer;font-family:inherit;">取消</button>' +
+      '</div>' +
+    '</div>';
+
+  document.body.appendChild(picker);
+
+  picker.addEventListener('click', function(e) { if (e.target === picker) picker.remove(); });
+  picker.querySelector('#olPickCancel').addEventListener('click', function() { picker.remove(); });
+  picker.querySelectorAll('[data-cid]').forEach(function(el) {
+    el.addEventListener('click', function() {
+      picker.remove();
+      Offline.open(el.dataset.cid);
+    });
+  });
+},
+
   open:function(charId){
     if(!App.character){App.showToast('character模块未加载');return;}
     var c=App.character.getById(charId);if(!c){App.showToast('角色不存在');return;}
