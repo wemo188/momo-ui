@@ -99,9 +99,9 @@ function buildTimeInfo(charId){
 }
 
 function getQuotePair(style){
-  if(style==='double')return['\u201C','\u201D'];
   if(style==='straight')return['"','"'];
-  return['「','」'];
+  if(style==='corner')return['「','」'];
+  return['\u201C','\u201D'];
 }
 
 function getPovText(pov,callName,qp){
@@ -121,7 +121,6 @@ function buildFormatRules(charData,settings){
   var povText=getPovText(pov,callName,qp);
 
   var sceneHint=App.LS.get('olScene_'+(charData?charData.id:''));
-
   var baseIdentity='你是'+qp[0]+charName+qp[1]+'，正在进行一场角色扮演叙事。';
   if(sceneHint){
     baseIdentity+='当前的场景和背景由「场景/时间线」描述，请严格遵循该设定进行互动。';
@@ -143,7 +142,7 @@ function buildFormatRules(charData,settings){
       '【长文叙事规则】\n'+
       '1. 使用小说叙事风格。包含对话、动作描写、心理描写、环境描写、感官细节。\n'+
       '2. '+povText+'\n'+
-      '3. 角色说话时使用 '+qp[0]+qp[1]+' 包裹对话内容。\n'+
+      '3. 角色说话时使用 '+qp[0]+qp[1]+' 包裹对话内容。绝对不要使用英文引号""，必须使用中文 '+qp[0]+qp[1]+'。\n'+
       '4. 叙事文字不需要任何特殊标记，直接描写即可。\n'+
       '5. 叙事节奏自然流畅，有张有弛。情节推进适度，不要仓促也不要拖沓。\n'+
       '6. 每次回复是完整的一段叙事，直接输出，不要分条，不要用 '+SPLIT+' 分隔。\n'+
@@ -154,14 +153,17 @@ function buildFormatRules(charData,settings){
       '2. 不要在回复末尾用问题引导用户做选择（如"你要怎么做？""你选择A还是B？"）。\n'+
       '3. 不要写旁白式的总结性语句（如"这一刻，两人之间的关系发生了微妙的变化"）。\n'+
       '4. 不要使用网文模板、八股叙事、油腻煽情。\n'+
-      '5. 不要重复之前已经描写过的内容。'+
+      '5. 不要重复之前已经描写过的内容。\n'+
+      '6. 不要使用英文引号 ""，必须使用 '+qp[0]+qp[1]+'。'+
       wcRule;
   }
 
-  /* 短言叙事模式 */
+  var minM=Math.max(1,settings.minMsgs||1);
+  var maxM=Math.max(minM,settings.maxMsgs||4);
+
   return baseIdentity+'\n\n'+
     '【短言叙事规则】\n'+
-    '1. 每次回复发送 1 到 4 条独立消息，用 '+SPLIT+' 分隔。\n'+
+    '1. 每次回复发送 '+minM+' 到 '+maxM+' 条独立消息，用 '+SPLIT+' 分隔。\n'+
     '2. '+povText+'\n'+
     '3. 角色说的话直接写文字，不加引号。\n'+
     '4. 动作和神态描写用中文括号包裹：（他微微侧过头，目光落在窗外）\n'+
@@ -173,11 +175,11 @@ function buildFormatRules(charData,settings){
     '2. 不要在末尾问"你要怎么做"或"你打算怎么回应"。\n'+
     '3. 不要使用引号包裹对话。对话直接写。\n'+
     '4. 不要使用 *单星号* 包裹动作。动作用（中文括号）。\n\n'+
+    '【条数强调】你必须发送 '+minM+' 到 '+maxM+' 条消息，用 '+SPLIT+' 分隔。少于 '+minM+' 条是严重错误。\n\n'+
     '示例（4条消息）：\n'+
     '**街角的咖啡店里弥漫着浓郁的香气**'+SPLIT+'（他抬起头，看到你走进来，嘴角微微上扬）'+SPLIT+'来了？我还以为你不来了'+SPLIT+'（把对面的椅子往外拉了拉）';
 }
 
-/* 智能拆分：短言模式用 */
 function smartSplitShort(text){
   text=(text||'').trim();if(!text)return[];
   if(text.indexOf(SPLIT)>=0)return text.split(SPLIT).map(function(t){return t.trim();}).filter(Boolean);
@@ -187,7 +189,6 @@ function smartSplitShort(text){
   return[text];
 }
 
-/* 收集世界书 */
 function collectWorldBookEntries(charId,chatHistory){
   var result={before:[],after:[],depth:[]};
   if(!App.worldbook)return result;
@@ -212,7 +213,6 @@ function collectWorldBookEntries(charId,chatHistory){
   return result;
 }
 
-/* 获取启用的预设 */
 function getActivePreset(){
   if(!App.preset)return null;
   var list=App.LS.get('presetList')||[];
@@ -220,7 +220,6 @@ function getActivePreset(){
   return null;
 }
 
-/* ★ 核心：构建 apiMessages（完整版，和 chat.js 同等结构） */
 function buildApiMessages(charData,userData,chatHistory,settings){
   var preset=getActivePreset();
   var order=preset&&preset.order?preset.order:null;
@@ -243,7 +242,6 @@ function buildApiMessages(charData,userData,chatHistory,settings){
     sys_post:charData&&charData.postInstruction?charData.postInstruction:''
   };
 
-  /* 默认 order */
   if(!order||!order.length){
     order=[];
     if(presetItems.length){presetItems.forEach(function(it,i){if(it.mode!=='depth')order.push({type:'user',idx:i});});}
@@ -260,14 +258,11 @@ function buildApiMessages(charData,userData,chatHistory,settings){
   var depthInjects=[];
   var hitHistory=false;
 
-  /* 格式规则永远最前 */
   beforeHistory.push(buildFormatRules(charData,settings));
 
-  /* 时间天气 */
   var timeInfo=buildTimeInfo(charId);
   if(timeInfo)beforeHistory.push('【当前时间】\n'+timeInfo);
 
-  /* 按 order 遍历 */
   order.forEach(function(o){
     if(o.type==='sys'){
       if(o.id==='sys_history'){hitHistory=true;return;}
@@ -296,22 +291,18 @@ function buildApiMessages(charData,userData,chatHistory,settings){
     }
   });
 
-  /* 世界书深度注入 */
   wbEntries.depth.forEach(function(d){depthInjects.push({content:d.content,depth:d.depth,name:''});});
 
-  /* 组装 apiMsgs */
   var apiMsgs=[];
   var sysText=beforeHistory.filter(Boolean).join('\n\n');
   if(sysText)apiMsgs.push({role:'system',content:sysText});
 
-  /* ★ 聊天历史 */
   var ctx=chatHistory.slice(-MAX_CONTEXT);
   var historyMsgs=[];
   ctx.forEach(function(m){
     if(m.role==='user'||m.role==='assistant')historyMsgs.push({role:m.role,content:m.content});
   });
 
-  /* 深度注入插入聊天历史中 */
   if(depthInjects.length&&historyMsgs.length){
     depthInjects.sort(function(a,b){return b.depth-a.depth;});
     depthInjects.forEach(function(d){
@@ -322,11 +313,9 @@ function buildApiMessages(charData,userData,chatHistory,settings){
 
   historyMsgs.forEach(function(m){apiMsgs.push(m);});
 
-  /* 后置内容 */
   var postText=afterHistory.filter(Boolean).join('\n\n');
   if(postText)apiMsgs.push({role:'system',content:postText});
 
-  /* 日志 */
   if(!App._promptLogs)App._promptLogs=[];
   var logEntry={ts:Date.now(),charName:(charData&&charData.name)||'未知',isProactive:false,msgCount:apiMsgs.length,
     tokenEstimate:Math.round(apiMsgs.reduce(function(s,m){return s+(m.content||'').length;},0)/2),
@@ -337,8 +326,6 @@ function buildApiMessages(charData,userData,chatHistory,settings){
 
   return apiMsgs;
 }
-
-/* ==================== 主模块 ==================== */
 
 var Offline={
   charId:null,charData:null,messages:[],isStreaming:false,abortCtrl:null,
@@ -477,7 +464,7 @@ var Offline={
           errDiv.style.cssText='font-size:11px;color:#c9706b;background:rgba(201,112,107,.08);border:1px solid rgba(201,112,107,.2);border-radius:8px;padding:8px 12px;margin:6px 20px;word-break:break-all;white-space:pre-wrap;';
           errDiv.textContent=cnMsg+'\n'+errMsg;
           container.appendChild(errDiv);
-          App.offlineUI.scrollBottom();
+          if(App.offlineUI)App.offlineUI.scrollBottom();
         }
       }
       Offline._backgroundMode=false;
@@ -486,14 +473,22 @@ var Offline={
     function updateStreamBubble(text){
       var bubble=App.$('#olStreamBubble');if(!bubble)return;
       var s=getSettings(Offline.charId);
+
+      var parsed=App.offlineUI?App.offlineUI.parseThinking(text):{think:'',main:text};
+      var mainText=parsed.main;
+
       if((s.mode||'short')==='long'){
-        bubble.innerHTML=App.offlineUI.formatProse(App.esc(text));
+        bubble.innerHTML=App.offlineUI?App.offlineUI.formatProse(App.esc(mainText)):App.esc(mainText);
       } else {
-        var parts=text.split(SPLIT);
+        var parts=mainText.split(SPLIT);
         var last=(parts[parts.length-1]||'').trim();
-        bubble.innerHTML=last?App.offlineUI.formatShort(App.esc(last)):'<span class="ol-typing-dot"></span><span class="ol-typing-dot"></span><span class="ol-typing-dot"></span>';
+        if(last){
+          bubble.innerHTML=App.offlineUI?App.offlineUI.formatShort(App.esc(last)):App.esc(last);
+        } else {
+          bubble.innerHTML='<span class="ol-typing-dot"></span><span class="ol-typing-dot"></span><span class="ol-typing-dot"></span>';
+        }
       }
-      App.offlineUI.scrollBottom();
+      if(App.offlineUI)App.offlineUI.scrollBottom();
     }
 
     function onStreamDone(text){
@@ -506,12 +501,22 @@ var Offline={
 
     function finishText(text){
       var s=getSettings(Offline.charId);var now=Date.now();
+
+      var parsed=App.offlineUI?App.offlineUI.parseThinking(text):{think:'',main:text};
+      var storeText=text;
+
       if((s.mode||'short')==='long'){
-        Offline.messages.push({role:'assistant',content:text,ts:now});
+        Offline.messages.push({role:'assistant',content:storeText,ts:now});
       } else {
-        var parts=smartSplitShort(text);
+        var mainText=parsed.main;
+        var thinkText=parsed.think;
+        var parts=smartSplitShort(mainText);
         parts.forEach(function(part,i){
-          Offline.messages.push({role:'assistant',content:part,ts:now+i*1000});
+          var content=part;
+          if(i===0&&thinkText){
+            content='<think>'+thinkText+'</think>'+part;
+          }
+          Offline.messages.push({role:'assistant',content:content,ts:now+i*1000});
         });
       }
       Offline.saveMsgs();
@@ -529,9 +534,12 @@ var Offline={
       if((s.mode||'short')==='long'){
         Offline.messages.push({role:'assistant',content:partial,ts:now});
       } else {
-        var parts=smartSplitShort(partial);
+        var parsed=App.offlineUI?App.offlineUI.parseThinking(partial):{think:'',main:partial};
+        var parts=smartSplitShort(parsed.main);
         parts.forEach(function(part,i){
-          Offline.messages.push({role:'assistant',content:part,ts:now+i*1000});
+          var content=part;
+          if(i===0&&parsed.think)content='<think>'+parsed.think+'</think>'+part;
+          Offline.messages.push({role:'assistant',content:content,ts:now+i*1000});
         });
       }
       Offline.saveMsgs();
@@ -546,7 +554,6 @@ var Offline={
   init:function(){
     App.offline=Offline;
 
-    /* 底部栏"线下"按钮 */
     App.safeOn('#dockCheck','click',function(){
       var chars=App.character?App.character.list:[];
       if(!chars||!chars.length){App.showToast('请先添加角色');return;}
