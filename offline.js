@@ -135,15 +135,13 @@ function buildLongRules(cfg,charData,wordCount){
     '2. 用「」包裹角色说的话。\n'+
     '3. 可以描写动作、表情、心理活动、环境氛围、感官细节。\n'+
     '4. 描写要细腻生动，有画面感。\n'+
-    '5. 字数要求：'+wc+'字左右（允许±20%浮动）。这是铁律，严格遵守。\n'+
+    '5. 字数要求：'+wc+'字左右（允许±20%浮动）。这是铁律，绝对严格遵守，不得偷懒缩减。\n'+
     '6. 使用'+lang+'。\n'+
     '7. 直接输出叙事内容，不要分条，不要用 '+SPLIT+'。\n'+
     '8. 不要加任何标记、注释、解释。只输出纯叙事文本。\n'+
-    '9. 禁止说教、禁止鸡汤、禁止客服式回复。\n\n'+
-    '示例片段：\n'+
-    '她侧过身，长发从肩上滑落，指尖无意识地卷着发梢。窗外的雨声渐大，打在玻璃上发出细碎的声响。\n'+
-    '「……你刚才说什么？」她的声音很轻，像是怕惊扰了什么似的。\n'+
-    '她没有看他，目光落在桌上那杯已经凉透的咖啡上，琥珀色的液面映出模糊的光影。';
+    '9. 禁止说教、禁止鸡汤、禁止客服式回复。\n'+
+    (wc>=2000?'10. 字数较多时合理分段，保持阅读节奏。每段之间空一行。\n':'')+
+    (wc>=5000?'11. 这是超长文要求（'+wc+'字），请充分展开细节描写，不要急于推进剧情。场景、心理、对话、动作都要详细铺开。\n':'');
 }
 
 /* 构建 API 消息 */
@@ -279,7 +277,7 @@ var Offline={
   getMode:function(){return App.LS.get('offlineMode_'+Offline.charId)||'short';},
   setMode:function(m){App.LS.set('offlineMode_'+Offline.charId,m);Offline.mode=m;},
   getWordCount:function(){return App.LS.get('offlineWC_'+Offline.charId)||400;},
-  setWordCount:function(n){App.LS.set('offlineWC_'+Offline.charId,n);Offline.wordCount=n;},
+setWordCount:function(n){App.LS.set('offlineWC_'+Offline.charId,n);Offline.wordCount=n;},
 
 pick: function() {
   if (!App.character || !App.character.list || !App.character.list.length) {
