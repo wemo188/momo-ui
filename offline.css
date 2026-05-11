@@ -2,11 +2,10 @@
    线下剧情 - 根容器
 ========================= */
 .ol-root {
-  position: relative;
+  position: absolute;
+  inset: 0;
   display: flex;
   flex-direction: column;
-  width: 100%;
-  height: 100%;
   overflow: hidden;
   background: #fff;
   -webkit-touch-callout: none;
@@ -64,7 +63,7 @@
   z-index: 10;
   display: flex;
   align-items: center;
-  padding: 52px 12px 10px;
+  padding: env(safe-area-inset-top, 20px) 12px 10px;
   flex-shrink: 0;
   gap: 6px;
   background: rgba(255,255,255,.85);
@@ -267,7 +266,7 @@
   display: flex;
   align-items: flex-end;
   gap: 6px;
-  padding: 10px 10px calc(10px + env(safe-area-inset-bottom, 8px));
+  padding: 8px 10px calc(8px + var(--safe-bottom, env(safe-area-inset-bottom, 20px)));
   background: rgba(255,255,255,.75);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
