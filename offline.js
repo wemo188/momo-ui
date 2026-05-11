@@ -3,7 +3,6 @@
 'use strict';
 var App=window.App;if(!App)return;
 
-var SPLIT='|||';
 var MAX_CONTEXT=40;
 
 function pad2(n){return n<10?'0'+n:''+n;}
@@ -114,7 +113,6 @@ function buildFormatRules(charData,settings){
   var charName=charData?charData.name:'角色';
   var userName=getUserName();
   var callName=(charData&&charData.callName)?charData.callName:userName;
-  var mode=settings.mode||'short';
   var pov=settings.pov||'second';
   var qp=getQuotePair(settings.quoteStyle);
   var wc=settings.wordCount||0;
@@ -128,65 +126,33 @@ function buildFormatRules(charData,settings){
     baseIdentity+='场景和背景由对话上下文自然发展。';
   }
 
-  if(mode==='long'){
-    var wcRule='';
-    if(wc>0){
-      var min=Math.round(wc*0.85);var max=Math.round(wc*1.15);
-      wcRule='\n\n【字数要求 - 绝对遵守】\n'+
-        '你的每次回复必须控制在 '+min+' 到 '+max+' 字之间。\n'+
-        '少于 '+Math.round(wc*0.7)+' 字是严重错误。超过 '+Math.round(wc*1.3)+' 字也是严重错误。\n'+
-        '如果用户明确指定了其他字数，以用户指定的为准。';
-    }
-
-    return baseIdentity+'\n\n'+
-      '【长文叙事规则】\n'+
-      '1. 使用小说叙事风格。包含对话、动作描写、心理描写、环境描写、感官细节。\n'+
-      '2. '+povText+'\n'+
-      '3. 角色说话时使用 '+qp[0]+qp[1]+' 包裹对话内容。绝对不要使用英文引号""，必须使用中文 '+qp[0]+qp[1]+'。\n'+
-      '4. 叙事文字不需要任何特殊标记，直接描写即可。\n'+
-      '5. 叙事节奏自然流畅，有张有弛。情节推进适度，不要仓促也不要拖沓。\n'+
-      '6. 每次回复是完整的一段叙事，直接输出，不要分条，不要用 '+SPLIT+' 分隔。\n'+
-      '7. 描写要有画面感和沉浸感。善用五感细节（视觉、听觉、触觉、嗅觉、味觉）。\n'+
-      '8. 对话和叙事自然交织，不要变成纯对话。\n\n'+
-      '【绝对禁止】\n'+
-      '1. 不要替用户角色说话、行动或做任何决定。不要写用户的对话和动作。\n'+
-      '2. 不要在回复末尾用问题引导用户做选择（如"你要怎么做？""你选择A还是B？"）。\n'+
-      '3. 不要写旁白式的总结性语句（如"这一刻，两人之间的关系发生了微妙的变化"）。\n'+
-      '4. 不要使用网文模板、八股叙事、油腻煽情。\n'+
-      '5. 不要重复之前已经描写过的内容。\n'+
-      '6. 不要使用英文引号 ""，必须使用 '+qp[0]+qp[1]+'。'+
-      wcRule;
+  var wcRule='';
+  if(wc>0){
+    var min=Math.round(wc*0.85);var max=Math.round(wc*1.15);
+    wcRule='\n\n【字数要求 - 绝对遵守】\n'+
+      '你的每次回复必须控制在 '+min+' 到 '+max+' 字之间。\n'+
+      '少于 '+Math.round(wc*0.7)+' 字是严重错误。超过 '+Math.round(wc*1.3)+' 字也是严重错误。\n'+
+      '如果用户明确指定了其他字数，以用户指定的为准。';
   }
 
-  var minM=Math.max(1,settings.minMsgs||1);
-  var maxM=Math.max(minM,settings.maxMsgs||4);
-
   return baseIdentity+'\n\n'+
-    '【短言叙事规则】\n'+
-    '1. 每次回复发送 '+minM+' 到 '+maxM+' 条独立消息，用 '+SPLIT+' 分隔。\n'+
+    '【长文叙事规则】\n'+
+    '1. 使用小说叙事风格。包含对话、动作描写、心理描写、环境描写、感官细节。\n'+
     '2. '+povText+'\n'+
-    '3. 角色说的话直接写文字，不加引号。\n'+
-    '4. 动作和神态描写用中文括号包裹：（他微微侧过头，目光落在窗外）\n'+
-    '5. 旁白和环境描写用 **双星号** 包裹：**雨滴顺着玻璃窗缓缓滑落**\n'+
-    '6. 每条消息简短自然，不超过三四行。像真实的对话节奏。\n'+
-    '7. 动作描写和旁白可以单独占一条消息，也可以和对话混在一起。\n\n'+
+    '3. 角色说话时使用 '+qp[0]+qp[1]+' 包裹对话内容。绝对不要使用英文引号""，必须使用中文 '+qp[0]+qp[1]+'。\n'+
+    '4. 叙事文字不需要任何特殊标记，直接描写即可。\n'+
+    '5. 叙事节奏自然流畅，有张有弛。情节推进适度，不要仓促也不要拖沓。\n'+
+    '6. 每次回复是完整的一段叙事，直接输出，不要分条。\n'+
+    '7. 描写要有画面感和沉浸感。善用五感细节（视觉、听觉、触觉、嗅觉、味觉）。\n'+
+    '8. 对话和叙事自然交织，不要变成纯对话。\n\n'+
     '【绝对禁止】\n'+
-    '1. 不要替用户说话或行动。你只控制'+qp[0]+charName+qp[1]+'和NPC。\n'+
-    '2. 不要在末尾问"你要怎么做"或"你打算怎么回应"。\n'+
-    '3. 不要使用引号包裹对话。对话直接写。\n'+
-    '4. 不要使用 *单星号* 包裹动作。动作用（中文括号）。\n\n'+
-    '【条数强调】你必须发送 '+minM+' 到 '+maxM+' 条消息，用 '+SPLIT+' 分隔。少于 '+minM+' 条是严重错误。\n\n'+
-    '示例（4条消息）：\n'+
-    '**街角的咖啡店里弥漫着浓郁的香气**'+SPLIT+'（他抬起头，看到你走进来，嘴角微微上扬）'+SPLIT+'来了？我还以为你不来了'+SPLIT+'（把对面的椅子往外拉了拉）';
-}
-
-function smartSplitShort(text){
-  text=(text||'').trim();if(!text)return[];
-  if(text.indexOf(SPLIT)>=0)return text.split(SPLIT).map(function(t){return t.trim();}).filter(Boolean);
-  if(/\n\s*\n/.test(text))return text.split(/\n\s*\n/).map(function(t){return t.trim();}).filter(Boolean);
-  var lines=text.split('\n').map(function(t){return t.trim();}).filter(Boolean);
-  if(lines.length>=2)return lines;
-  return[text];
+    '1. 不要替用户角色说话、行动或做任何决定。不要写用户的对话和动作。\n'+
+    '2. 不要在回复末尾用问题引导用户做选择（如"你要怎么做？""你选择A还是B？"）。\n'+
+    '3. 不要写旁白式的总结性语句（如"这一刻，两人之间的关系发生了微妙的变化"）。\n'+
+    '4. 不要使用网文模板、八股叙事、油腻煽情。\n'+
+    '5. 不要重复之前已经描写过的内容。\n'+
+    '6. 不要使用英文引号 ""，必须使用 '+qp[0]+qp[1]+'。'+
+    wcRule;
 }
 
 function collectWorldBookEntries(charId,chatHistory){
@@ -261,11 +227,11 @@ function buildApiMessages(charData,userData,chatHistory,settings){
   beforeHistory.push(buildFormatRules(charData,settings));
 
   var charCfg=App.charMgr?App.charMgr.getCharConfig(charId):null;
-var twEnabled=charCfg?charCfg.timeWeather:true;
-if(twEnabled){
-  var timeInfo=buildTimeInfo(charId);
-  if(timeInfo)beforeHistory.push('【当前时间】\n'+timeInfo);
-}
+  var twEnabled=charCfg?charCfg.timeWeather:true;
+  if(twEnabled){
+    var timeInfo=buildTimeInfo(charId);
+    if(timeInfo)beforeHistory.push('【当前时间】\n'+timeInfo);
+  }
 
   order.forEach(function(o){
     if(o.type==='sys'){
@@ -347,49 +313,48 @@ var Offline={
     }
   },
 
-  
-openFor:function(charId){
-  if(!App.character)return;
-  var c=App.character.getById(charId);
-  if(!c){App.showToast('角色不存在');return;}
-  Offline.charId=charId;Offline.charData=c;Offline.loadMsgs();
-  Offline._backgroundMode=false;Offline._plusOpen=false;
+  openFor:function(charId){
+    if(!App.character)return;
+    var c=App.character.getById(charId);
+    if(!c){App.showToast('角色不存在');return;}
+    Offline.charId=charId;Offline.charData=c;Offline.loadMsgs();
+    Offline._backgroundMode=false;Offline._plusOpen=false;
 
-  var panel=App.$('#offlinePanel');
-  if(panel)panel.remove();
+    var panel=App.$('#offlinePanel');
+    if(panel)panel.remove();
 
-  panel=document.createElement('div');
-  panel.id='offlinePanel';
-  panel.className='ol-panel';
-  document.body.appendChild(panel);
+    panel=document.createElement('div');
+    panel.id='offlinePanel';
+    panel.className='ol-panel';
+    document.body.appendChild(panel);
 
-  if(App.offlineUI)App.offlineUI.render(panel,c);
-  if(App.offlineUI)App.offlineUI.renderMessages();
-  if(App.offlineUI)App.offlineUI.bindEvents();
+    if(App.offlineUI)App.offlineUI.render(panel,c);
+    if(App.offlineUI)App.offlineUI.renderMessages();
+    if(App.offlineUI)App.offlineUI.bindEvents();
 
-  requestAnimationFrame(function(){requestAnimationFrame(function(){
-    panel.classList.add('show');
-  });});
-},
+    requestAnimationFrame(function(){requestAnimationFrame(function(){
+      panel.classList.add('show');
+    });});
+  },
 
-close:function(){
-  Offline.dismissCtx();
-  var panel=App.$('#offlinePanel');
-  if(!panel)return;
-  panel.classList.remove('show');
-  setTimeout(function(){if(panel.parentNode)panel.remove();},350);
-},
+  close:function(){
+    Offline.dismissCtx();
+    var panel=App.$('#offlinePanel');
+    if(!panel)return;
+    panel.classList.remove('show');
+    setTimeout(function(){if(panel.parentNode)panel.remove();},350);
+  },
 
   sendUser:function(){
-  var input=App.$('#olInput');if(!input)return;
-  var text=input.value.trim();if(!text)return;
-  input.value='';input.style.height='auto';
-  var pp=App.$('#olPlusPanel');if(pp){pp.classList.remove('show');Offline._plusOpen=false;}
-  Offline.messages.push({role:'user',content:text,ts:Date.now()});
-  Offline.saveMsgs();
-  if(App.offlineUI)App.offlineUI.renderMessages();
-  Offline.requestAI();
-},
+    var input=App.$('#olInput');if(!input)return;
+    var text=input.value.trim();if(!text)return;
+    input.value='';input.style.height='auto';
+    var pp=App.$('#olPlusPanel');if(pp){pp.classList.remove('show');Offline._plusOpen=false;}
+    Offline.messages.push({role:'user',content:text,ts:Date.now()});
+    Offline.saveMsgs();
+    if(App.offlineUI)App.offlineUI.renderMessages();
+    Offline.requestAI();
+  },
 
   requestAI:function(){
     var api=getApi(Offline.charId);
@@ -477,22 +442,9 @@ close:function(){
 
     function updateStreamBubble(text){
       var bubble=App.$('#olStreamBubble');if(!bubble)return;
-      var s=getSettings(Offline.charId);
-
       var parsed=App.offlineUI?App.offlineUI.parseThinking(text):{think:'',main:text};
       var mainText=parsed.main;
-
-      if((s.mode||'short')==='long'){
-        bubble.innerHTML=App.offlineUI?App.offlineUI.formatProse(App.esc(mainText)):App.esc(mainText);
-      } else {
-        var parts=mainText.split(SPLIT);
-        var last=(parts[parts.length-1]||'').trim();
-        if(last){
-          bubble.innerHTML=App.offlineUI?App.offlineUI.formatShort(App.esc(last)):App.esc(last);
-        } else {
-          bubble.innerHTML='<span class="ol-typing-dot"></span><span class="ol-typing-dot"></span><span class="ol-typing-dot"></span>';
-        }
-      }
+      bubble.innerHTML=App.offlineUI?App.offlineUI.formatProse(App.esc(mainText)):App.esc(mainText);
       if(App.offlineUI)App.offlineUI.scrollBottom();
     }
 
@@ -505,25 +457,8 @@ close:function(){
     }
 
     function finishText(text){
-      var s=getSettings(Offline.charId);var now=Date.now();
-
-      var parsed=App.offlineUI?App.offlineUI.parseThinking(text):{think:'',main:text};
-      var storeText=text;
-
-      if((s.mode||'short')==='long'){
-        Offline.messages.push({role:'assistant',content:storeText,ts:now});
-      } else {
-        var mainText=parsed.main;
-        var thinkText=parsed.think;
-        var parts=smartSplitShort(mainText);
-        parts.forEach(function(part,i){
-          var content=part;
-          if(i===0&&thinkText){
-            content='<think>'+thinkText+'</think>'+part;
-          }
-          Offline.messages.push({role:'assistant',content:content,ts:now+i*1000});
-        });
-      }
+      var now=Date.now();
+      Offline.messages.push({role:'assistant',content:text,ts:now});
       Offline.saveMsgs();
       if(App.offlineUI)App.offlineUI.renderMessages();
     }
@@ -535,18 +470,8 @@ close:function(){
     Offline.isStreaming=false;
     if(App.offlineUI){App.offlineUI.updateAiBtn();App.offlineUI.updateTyping(false);}
     if(partial){
-      var s=getSettings(Offline.charId);var now=Date.now();
-      if((s.mode||'short')==='long'){
-        Offline.messages.push({role:'assistant',content:partial,ts:now});
-      } else {
-        var parsed=App.offlineUI?App.offlineUI.parseThinking(partial):{think:'',main:partial};
-        var parts=smartSplitShort(parsed.main);
-        parts.forEach(function(part,i){
-          var content=part;
-          if(i===0&&parsed.think)content='<think>'+parsed.think+'</think>'+part;
-          Offline.messages.push({role:'assistant',content:content,ts:now+i*1000});
-        });
-      }
+      var now=Date.now();
+      Offline.messages.push({role:'assistant',content:partial,ts:now});
       Offline.saveMsgs();
     }
     if(App.offlineUI)App.offlineUI.renderMessages();
