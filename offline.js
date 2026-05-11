@@ -1,3 +1,4 @@
+
 (function(){
 'use strict';
 var App=window.App;if(!App)return;
@@ -5,49 +6,202 @@ var App=window.App;if(!App)return;
 var SPLIT='|||';
 var MAX_CONTEXT=40;
 
-function fmtTime(ts){var d=new Date(ts);return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');}
 function pad2(n){return n<10?'0'+n:''+n;}
 
-function getCfg(charId){
-  if(App.charMgr&&App.charMgr.charConfigs&&App.charMgr.charConfigs[charId])return App.charMgr.charConfigs[charId];
-  if(App.charMgr&&App.charMgr.globalConfig)return App.charMgr.globalConfig;
-  return {mainLang:'简体中文',bilingual:false,biLang:'English',biStyle:'bracket',showTyping:true,minMsgs:1,maxMsgs:3,timeWeather:true,charCity:'',charRealCity:'',apiMode:'global',apiSelect:'',temperature:0.8,freqPenalty:0.3,presPenalty:0.3};
+function getUserName(){
+  if(App.user){var u=App.user.getActiveUser();if(u)return u.nickname||u.realName||'你';}
+  return '你';
 }
 
 function getApi(charId){
-  var cfg=getCfg(charId);
-  if(cfg.apiMode==='individual'&&cfg.apiSelect){
-    var list=App.LS.get('apiConfigs')||[];
-    for(var i=0;i<list.length;i++){if(list[i].name===cfg.apiSelect)return list[i];}
+  if(App.charMgr){
+    var cfg=App.charMgr.getCharConfig(charId);
+    if(cfg&&cfg.apiMode==='individual'&&cfg.apiSelect){
+      var list=App.LS.get('apiConfigs')||[];
+      for(var i=0;i<list.length;i++){if(list[i].name===cfg.apiSelect)return list[i];}
+    }
   }
   return App.api?App.api.getActiveConfig():null;
 }
 
 function getParams(charId){
-  var cfg=getCfg(charId);
-  if(cfg.apiMode==='individual')return{temperature:cfg.temperature,freqPenalty:cfg.freqPenalty,presPenalty:cfg.presPenalty};
+  if(App.charMgr){
+    var cfg=App.charMgr.getCharConfig(charId);
+    if(cfg&&cfg.apiMode==='individual')return{temperature:cfg.temperature,freqPenalty:cfg.freqPenalty,presPenalty:cfg.presPenalty};
+  }
   return App.api?App.api.getParams():{temperature:0.8,freqPenalty:0.3,presPenalty:0.3};
 }
 
-function getUserName(){
-  if(App.user){var u=App.user.getActiveUser();if(u)return u.nickname||u.realName||'对方';}
-  return '对方';
+function getSettings(charId){return App.LS.get('olSettings_'+charId)||{};}
+
+function translateError(msg){
+  if(!msg)return '不知道发生了什么，再试一次看看？';
+  if(msg.indexOf('401')>=0)return 'API Key 好像失效了…检查一下吧';
+  if(msg.indexOf('403')>=0)return '被拒之门外了…权限不够呀';
+  if(msg.indexOf('404')>=0)return '找不到这个地址或模型诶…是不是填错了？';
+  if(msg.indexOf('429')>=0)return '请求太频繁啦，休息一下再来吧';
+  if(msg.indexOf('500')>=0)return '服务器那边出问题了…不是你的错哦';
+  if(msg.indexOf('502')>=0)return '网关打了个盹…稍等一下再试？';
+  if(msg.indexOf('503')>=0)return '服务器在维护中，过会儿再来吧~';
+  if(msg.indexOf('timeout')>=0||msg.indexOf('Timeout')>=0)return '等太久了，网络好像不太给力';
+  if(msg.indexOf('Failed to fetch')>=0||msg.indexOf('NetworkError')>=0)return '网络断开了…检查一下WiFi或数据？';
+  if(msg.indexOf('AbortError')>=0)return '已经停下来啦~';
+  if(msg.indexOf('model')>=0&&msg.indexOf('not')>=0)return '这个模型不存在诶…换一个试试？';
+  if(msg.indexOf('insufficient_quota')>=0)return 'API 余额不够了…该充值啦';
+  if(msg.indexOf('context_length')>=0||msg.indexOf('token')>=0)return '聊太多啦，消息超出长度限制了…清理一些旧消息试试？';
+  return '出了点小状况：'+msg;
 }
 
+function buildCharInfo(c){
+  if(!c)return '';var ci='';
+  if(c.name)ci+='姓名：'+c.name+'\n';
+  if(c.gender)ci+='性别：'+c.gender+'\n';
+  if(c.age)ci+='年龄：'+c.age+'\n';
+  var un=getUserName();
+  if(c.relation)ci+='与'+un+'的关系：'+c.relation+'\n';
+  if(c.callName)ci+='对'+un+'的称呼：'+c.callName+'\n';
+  if(c.profile)ci+='\n'+c.profile+'\n';
+  return ci;
+}
+
+function buildUserInfo(u){
+  if(!u)return '';var ui='';
+  if(u.realName||u.nickname)ui+='名字：'+(u.nickname||u.realName)+'\n';
+  if(u.gender)ui+='性别：'+u.gender+'\n';
+  if(u.age)ui+='年龄：'+u.age+'\n';
+  if(u.bio)ui+='简介：'+u.bio+'\n';
+  return ui;
+}
+
+function buildTimeInfo(charId){
+  var now=new Date();var hour=now.getHours();
+  var period='';
+  if(hour<5)period='凌晨';else if(hour<8)period='清晨';else if(hour<11)period='上午';
+  else if(hour<13)period='中午';else if(hour<17)period='下午';else if(hour<19)period='傍晚';
+  else if(hour<23)period='晚上';else period='深夜';
+  var info='当前时间：'+now.getFullYear()+'年'+(now.getMonth()+1)+'月'+now.getDate()+'日 '+['周日','周一','周二','周三','周四','周五','周六'][now.getDay()]+' '+pad2(now.getHours())+':'+pad2(now.getMinutes())+' ('+period+')';
+
+  if(App.calendar){
+    var ws=App.calendar.getWeatherSummary();
+    if(ws){var userCity=App.calendar.getLocationForAI();info+='\n'+(userCity?'用户所在地（'+userCity+'）':'')+ws;}
+    var ss=App.calendar.getScheduleSummary();if(ss)info+='\n'+ss;
+  }
+
+  if(App.charMgr){
+    var ccfg=App.charMgr.getCharConfig(charId);
+    if(ccfg&&ccfg.timeWeather){
+      var charDisplay=ccfg.charCity||ccfg.charRealCity||'';
+      if(charDisplay)info+='\n角色所在城市：'+charDisplay;
+    }
+  }
+
+  return info;
+}
+
+function getQuotePair(style){
+  if(style==='double')return['\u201C','\u201D'];
+  if(style==='straight')return['"','"'];
+  return['「','」'];
+}
+
+function getPovText(pov,callName,qp){
+  if(pov==='first')return '用第一人称（我）描写用户'+qp[0]+callName+qp[1]+'的视角。用户自己的行动、感受、内心都从"我"的角度叙述。';
+  if(pov==='third')return '用第三人称描写，称呼用户为'+qp[0]+callName+qp[1]+'。';
+  return '用第二人称（你）指代用户'+qp[0]+callName+qp[1]+'。';
+}
+
+function buildFormatRules(charData,settings){
+  var charName=charData?charData.name:'角色';
+  var userName=getUserName();
+  var callName=(charData&&charData.callName)?charData.callName:userName;
+  var mode=settings.mode||'short';
+  var pov=settings.pov||'second';
+  var qp=getQuotePair(settings.quoteStyle);
+  var wc=settings.wordCount||0;
+  var povText=getPovText(pov,callName,qp);
+
+  var sceneHint=App.LS.get('olScene_'+(charData?charData.id:''));
+
+  var baseIdentity='你是'+qp[0]+charName+qp[1]+'，正在进行一场角色扮演叙事。';
+  if(sceneHint){
+    baseIdentity+='当前的场景和背景由「场景/时间线」描述，请严格遵循该设定进行互动。';
+  } else {
+    baseIdentity+='场景和背景由对话上下文自然发展。';
+  }
+
+  if(mode==='long'){
+    var wcRule='';
+    if(wc>0){
+      var min=Math.round(wc*0.85);var max=Math.round(wc*1.15);
+      wcRule='\n\n【字数要求 - 绝对遵守】\n'+
+        '你的每次回复必须控制在 '+min+' 到 '+max+' 字之间。\n'+
+        '少于 '+Math.round(wc*0.7)+' 字是严重错误。超过 '+Math.round(wc*1.3)+' 字也是严重错误。\n'+
+        '如果用户明确指定了其他字数，以用户指定的为准。';
+    }
+
+    return baseIdentity+'\n\n'+
+      '【长文叙事规则】\n'+
+      '1. 使用小说叙事风格。包含对话、动作描写、心理描写、环境描写、感官细节。\n'+
+      '2. '+povText+'\n'+
+      '3. 角色说话时使用 '+qp[0]+qp[1]+' 包裹对话内容。\n'+
+      '4. 叙事文字不需要任何特殊标记，直接描写即可。\n'+
+      '5. 叙事节奏自然流畅，有张有弛。情节推进适度，不要仓促也不要拖沓。\n'+
+      '6. 每次回复是完整的一段叙事，直接输出，不要分条，不要用 '+SPLIT+' 分隔。\n'+
+      '7. 描写要有画面感和沉浸感。善用五感细节（视觉、听觉、触觉、嗅觉、味觉）。\n'+
+      '8. 对话和叙事自然交织，不要变成纯对话。\n\n'+
+      '【绝对禁止】\n'+
+      '1. 不要替用户角色说话、行动或做任何决定。不要写用户的对话和动作。\n'+
+      '2. 不要在回复末尾用问题引导用户做选择（如"你要怎么做？""你选择A还是B？"）。\n'+
+      '3. 不要写旁白式的总结性语句（如"这一刻，两人之间的关系发生了微妙的变化"）。\n'+
+      '4. 不要使用网文模板、八股叙事、油腻煽情。\n'+
+      '5. 不要重复之前已经描写过的内容。'+
+      wcRule;
+  }
+
+  /* 短言叙事模式 */
+  return baseIdentity+'\n\n'+
+    '【短言叙事规则】\n'+
+    '1. 每次回复发送 1 到 4 条独立消息，用 '+SPLIT+' 分隔。\n'+
+    '2. '+povText+'\n'+
+    '3. 角色说的话直接写文字，不加引号。\n'+
+    '4. 动作和神态描写用中文括号包裹：（他微微侧过头，目光落在窗外）\n'+
+    '5. 旁白和环境描写用 **双星号** 包裹：**雨滴顺着玻璃窗缓缓滑落**\n'+
+    '6. 每条消息简短自然，不超过三四行。像真实的对话节奏。\n'+
+    '7. 动作描写和旁白可以单独占一条消息，也可以和对话混在一起。\n\n'+
+    '【绝对禁止】\n'+
+    '1. 不要替用户说话或行动。你只控制'+qp[0]+charName+qp[1]+'和NPC。\n'+
+    '2. 不要在末尾问"你要怎么做"或"你打算怎么回应"。\n'+
+    '3. 不要使用引号包裹对话。对话直接写。\n'+
+    '4. 不要使用 *单星号* 包裹动作。动作用（中文括号）。\n\n'+
+    '示例（4条消息）：\n'+
+    '**街角的咖啡店里弥漫着浓郁的香气**'+SPLIT+'（他抬起头，看到你走进来，嘴角微微上扬）'+SPLIT+'来了？我还以为你不来了'+SPLIT+'（把对面的椅子往外拉了拉）';
+}
+
+/* 智能拆分：短言模式用 */
+function smartSplitShort(text){
+  text=(text||'').trim();if(!text)return[];
+  if(text.indexOf(SPLIT)>=0)return text.split(SPLIT).map(function(t){return t.trim();}).filter(Boolean);
+  if(/\n\s*\n/.test(text))return text.split(/\n\s*\n/).map(function(t){return t.trim();}).filter(Boolean);
+  var lines=text.split('\n').map(function(t){return t.trim();}).filter(Boolean);
+  if(lines.length>=2)return lines;
+  return[text];
+}
+
+/* 收集世界书 */
 function collectWorldBookEntries(charId,chatHistory){
   var result={before:[],after:[],depth:[]};
   if(!App.worldbook)return result;
   var entries=App.worldbook.getEntriesForChar(charId);
   if(!entries||!entries.length)return result;
   var historyText='';
-  if(chatHistory&&chatHistory.length){historyText=chatHistory.map(function(m){return m.content||'';}).join(' ').toLowerCase();}
+  if(chatHistory&&chatHistory.length)historyText=chatHistory.map(function(m){return m.content||'';}).join(' ').toLowerCase();
   entries.forEach(function(e){
     if(e.enabled===false)return;
     var shouldInclude=false;
     if(e.always)shouldInclude=true;
     else if(e.useKeyword&&e.keyword){
-      var keywords=e.keyword.split(/[,，]/).map(function(k){return k.trim().toLowerCase();}).filter(Boolean);
-      for(var i=0;i<keywords.length;i++){if(historyText.indexOf(keywords[i])>=0){shouldInclude=true;break;}}
+      var kws=e.keyword.split(/[,，]/).map(function(k){return k.trim().toLowerCase();}).filter(Boolean);
+      for(var i=0;i<kws.length;i++){if(historyText.indexOf(kws[i])>=0){shouldInclude=true;break;}}
     } else shouldInclude=true;
     if(!shouldInclude)return;
     var pos=e.position||'before';
@@ -58,6 +212,7 @@ function collectWorldBookEntries(charId,chatHistory){
   return result;
 }
 
+/* 获取启用的预设 */
 function getActivePreset(){
   if(!App.preset)return null;
   var list=App.LS.get('presetList')||[];
@@ -65,157 +220,98 @@ function getActivePreset(){
   return null;
 }
 
-function buildCharInfo(charData){
-  if(!charData)return '';
-  var ci='';
-  if(charData.name)ci+='姓名：'+charData.name+'\n';
-  if(charData.gender)ci+='性别：'+charData.gender+'\n';
-  if(charData.age)ci+='年龄：'+charData.age+'\n';
-  var userName=getUserName();
-  if(charData.relation)ci+='与'+userName+'的关系：'+charData.relation+'\n';
-  if(charData.callName)ci+='对'+userName+'的称呼：'+charData.callName+'\n';
-  if(charData.profile)ci+='\n'+charData.profile+'\n';
-  return ci;
-}
-
-function buildUserInfo(userData){
-  if(!userData)return '';
-  var ui='';
-  if(userData.realName||userData.nickname)ui+='名字：'+(userData.nickname||userData.realName)+'\n';
-  if(userData.gender)ui+='性别：'+userData.gender+'\n';
-  if(userData.age)ui+='年龄：'+userData.age+'\n';
-  if(userData.bio)ui+='简介：'+userData.bio+'\n';
-  return ui;
-}
-
-function buildTimeWeather(cfg){
-  if(!cfg.timeWeather)return '';
-  var now=new Date();
-  var hour=now.getHours();
-  var period='';
-  if(hour<5)period='凌晨';else if(hour<8)period='清晨';else if(hour<11)period='上午';else if(hour<13)period='中午';else if(hour<17)period='下午';else if(hour<19)period='傍晚';else if(hour<23)period='晚上';else period='深夜';
-  var timeStr=now.getFullYear()+'年'+(now.getMonth()+1)+'月'+now.getDate()+'日 '+['周日','周一','周二','周三','周四','周五','周六'][now.getDay()]+' '+pad2(now.getHours())+':'+pad2(now.getMinutes())+' ('+period+')';
-  return '现在是：'+timeStr;
-}
-
-/* ★ 短言模式的格式规则 */
-function buildShortRules(cfg,charData){
-  var lang=cfg.mainLang||'简体中文';
-  var charName=charData&&charData.name?charData.name:'角色';
-  var userName=getUserName();
-  var callName=charData&&charData.callName?charData.callName:userName;
-  var minM=Math.max(1,cfg.minMsgs||1);
-  var maxM=Math.max(1,cfg.maxMsgs||3);
-
-  return '你叫「'+charName+'」，正在和「'+callName+'」面对面互动。这是线下场景，不是聊天软件。\n\n'+
-    '【格式规则 - 短言模式】\n'+
-    '1. 用（）包裹动作和神态描写。例如：（她歪了歪头）怎么了？\n'+
-    '2. 不用（）包裹的部分就是角色说的话。\n'+
-    '3. 每条消息不超过3-4行，保持简短。\n'+
-    '4. 每次回复发送 '+minM+' 到 '+maxM+' 条，用 '+SPLIT+' 分隔。\n'+
-    '5. 使用'+lang+'。\n'+
-    '6. 不要使用星号*描写动作，统一用（）。\n'+
-    '7. 不要加角色名前缀。\n'+
-    '8. 禁止说教、禁止鸡汤、禁止客服式回复。\n\n'+
-    '示例（2条消息）：\n'+
-    '（懒洋洋地靠在沙发上，连头都不抬）嗯…干嘛'+SPLIT+'（伸了个懒腰）今天不想动';
-}
-
-/* ★ 长文模式的格式规则 */
-function buildLongRules(cfg,charData,wordCount){
-  var lang=cfg.mainLang||'简体中文';
-  var charName=charData&&charData.name?charData.name:'角色';
-  var userName=getUserName();
-  var callName=charData&&charData.callName?charData.callName:userName;
-  var wc=wordCount||400;
-
-  return '你叫「'+charName+'」，正在和「'+callName+'」面对面互动。这是线下场景，不是聊天软件。\n\n'+
-    '【格式规则 - 长文叙事模式】\n'+
-    '1. 以第三人称小说风格描写。\n'+
-    '2. 用「」包裹角色说的话。\n'+
-    '3. 可以描写动作、表情、心理活动、环境氛围、感官细节。\n'+
-    '4. 描写要细腻生动，有画面感。\n'+
-    '5. 字数要求：'+wc+'字左右（允许±20%浮动）。这是铁律，绝对严格遵守，不得偷懒缩减。\n'+
-    '6. 使用'+lang+'。\n'+
-    '7. 直接输出叙事内容，不要分条，不要用 '+SPLIT+'。\n'+
-    '8. 不要加任何标记、注释、解释。只输出纯叙事文本。\n'+
-    '9. 禁止说教、禁止鸡汤、禁止客服式回复。\n'+
-    (wc>=2000?'10. 字数较多时合理分段，保持阅读节奏。每段之间空一行。\n':'')+
-    (wc>=5000?'11. 这是超长文要求（'+wc+'字），请充分展开细节描写，不要急于推进剧情。场景、心理、对话、动作都要详细铺开。\n':'');
-}
-
-/* 构建 API 消息 */
-function buildApiMessages(charData,userData,cfg,chatHistory,mode,wordCount,isProactive,proPrompt){
+/* ★ 核心：构建 apiMessages（完整版，和 chat.js 同等结构） */
+function buildApiMessages(charData,userData,chatHistory,settings){
   var preset=getActivePreset();
+  var order=preset&&preset.order?preset.order:null;
   var presetItems=preset&&preset.items?preset.items:[];
   var sysToggles=(App.preset&&App.preset.config&&App.preset.config.sysToggles)?App.preset.config.sysToggles:{};
+  var charId=charData?charData.id:null;
 
-  var sceneText=App.LS.get('offlineScene_'+(charData?charData.id:''))||'';
-  var wbEntries=collectWorldBookEntries(charData?charData.id:null,chatHistory);
-  var memoryText=App.memory?App.memory.buildMemoryText(charData?charData.id:null):'';
+  var sceneText=App.LS.get('olScene_'+charId)||'';
+  var wbEntries=collectWorldBookEntries(charId,chatHistory);
+  var memoryText=App.memory?App.memory.buildMemoryText(charId):'';
 
-  var beforeHistory=[];
+  var slotContent={
+    sys_wb_before:wbEntries.before.length?wbEntries.before.join('\n'):'',
+    sys_char_profile:buildCharInfo(charData),
+    sys_wb_after:wbEntries.after.length?wbEntries.after.join('\n'):'',
+    sys_user_info:buildUserInfo(userData),
+    sys_examples:charData&&charData.dialogExamples?charData.dialogExamples:'',
+    sys_scene:sceneText,
+    sys_memory:memoryText,
+    sys_post:charData&&charData.postInstruction?charData.postInstruction:''
+  };
 
-  /* 格式规则 */
-  if(mode==='long'){
-    beforeHistory.push(buildLongRules(cfg,charData,wordCount));
-  } else {
-    beforeHistory.push(buildShortRules(cfg,charData));
+  /* 默认 order */
+  if(!order||!order.length){
+    order=[];
+    if(presetItems.length){presetItems.forEach(function(it,i){if(it.mode!=='depth')order.push({type:'user',idx:i});});}
+    var DEFAULT_IDS=['sys_wb_before','sys_char_profile','sys_wb_after','sys_user_info','sys_examples','sys_scene','sys_memory','sys_history','sys_post'];
+    DEFAULT_IDS.forEach(function(id){order.push({type:'sys',id:id});});
+    if(presetItems.length){presetItems.forEach(function(it,i){if(it.mode==='depth'){
+      var hI=-1;for(var j=0;j<order.length;j++){if(order[j].type==='sys'&&order[j].id==='sys_history'){hI=j;break;}}
+      if(hI>=0)order.splice(hI+1,0,{type:'user',idx:i});else order.push({type:'user',idx:i});
+    }});}
   }
 
-  /* 世界书（前置） */
-  if(wbEntries.before.length&&sysToggles.sys_wb_before!==false)beforeHistory.push('【世界书】\n'+wbEntries.before.join('\n'));
+  var beforeHistory=[];
+  var afterHistory=[];
+  var depthInjects=[];
+  var hitHistory=false;
 
-  /* 角色信息 */
-  if(sysToggles.sys_char_profile!==false){var ci=buildCharInfo(charData);if(ci)beforeHistory.push('【角色设定】\n'+ci);}
-
-  /* 世界书（后置） */
-  if(wbEntries.after.length&&sysToggles.sys_wb_after!==false)beforeHistory.push('【世界书】\n'+wbEntries.after.join('\n'));
-
-  /* 用户信息 */
-  if(sysToggles.sys_user_info!==false){var ui=buildUserInfo(userData);if(ui)beforeHistory.push('【互动对象信息】\n'+ui);}
-
-  /* 场景 */
-  if(sceneText&&sysToggles.sys_scene!==false)beforeHistory.push('【当前场景/时间线】\n'+sceneText);
-
-  /* 示例对话 */
-  if(charData&&charData.dialogExamples&&sysToggles.sys_examples!==false)beforeHistory.push('【示例对话参考】\n'+charData.dialogExamples);
-
-  /* 记忆 */
-  if(memoryText&&sysToggles.sys_memory!==false)beforeHistory.push('【总结记忆】\n'+memoryText);
+  /* 格式规则永远最前 */
+  beforeHistory.push(buildFormatRules(charData,settings));
 
   /* 时间天气 */
-  var twText=buildTimeWeather(cfg);
-  if(twText)beforeHistory.push('【当前时间】\n'+twText);
+  var timeInfo=buildTimeInfo(charId);
+  if(timeInfo)beforeHistory.push('【当前时间】\n'+timeInfo);
 
-  /* 预设卡片（非 depth） */
-  presetItems.forEach(function(it){
-    if(!it||it.enabled===false||it.active===false)return;
-    if(it.mode==='depth')return;
-    beforeHistory.push((it.name?'【'+it.name+'】\n':'')+it.content);
+  /* 按 order 遍历 */
+  order.forEach(function(o){
+    if(o.type==='sys'){
+      if(o.id==='sys_history'){hitHistory=true;return;}
+      if(sysToggles[o.id]===false)return;
+      var content=slotContent[o.id];if(!content)return;
+      var label='';
+      if(o.id==='sys_wb_before')label='【世界书】\n';
+      else if(o.id==='sys_char_profile')label='【角色设定】\n';
+      else if(o.id==='sys_wb_after')label='【世界书】\n';
+      else if(o.id==='sys_user_info')label='【聊天对象信息】\n';
+      else if(o.id==='sys_examples')label='【示例对话参考】\n';
+      else if(o.id==='sys_scene')label='【当前场景/时间线】\n';
+      else if(o.id==='sys_memory')label='【总结记忆】\n';
+      else if(o.id==='sys_post')label='【后置指令 - 每轮必须遵守】\n';
+      if(hitHistory)afterHistory.push(label+content);
+      else beforeHistory.push(label+content);
+    } else if(o.type==='user'){
+      var it=presetItems[o.idx];
+      if(!it||it.enabled===false||it.active===false)return;
+      if(it.mode==='depth'){depthInjects.push({content:it.content,depth:it.depth||2,name:it.name||''});}
+      else{
+        var text=(it.name?'【'+it.name+'】\n':'')+it.content;
+        if(hitHistory)afterHistory.push(text);
+        else beforeHistory.push(text);
+      }
+    }
   });
 
-  /* 后置指令 */
-  if(charData&&charData.postInstruction&&sysToggles.sys_post!==false)beforeHistory.push('【后置指令】\n'+charData.postInstruction);
+  /* 世界书深度注入 */
+  wbEntries.depth.forEach(function(d){depthInjects.push({content:d.content,depth:d.depth,name:''});});
 
-  /* 组装 */
+  /* 组装 apiMsgs */
   var apiMsgs=[];
   var sysText=beforeHistory.filter(Boolean).join('\n\n');
   if(sysText)apiMsgs.push({role:'system',content:sysText});
 
-  /* 聊天历史 */
+  /* ★ 聊天历史 */
   var ctx=chatHistory.slice(-MAX_CONTEXT);
   var historyMsgs=[];
-  ctx.forEach(function(m){if(m.role==='user'||m.role==='assistant')historyMsgs.push({role:m.role,content:m.content});});
-
-  /* depth 注入 */
-  var depthInjects=[];
-  presetItems.forEach(function(it){
-    if(!it||it.enabled===false||it.active===false||it.mode!=='depth')return;
-    depthInjects.push({content:it.content,depth:it.depth||2,name:it.name||''});
+  ctx.forEach(function(m){
+    if(m.role==='user'||m.role==='assistant')historyMsgs.push({role:m.role,content:m.content});
   });
-  wbEntries.depth.forEach(function(d){depthInjects.push({content:d.content,depth:d.depth,name:''});});
 
+  /* 深度注入插入聊天历史中 */
   if(depthInjects.length&&historyMsgs.length){
     depthInjects.sort(function(a,b){return b.depth-a.depth;});
     depthInjects.forEach(function(d){
@@ -226,289 +322,264 @@ function buildApiMessages(charData,userData,cfg,chatHistory,mode,wordCount,isPro
 
   historyMsgs.forEach(function(m){apiMsgs.push(m);});
 
-  /* 后置强调 */
-  var postText='';
-  if(mode==='long'){
-    postText='【再次强调】字数要求 '+wordCount+' 字左右。直接输出叙事内容，不要分条。';
-  } else {
-    var minM=Math.max(1,cfg.minMsgs||1);
-    var maxM=Math.max(1,cfg.maxMsgs||3);
-    postText='【再次强调】回复 '+minM+' 到 '+maxM+' 条消息，用 '+SPLIT+' 分隔。每条不超过3-4行。';
-  }
-  apiMsgs.push({role:'system',content:postText});
+  /* 后置内容 */
+  var postText=afterHistory.filter(Boolean).join('\n\n');
+  if(postText)apiMsgs.push({role:'system',content:postText});
 
-  if(isProactive&&proPrompt){
-    apiMsgs.push({role:'user',content:'[系统指令] '+proPrompt});
-  }
+  /* 日志 */
+  if(!App._promptLogs)App._promptLogs=[];
+  var logEntry={ts:Date.now(),charName:(charData&&charData.name)||'未知',isProactive:false,msgCount:apiMsgs.length,
+    tokenEstimate:Math.round(apiMsgs.reduce(function(s,m){return s+(m.content||'').length;},0)/2),
+    messages:apiMsgs.map(function(m,i){return{idx:i,role:m.role,length:m.content.length,preview:(m.content||'').replace(/\n/g,' ').slice(0,200),full:m.content};})
+  };
+  App._promptLogs.unshift(logEntry);
+  if(App._promptLogs.length>20)App._promptLogs=App._promptLogs.slice(0,20);
 
   return apiMsgs;
 }
 
-function smartSplitMessages(text){
-  text=(text||'').trim();
-  if(!text)return [];
-  if(text.indexOf(SPLIT)>=0){return text.split(SPLIT).map(function(t){return t.trim();}).filter(Boolean);}
-  if(/\n\s*\n/.test(text)){return text.split(/\n\s*\n/).map(function(t){return t.trim();}).filter(Boolean);}
-  var lines=text.split('\n').map(function(t){return t.trim();}).filter(Boolean);
-  if(lines.length>=2)return lines;
-  return [text];
-}
-
-function translateError(msg){
-  if(!msg)return '未知错误';
-  if(msg.indexOf('401')>=0)return 'API Key 失效了';
-  if(msg.indexOf('429')>=0)return '请求太频繁';
-  if(msg.indexOf('Failed to fetch')>=0)return '网络连接失败';
-  return msg;
-}
+/* ==================== 主模块 ==================== */
 
 var Offline={
   charId:null,charData:null,messages:[],isStreaming:false,abortCtrl:null,
-  _ctxMenu:null,_menuEl:null,_avCard:null,_streamPartial:'',
-  mode:'short', /* 'short' | 'long' */
-  wordCount:400,
+  _ctxMenu:null,_plusOpen:false,_backgroundMode:false,_streamPartial:'',
 
-  loadMsgs:function(){Offline.messages=App.LS.get('offlineMsgs_'+Offline.charId)||[];},
+  loadMsgs:function(){Offline.messages=App.LS.get('olMsgs_'+Offline.charId)||[];},
   saveMsgs:function(){
-    try{App.LS.set('offlineMsgs_'+Offline.charId,Offline.messages);}
-    catch(e){if(Offline.messages.length>20){Offline.messages=Offline.messages.slice(-20);try{App.LS.set('offlineMsgs_'+Offline.charId,Offline.messages);}catch(e2){}}}
+    try{App.LS.set('olMsgs_'+Offline.charId,Offline.messages);}
+    catch(e){
+      if(Offline.messages.length>20){
+        Offline.messages=Offline.messages.slice(-20);
+        try{App.LS.set('olMsgs_'+Offline.charId,Offline.messages);}
+        catch(e2){App.showToast('存储空间不足');}
+      }
+    }
   },
 
-  getMode:function(){return App.LS.get('offlineMode_'+Offline.charId)||'short';},
-  setMode:function(m){App.LS.set('offlineMode_'+Offline.charId,m);Offline.mode=m;},
-  getWordCount:function(){return App.LS.get('offlineWC_'+Offline.charId)||400;},
-setWordCount:function(n){App.LS.set('offlineWC_'+Offline.charId,n);Offline.wordCount=n;},
+  openFor:function(charId){
+    if(!App.character)return;
+    var c=App.character.getById(charId);
+    if(!c){App.showToast('角色不存在');return;}
+    Offline.charId=charId;Offline.charData=c;Offline.loadMsgs();
+    Offline._backgroundMode=false;Offline._plusOpen=false;
 
-pick: function() {
-  if (!App.character || !App.character.list || !App.character.list.length) {
-    App.showToast('请先添加角色');
-    return;
-  }
-  if (App.character.list.length === 1) {
-    Offline.open(App.character.list[0].id);
-    return;
-  }
+    var panel=App.$('#offlinePanel');
+    if(!panel){
+      panel=document.createElement('div');panel.id='offlinePanel';panel.className='fullpage-panel hidden';
+      document.body.appendChild(panel);
+    }
 
-  var old = document.querySelector('#offlineCharPicker');
-  if (old) old.remove();
+    var inner=document.createElement('div');
+    inner.style.cssText='width:100%;height:100%;position:relative;overflow:hidden;';
+    panel.innerHTML='';panel.appendChild(inner);
 
-  var picker = document.createElement('div');
-  picker.id = 'offlineCharPicker';
-  picker.style.cssText = 'position:fixed;inset:0;z-index:100020;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.35);';
+    if(App.offlineUI)App.offlineUI.render(inner,c);
+    if(App.offlineUI)App.offlineUI.renderMessages();
+    if(App.offlineUI)App.offlineUI.bindEvents();
 
-  var listHtml = App.character.list.map(function(c) {
-    var av = c.avatar
-      ? '<img src="' + App.escAttr(c.avatar) + '" style="width:36px;height:36px;border-radius:50%;object-fit:cover;">'
-      : '<div style="width:36px;height:36px;border-radius:50%;background:rgba(126,163,201,.15);display:flex;align-items:center;justify-content:center;"><svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:none;stroke:#adcdea;stroke-width:1.8;"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></div>';
-    return '<div data-cid="' + c.id + '" style="display:flex;align-items:center;gap:12px;padding:12px 16px;cursor:pointer;border-bottom:1px solid rgba(0,0,0,.04);-webkit-tap-highlight-color:transparent;">' +
-      av +
-      '<span style="font-size:14px;font-weight:600;color:#2e4258;">' + App.esc(c.name || '未命名') + '</span>' +
-    '</div>';
-  }).join('');
+    panel.classList.remove('hidden');
+    requestAnimationFrame(function(){panel.classList.add('show');});
+  },
 
-  picker.innerHTML =
-    '<div style="background:rgba(255,255,255,.95);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-radius:14px;padding:16px 0;width:280px;max-height:60vh;overflow-y:auto;box-shadow:0 8px 30px rgba(0,0,0,.15);">' +
-      '<div style="font-size:14px;font-weight:700;color:#2e4258;text-align:center;padding:0 16px 12px;border-bottom:1px solid rgba(0,0,0,.04);">选择角色</div>' +
-      listHtml +
-      '<div style="text-align:center;padding:12px;">' +
-        '<button type="button" id="olPickCancel" style="background:none;border:none;color:#999;font-size:12px;cursor:pointer;font-family:inherit;">取消</button>' +
-      '</div>' +
-    '</div>';
+  close:function(){
+    Offline.dismissCtx();
+    var panel=App.$('#offlinePanel');
+    if(!panel)return;
+    panel.classList.remove('show');
+    setTimeout(function(){panel.classList.add('hidden');},350);
+  },
 
-  document.body.appendChild(picker);
-
-  picker.addEventListener('click', function(e) { if (e.target === picker) picker.remove(); });
-  picker.querySelector('#olPickCancel').addEventListener('click', function() { picker.remove(); });
-  picker.querySelectorAll('[data-cid]').forEach(function(el) {
-    el.addEventListener('click', function() {
-      picker.remove();
-      Offline.open(el.dataset.cid);
-    });
-  });
-},
-
-  open:function(charId){
-  if(!App.character){App.showToast('character模块未加载');return;}
-  var c=App.character.getById(charId);if(!c){App.showToast('角色不存在');return;}
-  if(!App.offlineUI){App.showToast('offlineUI模块未加载');return;}
-  Offline.charId=charId;Offline.charData=c;Offline.loadMsgs();
-  Offline.mode=Offline.getMode();Offline.wordCount=Offline.getWordCount();
-
-  var old=App.$('#offlinePanel');if(old)old.remove();
-  var panel=document.createElement('div');
-  panel.id='offlinePanel';
-  document.body.appendChild(panel);
-
-  App.offlineUI.render(panel,c);
-  Offline.renderMessages();
-  App.offlineUI.bindEvents(panel);
-
-  requestAnimationFrame(function(){requestAnimationFrame(function(){
-    panel.style.transform='translateX(0)';
-    panel.style.opacity='1';
-  });});
-
-  App.bindSwipeBack(panel,function(){Offline.close();});
-},
-
-close:function(){
-  if(Offline.isStreaming&&Offline.abortCtrl){Offline.abortCtrl.abort();Offline.abortCtrl=null;Offline.isStreaming=false;}
-  Offline.dismissCtx();Offline.dismissMenu();Offline.dismissAvCard();
-  var panel=App.$('#offlinePanel');if(!panel)return;
-  panel.style.transform='translateX(100%)';
-  panel.style.opacity='0';
-  setTimeout(function(){if(panel.parentNode)panel.remove();},350);
-},
-
-  renderMessages:function(){if(App.offlineUI)App.offlineUI.renderMessages();},
-  scrollBottom:function(){var el=App.$('#olMsgs');if(el)requestAnimationFrame(function(){el.scrollTop=el.scrollHeight;});},
-
-  send:function(){
+  sendUser:function(){
     var input=App.$('#olInput');if(!input)return;
     var text=input.value.trim();if(!text)return;
     input.value='';input.style.height='auto';
+    var pp=App.$('#olPlusPanel');if(pp){pp.classList.remove('show');Offline._plusOpen=false;}
     Offline.messages.push({role:'user',content:text,ts:Date.now()});
-    Offline.saveMsgs();Offline.renderMessages();
-    if(Offline.isStreaming)return;
-    var cfg=getCfg(Offline.charId);
-    if(cfg.showTyping)Offline.updateTyping(true);
-    setTimeout(function(){Offline.requestAI();},1500);
+    Offline.saveMsgs();
+    if(App.offlineUI)App.offlineUI.renderMessages();
   },
 
   requestAI:function(){
-    var cfg=getCfg(Offline.charId);
     var api=getApi(Offline.charId);
-    if(!api){App.showToast('请先配置 API');Offline.updateTyping(false);return;}
+    if(!api){App.showToast('请先配置 API');return;}
+    if(Offline.isStreaming)return;
+
     var user=App.user?App.user.getActiveUser():null;
-    var apiMsgs=buildApiMessages(Offline.charData,user,cfg,Offline.messages,Offline.mode,Offline.wordCount,false,null);
+    var settings=getSettings(Offline.charId);
+    var apiMsgs=buildApiMessages(Offline.charData,user,Offline.messages,settings);
 
     Offline.isStreaming=true;Offline._streamPartial='';
-    Offline.renderMessages();Offline.updateSendBtn();Offline.updateTyping(true);
+    if(App.offlineUI){
+      App.offlineUI.renderMessages();
+      App.offlineUI.updateAiBtn();
+      App.offlineUI.updateTyping(true);
+    }
 
     var url=api.url.replace(/\/+$/,'')+'/chat/completions';
     Offline.abortCtrl=new AbortController();
     var params=getParams(Offline.charId);
     var fullText='';
 
-    fetch(url,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+api.key},
-    body:JSON.stringify({model:api.model,messages:apiMsgs,stream:true,temperature:params.temperature,frequency_penalty:params.freqPenalty,presence_penalty:params.presPenalty}),
-    signal:Offline.abortCtrl.signal
+    fetch(url,{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+api.key},
+      body:JSON.stringify({
+        model:api.model,messages:apiMsgs,stream:true,
+        temperature:params.temperature,
+        frequency_penalty:params.freqPenalty,
+        presence_penalty:params.presPenalty
+      }),
+      signal:Offline.abortCtrl.signal
     }).then(function(resp){
-      if(!resp.ok)throw new Error('HTTP '+resp.status);
+      if(!resp.ok)throw new Error('HTTP '+resp.status+' '+resp.statusText);
       var reader=resp.body.getReader(),decoder=new TextDecoder(),buffer='';
-      function read(){return reader.read().then(function(result){
-        if(result.done){Offline.onStreamDone(fullText);return;}
-        buffer+=decoder.decode(result.value,{stream:true});var lines=buffer.split('\n');buffer=lines.pop()||'';
-        for(var i=0;i<lines.length;i++){var line=lines[i].trim();if(!line||!line.startsWith('data:'))continue;var data=line.slice(5).trim();
-          if(data==='[DONE]'){Offline.onStreamDone(fullText);return;}if(!data)continue;
-          try{var json=JSON.parse(data);var delta=json.choices&&json.choices[0]&&json.choices[0].delta;if(delta&&delta.content){fullText+=delta.content;Offline._streamPartial=fullText;Offline.updateStreamBubble(fullText);}}catch(e){}}
-        return read();});}
+
+      function read(){
+        return reader.read().then(function(result){
+          if(result.done){onStreamDone(fullText);return;}
+          buffer+=decoder.decode(result.value,{stream:true});
+          var lines=buffer.split('\n');buffer=lines.pop()||'';
+          for(var i=0;i<lines.length;i++){
+            var line=lines[i].trim();
+            if(!line||!line.startsWith('data:'))continue;
+            var data=line.slice(5).trim();
+            if(data==='[DONE]'){onStreamDone(fullText);return;}
+            if(!data)continue;
+            try{
+              var json=JSON.parse(data);
+              var delta=json.choices&&json.choices[0]&&json.choices[0].delta;
+              if(delta&&delta.content){
+                fullText+=delta.content;
+                Offline._streamPartial=fullText;
+                updateStreamBubble(fullText);
+              }
+            }catch(e){}
+          }
+          return read();
+        });
+      }
       return read();
     }).catch(function(err){
-      Offline.isStreaming=false;Offline.updateSendBtn();Offline.updateTyping(false);
-      if(err.name==='AbortError')return;
-      App.showToast(translateError(err.message));
+      Offline.isStreaming=false;
+      if(App.offlineUI){App.offlineUI.updateAiBtn();App.offlineUI.updateTyping(false);}
+      if(err.name==='AbortError'){Offline._backgroundMode=false;return;}
+
+      var errMsg=err.message||String(err);
+      var cnMsg=translateError(errMsg);
+      console.error('[线下] '+cnMsg);
+
       if(fullText){
-        if(Offline.mode==='long'){Offline.messages.push({role:'assistant',content:fullText.trim(),ts:Date.now()});}
-        else{var parts=smartSplitMessages(fullText);var now=Date.now();parts.forEach(function(p,i){Offline.messages.push({role:'assistant',content:p,ts:now+i*1000});});}
-        Offline.saveMsgs();Offline.renderMessages();
-      }
-    });
-  },
-
-  updateStreamBubble:function(text){
-    var bubble=App.$('#olStreamBubble');if(!bubble)return;
-    if(Offline.mode==='long'){
-      bubble.innerHTML=App.esc(text.trim()).replace(/\n/g,'<br>');
-    } else {
-      var parts=text.split(SPLIT);var last=parts[parts.length-1]||'';
-      bubble.innerHTML=App.esc(last.trim())||'<span class="ct-typing-dot"></span><span class="ct-typing-dot"></span><span class="ct-typing-dot"></span>';
-    }
-    Offline.scrollBottom();
-  },
-
-  onStreamDone:function(text){
-    Offline.isStreaming=false;Offline.abortCtrl=null;text=text.trim();
-    if(text){
-      if(Offline.mode==='long'){
-        Offline.messages.push({role:'assistant',content:text,ts:Date.now()});
+        finishText(fullText);
       } else {
-        var parts=smartSplitMessages(text);var now=Date.now();
-        parts.forEach(function(p,i){Offline.messages.push({role:'assistant',content:p,ts:now+i*1000});});
+        var container=App.$('#olMsgs');
+        if(container){
+          var errDiv=document.createElement('div');
+          errDiv.style.cssText='font-size:11px;color:#c9706b;background:rgba(201,112,107,.08);border:1px solid rgba(201,112,107,.2);border-radius:8px;padding:8px 12px;margin:6px 20px;word-break:break-all;white-space:pre-wrap;';
+          errDiv.textContent=cnMsg+'\n'+errMsg;
+          container.appendChild(errDiv);
+          App.offlineUI.scrollBottom();
+        }
+      }
+      Offline._backgroundMode=false;
+    });
+
+    function updateStreamBubble(text){
+      var bubble=App.$('#olStreamBubble');if(!bubble)return;
+      var s=getSettings(Offline.charId);
+      if((s.mode||'short')==='long'){
+        bubble.innerHTML=App.offlineUI.formatProse(App.esc(text));
+      } else {
+        var parts=text.split(SPLIT);
+        var last=(parts[parts.length-1]||'').trim();
+        bubble.innerHTML=last?App.offlineUI.formatShort(App.esc(last)):'<span class="ol-typing-dot"></span><span class="ol-typing-dot"></span><span class="ol-typing-dot"></span>';
+      }
+      App.offlineUI.scrollBottom();
+    }
+
+    function onStreamDone(text){
+      Offline.isStreaming=false;Offline.abortCtrl=null;
+      if(App.offlineUI){App.offlineUI.updateAiBtn();App.offlineUI.updateTyping(false);}
+      text=text.trim();
+      if(text)finishText(text);
+      else if(App.offlineUI)App.offlineUI.renderMessages();
+    }
+
+    function finishText(text){
+      var s=getSettings(Offline.charId);var now=Date.now();
+      if((s.mode||'short')==='long'){
+        Offline.messages.push({role:'assistant',content:text,ts:now});
+      } else {
+        var parts=smartSplitShort(text);
+        parts.forEach(function(part,i){
+          Offline.messages.push({role:'assistant',content:part,ts:now+i*1000});
+        });
       }
       Offline.saveMsgs();
+      if(App.offlineUI)App.offlineUI.renderMessages();
     }
-    Offline.updateSendBtn();Offline.updateTyping(false);Offline.renderMessages();
   },
 
   stopStream:function(){
     if(Offline.abortCtrl){Offline.abortCtrl.abort();Offline.abortCtrl=null;}
     var partial=Offline._streamPartial||'';
-    Offline.isStreaming=false;Offline.updateSendBtn();Offline.updateTyping(false);
+    Offline.isStreaming=false;
+    if(App.offlineUI){App.offlineUI.updateAiBtn();App.offlineUI.updateTyping(false);}
     if(partial){
-      if(Offline.mode==='long'){Offline.messages.push({role:'assistant',content:partial.trim(),ts:Date.now()});}
-      else{var parts=smartSplitMessages(partial);var now=Date.now();parts.forEach(function(p,i){Offline.messages.push({role:'assistant',content:p,ts:now+i*1000});});}
+      var s=getSettings(Offline.charId);var now=Date.now();
+      if((s.mode||'short')==='long'){
+        Offline.messages.push({role:'assistant',content:partial,ts:now});
+      } else {
+        var parts=smartSplitShort(partial);
+        parts.forEach(function(part,i){
+          Offline.messages.push({role:'assistant',content:part,ts:now+i*1000});
+        });
+      }
       Offline.saveMsgs();
     }
-    Offline.renderMessages();
+    if(App.offlineUI)App.offlineUI.renderMessages();
   },
 
-  requestProactive:function(){
-    var cfg=getCfg(Offline.charId);var api=getApi(Offline.charId);
-    if(!api){App.showToast('请先配置 API');return;}
-    var user=App.user?App.user.getActiveUser():null;
-    var userName=getUserName();
-    var proPrompt='请以角色身份主动说点什么或做点什么，推动当前场景发展。直接输出，不要解释。';
-    var apiMsgs=buildApiMessages(Offline.charData,user,cfg,Offline.messages,Offline.mode,Offline.wordCount,true,proPrompt);
+  dismissCtx:function(){
+    if(Offline._ctxMenu){Offline._ctxMenu.remove();Offline._ctxMenu=null;}
+  },
 
-    Offline.isStreaming=true;Offline._streamPartial='';
-    Offline.renderMessages();Offline.updateSendBtn();Offline.updateTyping(true);
+  init:function(){
+    App.offline=Offline;
 
-    var url=api.url.replace(/\/+$/,'')+'/chat/completions';
-    Offline.abortCtrl=new AbortController();
-    var params=getParams(Offline.charId);
-    var fullText='';
+    /* 底部栏"线下"按钮 */
+    App.safeOn('#dockCheck','click',function(){
+      var chars=App.character?App.character.list:[];
+      if(!chars||!chars.length){App.showToast('请先添加角色');return;}
+      if(chars.length===1){Offline.openFor(chars[0].id);return;}
 
-    fetch(url,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+api.key},
-    body:JSON.stringify({model:api.model,messages:apiMsgs,stream:true,temperature:params.temperature,frequency_penalty:params.freqPenalty,presence_penalty:params.presPenalty}),
-    signal:Offline.abortCtrl.signal
-    }).then(function(resp){
-      if(!resp.ok)throw new Error('HTTP '+resp.status);
-      var reader=resp.body.getReader(),decoder=new TextDecoder(),buffer='';
-      function read(){return reader.read().then(function(result){
-        if(result.done){Offline.onStreamDone(fullText);return;}
-        buffer+=decoder.decode(result.value,{stream:true});var lines=buffer.split('\n');buffer=lines.pop()||'';
-        for(var i=0;i<lines.length;i++){var line=lines[i].trim();if(!line||!line.startsWith('data:'))continue;var data=line.slice(5).trim();
-          if(data==='[DONE]'){Offline.onStreamDone(fullText);return;}if(!data)continue;
-          try{var json=JSON.parse(data);var delta=json.choices&&json.choices[0]&&json.choices[0].delta;if(delta&&delta.content){fullText+=delta.content;Offline._streamPartial=fullText;Offline.updateStreamBubble(fullText);}}catch(e){}}
-        return read();});}
-      return read();
-    }).catch(function(err){
-      Offline.isStreaming=false;Offline.updateSendBtn();Offline.updateTyping(false);
-      if(err.name==='AbortError')return;
-      App.showToast(translateError(err.message));
+      var picker=document.createElement('div');
+      picker.style.cssText='position:fixed;inset:0;z-index:100020;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.35);';
+      var listHtml=chars.map(function(c){
+        var av=c.avatar
+          ?'<img src="'+App.escAttr(c.avatar)+'" style="width:36px;height:36px;border-radius:50%;object-fit:cover;">'
+          :'<div style="width:36px;height:36px;border-radius:50%;background:rgba(126,163,201,.15);"></div>';
+        return '<div data-cid="'+c.id+'" style="display:flex;align-items:center;gap:12px;padding:12px 16px;cursor:pointer;border-bottom:1px solid rgba(0,0,0,.04);">'+av+'<span style="font-size:14px;font-weight:600;color:#2e4258;">'+App.esc(c.name||'?')+'</span></div>';
+      }).join('');
+
+      picker.innerHTML=
+        '<div style="background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-radius:16px;padding:16px 0;width:280px;max-height:70vh;overflow-y:auto;box-shadow:0 8px 30px rgba(0,0,0,.15);">'+
+          '<div style="font-size:14px;font-weight:700;color:#2e4258;text-align:center;padding:0 16px 12px;border-bottom:1px solid rgba(0,0,0,.04);">选择角色</div>'+
+          listHtml+
+          '<div style="text-align:center;padding:12px;"><button type="button" style="background:none;border:none;color:#999;font-size:12px;cursor:pointer;font-family:inherit;" id="olPickCancel">取消</button></div>'+
+        '</div>';
+
+      document.body.appendChild(picker);
+      picker.addEventListener('click',function(e){if(e.target===picker)picker.remove();});
+      picker.querySelector('#olPickCancel').addEventListener('click',function(){picker.remove();});
+      picker.querySelectorAll('[data-cid]').forEach(function(el){
+        el.addEventListener('click',function(){
+          picker.remove();
+          Offline.openFor(el.dataset.cid);
+        });
+      });
     });
-  },
-
-  updateSendBtn:function(){if(App.offlineUI)App.offlineUI.updateSendBtn();},
-  updateTyping:function(show){if(App.offlineUI)App.offlineUI.updateTyping(show);},
-  dismissCtx:function(){if(Offline._ctxMenu){Offline._ctxMenu.remove();Offline._ctxMenu=null;}},
-  dismissMenu:function(){if(Offline._menuEl){Offline._menuEl.remove();Offline._menuEl=null;}},
-  dismissAvCard:function(){if(Offline._avCard){Offline._avCard.remove();Offline._avCard=null;}},
-  deleteMsg:function(idx){Offline.messages.splice(idx,1);Offline.saveMsgs();Offline.renderMessages();},
-  deleteFromHere:function(idx){if(!confirm('删除此条及之后所有消息？'))return;Offline.messages.splice(idx);Offline.saveMsgs();Offline.renderMessages();},
-  editMsg:function(idx){if(App.offlineUI)App.offlineUI.showEditDialog(idx);},
-  regenerate:function(idx){Offline.messages.splice(idx);Offline.saveMsgs();Offline.renderMessages();Offline.requestAI();},
-  copyMsg:function(idx){var msg=Offline.messages[idx];if(!msg)return;App.copyText(msg.content).then(function(){App.showToast('已复制');}).catch(function(){App.showToast('复制失败');});},
-
-  showSceneDialog:function(){if(App.offlineUI)App.offlineUI.showSceneDialog();},
-  showBgMenu:function(){if(App.offlineUI)App.offlineUI.showBgMenu();},
-  setChatBg:function(src){try{App.LS.set('offlineBg_'+Offline.charId,src);}catch(e){App.showToast('图片太大');return;}var bg=App.$('#olBg');if(bg)bg.style.backgroundImage='url('+src+')';var nb=App.$('#olNoBg');if(nb)nb.classList.add('has-bg');App.showToast('背景已设置');},
-
-  init:function(){App.offline=Offline;}
+  }
 };
 
-App.offline = Offline;
-App.register('offline', Offline);
+App.register('offline',Offline);
 })();
-
