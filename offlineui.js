@@ -481,6 +481,17 @@ openCodeEditor:function(){
   '直接写 <style>、<div>、<script> 都行\n\n'+
   '基础外观请用侧边栏的「外观」面板调整\n'+
   '这里用于高级自定义：添加装饰、改结构、加交互\n\n'+
+  '=== 系统元素名 ===\n'+
+  '  .ol-root              页面\n'+
+  '  .ol-hd / .ol-hd-name  顶部栏\n'+
+  '  .ol-block              消息块\n'+
+  '  .is-user / .is-char    用户/角色\n'+
+  '  .ol-avatar-area        头像区\n'+
+  '  .ol-frame-mid          气泡\n'+
+  '  .ol-bubble-text        正文\n'+
+  '  .ol-scatter-meta       元信息\n'+
+  '  .ol-input-wrap         底部栏\n'+
+  '  .ol-bg / .ol-tint      背景/晕染\n\n'+
   '=== 数据属性 ===\n'+
   '  [data-floor] [data-time]\n'+
   '  [data-chars] [data-tokens]\n';
