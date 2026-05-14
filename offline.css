@@ -39,31 +39,36 @@
 .ol-root{
   --ol-bg-color:#ffffff;--ol-text-color:#2e4258;--ol-text-size:16px;--ol-text-line-height:1.85;--ol-text-weight:400;--ol-accent:#1a1a1a;
   --ol-hd-text:#1a1a1a;--ol-hd-size:18px;
-  --ol-prose-padding:16px 18px;--ol-prose-shadow:0 2px 12px rgba(20,35,55,.06);
-  --ol-bar-bg:#ffffff;--ol-bar-blur:20px;--ol-bar-border-color:#1a1a1a;--ol-bar-opacity:1;
+  --ol-prose-padding:16px 18px;
+  --ol-bar-bg:#ffffff;--ol-bar-blur:20px;--ol-bar-border-color:#1a1a1a;
   --ol-input-bg:#ffffff;--ol-input-border:#1a1a1a;--ol-input-text:#2e4258;--ol-input-radius:22px;
   --ol-meta-color:#1a1a1a;--ol-meta-size:12px;
+  --ol-block-gap:16px;
   --ol-c-av-size:50px;--ol-c-av-radius:50%;--ol-c-av-frame-color:#adcdea;--ol-c-av-frame-w:2px;--ol-c-av-name-size:11px;--ol-c-av-show:flex;--ol-c-av-name-show:block;
-  --ol-c-bubble-bg:rgba(255,255,255,.75);--ol-c-bubble-radius:14px;--ol-c-bubble-border-color:rgba(200,220,240,.3);--ol-c-bubble-border-w:1px;--ol-c-bubble-width:100%;
+  --ol-c-bubble-radius:14px;--ol-c-bubble-border-color:rgba(200,220,240,.3);--ol-c-bubble-border-w:1px;--ol-c-bubble-width:100%;
   --ol-c-text-size:16px;--ol-c-text-weight:400;--ol-c-text-lh:1.85;--ol-c-text-color:#2e4258;
   --ol-u-av-size:50px;--ol-u-av-radius:50%;--ol-u-av-frame-color:#adcdea;--ol-u-av-frame-w:2px;--ol-u-av-name-size:11px;--ol-u-av-show:flex;--ol-u-av-name-show:block;
-  --ol-u-bubble-bg:rgba(126,163,201,.10);--ol-u-bubble-radius:14px;--ol-u-bubble-border-color:rgba(126,163,201,.25);--ol-u-bubble-border-w:1px;--ol-u-bubble-width:100%;
-  --ol-para-gap:16px;--ol-letter-gap:0px;
+  --ol-u-bubble-radius:14px;--ol-u-bubble-border-color:rgba(126,163,201,.25);--ol-u-bubble-border-w:1px;--ol-u-bubble-width:100%;
   position:relative;display:flex;flex-direction:column;width:100%;height:100%;overflow:hidden;
   background:var(--ol-bg-color);color:var(--ol-text-color);font-size:var(--ol-text-size);line-height:var(--ol-text-line-height);
   -webkit-touch-callout:none;overscroll-behavior:none;
 }
 .ol-bg{position:absolute;inset:0;z-index:0;background-size:contain;background-position:center;background-repeat:no-repeat;pointer-events:none;transform:translateZ(0);}
+
+/* ★ 顶部栏透明 */
 .ol-hd{position:absolute;top:0;left:0;right:0;z-index:10;display:flex;align-items:center;justify-content:center;padding:52px 16px 10px;background:transparent;pointer-events:none;}
 .ol-hd-name{flex:1;text-align:center;font-size:var(--ol-hd-size);font-weight:700;color:var(--ol-hd-text);letter-spacing:.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;pointer-events:auto;text-shadow:0 1px 4px rgba(255,255,255,.8);}
 .ol-hd-typing{display:block;font-size:12px;color:var(--ol-accent);font-weight:400;}
+
+/* ★ 消息区：顶部和底部渐隐遮罩 */
 .ol-msgs{
   position:relative;z-index:5;flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
   padding:90px 16px 90px;min-height:0;overscroll-behavior:contain;
-  -webkit-mask-image:linear-gradient(to bottom,transparent 0px,black 90px,black calc(100% - 80px),transparent 100%);
-  mask-image:linear-gradient(to bottom,transparent 0px,black 90px,black calc(100% - 80px),transparent 100%);
+  -webkit-mask-image:linear-gradient(to bottom,transparent 0px,black 85px,black calc(100% - 75px),transparent 100%);
+  mask-image:linear-gradient(to bottom,transparent 0px,black 85px,black calc(100% - 75px),transparent 100%);
 }
-.ol-block{position:relative;margin:0 0 var(--ol-para-gap);display:flex;align-items:flex-start;gap:10px;max-width:100%;letter-spacing:var(--ol-letter-gap);}
+
+.ol-block{position:relative;margin:0 0 var(--ol-block-gap);display:flex;align-items:flex-start;gap:10px;max-width:100%;}
 .ol-block.ol-av-left{flex-direction:row;}
 .ol-block.ol-av-right{flex-direction:row-reverse;}
 .ol-avatar-area{display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0;}
@@ -79,30 +84,43 @@
 .ol-block.is-user .ol-avatar-frame{width:var(--ol-u-av-size);height:var(--ol-u-av-size);border-radius:var(--ol-u-av-radius);border:var(--ol-u-av-frame-w) solid var(--ol-u-av-frame-color);}
 .ol-block.is-user .ol-avatar-name{display:var(--ol-u-av-name-show);font-size:var(--ol-u-av-name-size);color:var(--ol-u-av-frame-color);}
 .ol-bubble-col{flex:1;min-width:0;display:flex;flex-direction:column;}
-.ol-frame-mid{position:relative;overflow:hidden;}
-.ol-block.is-char .ol-frame-mid{background:var(--ol-c-bubble-bg);border-radius:var(--ol-c-bubble-radius);border:var(--ol-c-bubble-border-w) solid var(--ol-c-bubble-border-color);width:var(--ol-c-bubble-width);box-shadow:var(--ol-prose-shadow);}
-.ol-block.is-user .ol-frame-mid{background:var(--ol-u-bubble-bg);border-radius:var(--ol-u-bubble-radius);border:var(--ol-u-bubble-border-w) solid var(--ol-u-bubble-border-color);width:var(--ol-u-bubble-width);box-shadow:var(--ol-prose-shadow);}
 .ol-block.ol-av-right .ol-bubble-col{align-items:flex-end;}
 .ol-block.ol-av-left .ol-bubble-col{align-items:flex-start;}
+
+/* ★ 气泡：用 box-shadow inset 代替 border，解决粗边框镂空问题 */
+.ol-frame-mid{position:relative;overflow:hidden;}
+.ol-block.is-char .ol-frame-mid{border-radius:var(--ol-c-bubble-radius);box-shadow:inset 0 0 0 var(--ol-c-bubble-border-w) var(--ol-c-bubble-border-color),0 2px 12px rgba(20,35,55,.06);width:var(--ol-c-bubble-width);}
+.ol-block.is-user .ol-frame-mid{border-radius:var(--ol-u-bubble-radius);box-shadow:inset 0 0 0 var(--ol-u-bubble-border-w) var(--ol-u-bubble-border-color),0 2px 12px rgba(20,35,55,.06);width:var(--ol-u-bubble-width);}
+
+/* ★ 气泡背景层：独立于文字，透明度只影响背景不影响文字 */
+.ol-bub-bg{position:absolute;inset:0;z-index:0;border-radius:inherit;pointer-events:none;}
 .ol-bubble-inner{position:relative;z-index:1;padding:var(--ol-prose-padding);}
-.ol-bubble-blur{position:absolute;inset:0;z-index:0;pointer-events:none;}
 .ol-bubble-text{font-size:var(--ol-text-size);line-height:var(--ol-text-line-height);font-weight:var(--ol-text-weight);color:var(--ol-text-color);word-break:break-word;white-space:pre-wrap;-webkit-user-select:text;user-select:text;}
 .ol-block.is-char .ol-bubble-text{font-size:var(--ol-c-text-size);font-weight:var(--ol-c-text-weight);line-height:var(--ol-c-text-lh);color:var(--ol-c-text-color);}
+
+/* ★ 段落间距块 */
+.ol-pgap{display:block;width:100%;}
+
 .ol-scatter-meta{display:flex;align-items:center;gap:10px;margin-top:6px;padding-left:4px;}
 .ol-scatter-floor,.ol-scatter-time,.ol-scatter-chars,.ol-scatter-tokens{font-size:var(--ol-meta-size);color:var(--ol-meta-color);font-weight:600;}
 .ol-time-sep{text-align:center;font-size:12px;color:var(--ol-meta-color);margin:14px 20px 8px;letter-spacing:.5px;font-weight:600;}
 .ol-empty{font-size:14px;color:var(--ol-accent);text-align:center;padding:80px 20px;opacity:.7;}
+
+/* ★ 全屏模式：彻底去除气泡 */
 .ol-parallel .ol-block{flex-direction:column !important;align-items:center;}
 .ol-parallel .ol-bubble-col{align-items:stretch !important;width:100%;}
-.ol-parallel .ol-block .ol-frame-mid{border:none !important;border-radius:0 !important;box-shadow:none !important;background:transparent !important;width:100% !important;}
+.ol-parallel .ol-block .ol-frame-mid{box-shadow:none !important;border-radius:0 !important;width:100% !important;}
+.ol-parallel .ol-bub-bg{display:none !important;}
 .ol-parallel .ol-bubble-inner{padding:8px 0;}
 .ol-parallel .ol-scatter-meta{justify-content:center;}
-.ol-parallel .ol-bubble-blur{display:none;}
+
 .ol-think-block{margin-bottom:6px;}
 .ol-think-summary{font-size:12px;color:#1a1a1a;cursor:pointer;user-select:none;-webkit-user-select:none;padding:4px 0;}
 .ol-think-body{font-size:13px;color:#1a1a1a;line-height:1.6;padding:8px 10px;margin-top:4px;background:rgba(0,0,0,.03);border-radius:8px;border:1px solid rgba(0,0,0,.06);white-space:pre-wrap;word-break:break-word;max-height:200px;overflow-y:auto;}
+
+/* ★ 底部栏 */
 .ol-input-wrap{position:absolute;bottom:0;left:0;right:0;z-index:9;display:flex;align-items:flex-end;gap:6px;padding:10px 12px 20px;border-top:1.5px solid var(--ol-bar-border-color);}
-.ol-input-box{display:flex;align-items:flex-end;background:var(--ol-input-bg);border:1.5px solid var(--ol-input-border);border-radius:var(--ol-input-radius);padding:4px;flex:1;min-width:0;}
+.ol-input-box{display:flex;align-items:flex-end;border:1.5px solid var(--ol-input-border);border-radius:var(--ol-input-radius);padding:4px;flex:1;min-width:0;}
 .ol-input{flex:1;min-height:36px;max-height:120px;padding:8px 6px;border:none;background:transparent;font-size:14px;color:var(--ol-input-text);outline:none;resize:none;line-height:1.5;font-family:inherit;overflow-y:auto;-webkit-user-select:text;user-select:text;}
 .ol-inner-btn{width:36px;height:36px;display:flex;align-items:center;justify-content:center;background:none;border:none;cursor:pointer;flex-shrink:0;-webkit-tap-highlight-color:transparent;}
 .ol-inner-btn:active{opacity:.7;}
@@ -131,4 +149,4 @@
 .ol-css-hd-btn{background:none;border:none;color:#1a1a1a;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;padding:4px 8px;-webkit-tap-highlight-color:transparent;}
 .ol-css-hd-btn:active{opacity:.7;}
 .ol-css-hd-title{font-size:14px;font-weight:700;letter-spacing:1px;color:#1a1a1a;}
-.ol-css-textarea{flex:1;width:100%;padding:14px;background:transparent;border:none;color:#1a1a1a;font-size:13px;line-height:1.6;outline:none;resize:none;-webkit-user-select:text;user-select:text;overflow-y:auto;-webkit-overflow-scrolling:touch;tab-size:2;}
+.ol-css-textarea{flex:1;width:100%;padding:14px;background:transparent;border:none;color:#1a1a1a;font-size:13px;font-family:'SF Mono','Menlo','Consolas',monospace;line-height:1.6;outline:none;resize:none;-webkit-user-select:text;user-select:text;overflow-y:auto;-webkit-overflow-scrolling:touch;tab-size:2;}
