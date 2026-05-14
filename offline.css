@@ -17,7 +17,7 @@
 
 .ol-root{
   --ol-bg-color:#ffffff;--ol-text-color:#2e4258;--ol-text-size:14px;--ol-text-line-height:1.85;--ol-accent:#1a1a1a;
-  --ol-hd-bg:#ffffff;--ol-hd-text:#1a1a1a;--ol-hd-size:18px;
+  --ol-hd-bg:#transparent;--ol-hd-text:#1a1a1a;--ol-hd-size:18px;
   --ol-prose-bg:rgba(255,255,255,.75);--ol-prose-border:rgba(200,220,240,.3);--ol-prose-radius:14px;--ol-prose-padding:16px 18px;--ol-prose-shadow:0 2px 12px rgba(20,35,55,.06);
   --ol-user-bg:rgba(126,163,201,.10);--ol-user-border:rgba(126,163,201,.25);--ol-user-text:#2e4258;
   --ol-bar-bg:#ffffff;
@@ -36,7 +36,7 @@
 .ol-bg{position:absolute;inset:0;z-index:0;background-size:cover;background-position:center;pointer-events:none;}
 
 /* 顶部栏：实色、无边框线 */
-.ol-hd{position:relative;z-index:10;display:flex;align-items:center;justify-content:center;padding:52px 16px 10px;flex-shrink:0;background:var(--ol-hd-bg);}
+.ol-hd{position:relative;z-index:10;display:flex;align-items:center;justify-content:center;padding:30px 16px 10px;flex-shrink:0;background:var(--ol-hd-bg);}
 .ol-hd-name{flex:1;text-align:center;font-size:var(--ol-hd-size);font-weight:700;color:var(--ol-hd-text);letter-spacing:.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .ol-hd-typing{display:block;font-size:11px;color:var(--ol-accent);font-weight:400;}
 
