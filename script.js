@@ -590,13 +590,10 @@ App.openColorPicker = function(currentColor, onConfirm, onChange, callerId) {
     function rgbToHsl(r,g,b){var max=Math.max(r,g,b),min=Math.min(r,g,b);var h=0,s=0,l=(max+min)/2;if(max!==min){var d=max-min;s=l>0.5?d/(2-max-min):d/(max+min);if(max===r)h=((g-b)/d+(g<b?6:0))/6;else if(max===g)h=((b-r)/d+2)/6;else h=((r-g)/d+4)/6;}return{h:Math.round(h*360),s:Math.round(s*100),l:Math.round(l*100)};}
     function hslToHex(h,s,l){s/=100;l/=100;var c=(1-Math.abs(2*l-1))*s,x=c*(1-Math.abs((h/60)%2-1)),m=l-c/2;var r=0,g=0,b=0;if(h<60){r=c;g=x;}else if(h<120){r=x;g=c;}else if(h<180){g=c;b=x;}else if(h<240){g=x;b=c;}else if(h<300){r=x;b=c;}else{r=c;b=x;}r=Math.round((r+m)*255);g=Math.round((g+m)*255);b=Math.round((b+m)*255);return '#'+((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1);}
     function hslToRgb(h,s,l){var c=(1-Math.abs(2*l-1))*s,x=c*(1-Math.abs((h/60)%2-1)),m=l-c/2;var r=0,g=0,b=0;if(h<60){r=c;g=x;}else if(h<120){r=x;g=c;}else if(h<180){g=c;b=x;}else if(h<240){g=x;b=c;}else if(h<300){r=x;b=c;}else{r=c;b=x;}return[Math.round((r+m)*255),Math.round((g+m)*255),Math.round((b+m)*255)];}
-    function hexToRgb(hex){hex=hex.replace('#','');if(hex.length===3)hex=hex[0]+hex[0]+hex[1]+hex[1]+hex[2]+hex[2];return[parseInt(hex.substr(0,2),16),parseInt(hex.substr(2,2),16),parseInt(hex.substr(4,2),16)];}
-    function hslToCanvasPos(s,l,w,h){s/=100;l/=100;var v=l+s*Math.min(l,1-l);var sv=v===0?0:2*(1-l/v);return{x:sv*w,y:(1-v)*h};}
-    function canvasPosToHsl(x,y,w,h){var sv=Math.max(0,Math.min(1,x/w));var v=Math.max(0,Math.min(1,1-y/h));var l=v*(1-sv/2);var s=(l===0||l>=1)?0:(v-l)/Math.min(l,1-l);return{s:Math.max(0,Math.min(100,Math.round(s*100))),l:Math.max(0,Math.min(100,Math.round(l*100)))};}
 
-    function parseToStop(str){str=(str||'').trim();var rm=str.match(/^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*([\d.]+))?\s*\)$/i);if(rm){var r=parseInt(rm[1]),g=parseInt(rm[2]),b=parseInt(rm[3]),a=rm[4]!==undefined?parseFloat(rm[4]):1;if(a<1)return{color:'rgba('+r+','+g+','+b+','+a+')'};var hex='#'+((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1);return{color:hex};}return{color:str||'#111111'};}
+    function parseToStop(str){str=(str||'').trim();var rm=str.match(/^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*([\d.]+))?\s*\)$/i);if(rm){var r=parseInt(rm[1]),g=parseInt(rm[2]),b=parseInt(rm[3]);var hex='#'+((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1);return{color:hex};}return{color:str||'#111111'};}
 
-    function parseColor(str){str=(str||'').trim();var rm=str.match(/^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*([\d.]+))?\s*\)$/i);if(rm){var r=parseInt(rm[1])/255,g=parseInt(rm[2])/255,b=parseInt(rm[3])/255;var a=rm[4]!==undefined?parseFloat(rm[4]):1;var hsl=rgbToHsl(r,g,b);return{h:hsl.h,s:hsl.s,l:hsl.l,a:a};}var hex=str.replace('#','');if(hex.length===3)hex=hex[0]+hex[0]+hex[1]+hex[1]+hex[2]+hex[2];if(hex.length===8){var aa=parseInt(hex.substr(6,2),16)/255;hex=hex.substr(0,6);var rr2=parseInt(hex.substr(0,2),16)/255,gg2=parseInt(hex.substr(2,2),16)/255,bb2=parseInt(hex.substr(4,2),16)/255;var hsl3=rgbToHsl(rr2,gg2,bb2);return{h:hsl3.h,s:hsl3.s,l:hsl3.l,a:aa};}if(hex.length!==6)return{h:0,s:0,l:0,a:1};var rr=parseInt(hex.substr(0,2),16)/255,gg=parseInt(hex.substr(2,2),16)/255,bb=parseInt(hex.substr(4,2),16)/255;var hsl2=rgbToHsl(rr,gg,bb);return{h:hsl2.h,s:hsl2.s,l:hsl2.l,a:1};}
+    function parseColor(str){str=(str||'').trim();var rm=str.match(/^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*([\d.]+))?\s*\)$/i);if(rm){var r=parseInt(rm[1])/255,g=parseInt(rm[2])/255,b=parseInt(rm[3])/255;var hsl=rgbToHsl(r,g,b);return{h:hsl.h,s:hsl.s,l:hsl.l};}var hex=str.replace('#','');if(hex.length===3)hex=hex[0]+hex[0]+hex[1]+hex[1]+hex[2]+hex[2];if(hex.length===8)hex=hex.substr(0,6);if(hex.length!==6)return{h:0,s:0,l:0};var rr=parseInt(hex.substr(0,2),16)/255,gg=parseInt(hex.substr(2,2),16)/255,bb=parseInt(hex.substr(4,2),16)/255;var hsl2=rgbToHsl(rr,gg,bb);return{h:hsl2.h,s:hsl2.s,l:hsl2.l};}
 
     var initGrad=false,initAngle=180;
     var initStops=[{color:'#111111'},{color:'#888888'},{color:'#ffffff'}];
@@ -614,7 +611,7 @@ App.openColorPicker = function(currentColor, onConfirm, onChange, callerId) {
     var overlay=document.createElement('div');overlay.id='cpOverlay';overlay.className='cp-overlay';
     overlay._callerId=callerId||currentColor;overlay._onConfirm=onConfirm;overlay._onChange=onChange;
 
-    var currentHue=0,currentSat=100,currentLight=50,currentAlpha=1,currentBlur=0;
+    var currentHue=0,currentSat=100,currentLight=50;
     var selectedHex=currentColor||'#111111';
     var editing=false;
     var gradMode=initGrad;
@@ -623,17 +620,7 @@ App.openColorPicker = function(currentColor, onConfirm, onChange, callerId) {
     var activeStop=0;
     var gradColorCount=initGradCount;
 
-    /* 从初始颜色提取 alpha */
-    var initParsed=parseColor(currentColor);
-    if(initParsed.a!==undefined)currentAlpha=initParsed.a;
-
-    function getSolidOutput(){
-      if(currentAlpha<1){
-        var rgb=hslToRgb(currentHue,currentSat/100,currentLight/100);
-        return 'rgba('+rgb[0]+','+rgb[1]+','+rgb[2]+','+Math.round(currentAlpha*100)/100+')';
-      }
-      return hslToHex(currentHue,currentSat,currentLight);
-    }
+    function getSolidOutput(){return hslToHex(currentHue,currentSat,currentLight);}
     function getGradOutput(){if(gradColorCount===3)return 'linear-gradient('+gradAngle+'deg,'+gradStops[0].color+','+gradStops[1].color+','+gradStops[2].color+')';return 'linear-gradient('+gradAngle+'deg,'+gradStops[0].color+','+gradStops[1].color+')';}
     function getOutput(){return gradMode?getGradOutput():getSolidOutput();}
     function getDisplayText(){return getOutput();}
@@ -646,15 +633,11 @@ App.openColorPicker = function(currentColor, onConfirm, onChange, callerId) {
     overlay.innerHTML=
       '<div class="cp-panel">'+
         '<div class="cp-header"><span class="cp-title">选择颜色</span><button class="cp-close" id="cpClose" type="button">✕</button></div>'+
-        '<div class="cp-panel-scroll">'+
         '<div class="cp-preview-row"><div class="cp-preview" id="cpPreview"><div class="cp-pv-inner"></div></div><input type="text" class="cp-hex-input" id="cpHexInput" maxlength="80"></div>'+
         '<div class="cp-mode-row"><button class="cp-mode-btn'+(initGrad?'':' active')+'" data-mode="solid" type="button">纯色</button><button class="cp-mode-btn'+(initGrad?' active':'')+'" data-mode="gradient" type="button">渐变</button></div>'+
         '<div class="cp-spectrum" id="cpSpectrum"><canvas id="cpSpectrumCanvas"></canvas><div class="cp-spectrum-cursor" id="cpSpecCursor"></div></div>'+
         '<span class="cp-bar-label">色相</span>'+
         '<div class="cp-hue-wrap" id="cpHueWrap"><div class="cp-hue-bar"></div><div class="cp-hue-cursor" id="cpHueCursor"></div></div>'+
-        '<span class="cp-bar-label">透明度</span>'+
-        '<div class="cp-alpha-wrap" id="cpAlphaWrap"><div class="cp-alpha-bar" id="cpAlphaBar"></div><div class="cp-alpha-cursor" id="cpAlphaCursor"></div></div>'+
-        '<div class="cp-blur-row"><span>模糊度</span><input type="range" id="cpBlurSlider" min="0" max="30" step="1" value="0"><span class="cp-blur-val" id="cpBlurVal">0px</span></div>'+
         '<div class="cp-gradient-area" id="cpGradientArea" style="'+(initGrad?'':'display:none;')+'">'+
           '<div class="cp-grad-mode-row" style="display:flex;gap:4px;margin-bottom:8px;"><button class="cp-grad-mode-btn'+(initGradCount===2?' active':'')+'" data-gmode="2" type="button"'+gmBtnActive2+'>双色</button><button class="cp-grad-mode-btn'+(initGradCount===3?' active':'')+'" data-gmode="3" type="button"'+gmBtnActive3+'>三色</button></div>'+
           '<div class="cp-grad-stops"><div class="cp-grad-stop active" id="cpStop0" data-stop="0"><div class="cp-grad-dot" id="cpGradDot0"></div><span>起点</span></div><div class="cp-grad-stop" id="cpStop1" data-stop="1"><div class="cp-grad-dot" id="cpGradDot1"></div><span>'+(initGradCount===3?'中间':'终点')+'</span></div><div class="cp-grad-stop" id="cpStop2" data-stop="2" style="'+(initGradCount===3?'':'display:none;')+'"><div class="cp-grad-dot" id="cpGradDot2"></div><span>终点</span></div></div>'+
@@ -663,7 +646,6 @@ App.openColorPicker = function(currentColor, onConfirm, onChange, callerId) {
         '</div>'+
         '<div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px;"><div class="cp-presets" id="cpPresets">'+buildPresetsHtml()+'</div><button class="cp-preset-edit-btn" id="cpEditBtn" type="button">编辑</button></div>'+
         '<button class="cp-confirm" id="cpConfirm" type="button">确 定</button>'+
-        '</div>'+
       '</div>';
 
     document.body.appendChild(overlay);
@@ -677,38 +659,20 @@ App.openColorPicker = function(currentColor, onConfirm, onChange, callerId) {
     var specCursor=overlay.querySelector('#cpSpecCursor');
     var hueWrap=overlay.querySelector('#cpHueWrap');
     var hueCursor=overlay.querySelector('#cpHueCursor');
-    var alphaWrap=overlay.querySelector('#cpAlphaWrap');
-    var alphaBar=overlay.querySelector('#cpAlphaBar');
-    var alphaCursor=overlay.querySelector('#cpAlphaCursor');
-    var blurSlider=overlay.querySelector('#cpBlurSlider');
-    var blurValEl=overlay.querySelector('#cpBlurVal');
     var presetsEl=overlay.querySelector('#cpPresets');
     var gradArea=overlay.querySelector('#cpGradientArea');
     var gradInner=overlay.querySelector('#cpGradInner');
     var gradAngleInput=overlay.querySelector('#cpGradAngle');
     var gradAngleValEl=overlay.querySelector('#cpGradAngleVal');
 
-        function drawSpectrum(){
-      var w=specEl.clientWidth,h=specEl.clientHeight;
-      if(w<1||h<1){setTimeout(drawSpectrum,80);return;}
-      specCanvas.width=w;specCanvas.height=h;
-      specCtx.fillStyle='hsl('+currentHue+',100%,50%)';
-      specCtx.fillRect(0,0,w,h);
-      var wg=specCtx.createLinearGradient(0,0,w,0);
-      wg.addColorStop(0,'#ffffff');wg.addColorStop(1,'rgba(255,255,255,0)');
-      specCtx.fillStyle=wg;specCtx.fillRect(0,0,w,h);
-      var bg=specCtx.createLinearGradient(0,0,0,h);
-      bg.addColorStop(0,'rgba(0,0,0,0)');bg.addColorStop(1,'#000000');
-      specCtx.fillStyle=bg;specCtx.fillRect(0,0,w,h);
-    }
-
-    function updateAlphaBar(){
-      var hex=hslToHex(currentHue,currentSat,currentLight);
-      var rgb=hexToRgb(hex);
-      var aw=alphaWrap.clientWidth;
-  if(!aw)return;  // ★ 加这行
-      alphaBar.style.background='linear-gradient(to right, rgba('+rgb[0]+','+rgb[1]+','+rgb[2]+',0), rgba('+rgb[0]+','+rgb[1]+','+rgb[2]+',1))';
-      alphaCursor.style.left=(currentAlpha*alphaWrap.clientWidth)+'px';
+    function drawSpectrum(){
+      var w=specEl.clientWidth,h=specEl.clientHeight;specCanvas.width=w;specCanvas.height=h;
+      var imageData=specCtx.createImageData(w,h),data=imageData.data;
+      for(var y=0;y<h;y++){for(var x=0;x<w;x++){
+        var s=x/w,l=1-(y/h);var rgb=hslToRgb(currentHue,s,l);var idx=(y*w+x)*4;
+        data[idx]=rgb[0];data[idx+1]=rgb[1];data[idx+2]=rgb[2];data[idx+3]=255;
+      }}
+      specCtx.putImageData(imageData,0,0);
     }
 
     function updateGradPreview(){if(!gradInner)return;if(gradColorCount===3)gradInner.style.background='linear-gradient('+gradAngle+'deg,'+gradStops[0].color+','+gradStops[1].color+','+gradStops[2].color+')';else gradInner.style.background='linear-gradient('+gradAngle+'deg,'+gradStops[0].color+','+gradStops[1].color+')';var d0=overlay.querySelector('#cpGradDot0');var d1=overlay.querySelector('#cpGradDot1');var d2=overlay.querySelector('#cpGradDot2');if(d0)d0.style.background=gradStops[0].color;if(d1)d1.style.background=gradStops[1].color;if(d2)d2.style.background=gradStops[2].color;}
@@ -719,28 +683,24 @@ App.openColorPicker = function(currentColor, onConfirm, onChange, callerId) {
       hexInput.value=getDisplayText();
 
       var sw=specEl.clientWidth,sh=specEl.clientHeight;
-      var _cp=hslToCanvasPos(currentSat,currentLight,sw,sh);
-      specCursor.style.left=_cp.x+'px';
-      specCursor.style.top=_cp.y+'px';
+      specCursor.style.left=(currentSat/100)*sw+'px';
+      specCursor.style.top=((100-currentLight)/100)*sh+'px';
       specCursor.style.background=hslToHex(currentHue,currentSat,currentLight);
       hueCursor.style.left=(currentHue/360)*hueWrap.clientWidth+'px';
       hueCursor.style.background=hslToHex(currentHue,100,50);
-      updateAlphaBar();
 
       if(gradMode){
-        gradStops[activeStop].color=getSolidOutput();
+        gradStops[activeStop].color=hslToHex(currentHue,currentSat,currentLight);
         updateGradPreview();
       }
 
-      var changeFn=overlay._onChange;if(changeFn)changeFn(selectedHex,currentBlur);
+      var changeFn=overlay._onChange;if(changeFn)changeFn(selectedHex);
     }
 
-    function setFromColor(colorStr){var parsed=parseColor(colorStr);currentHue=parsed.h;currentSat=parsed.s;currentLight=parsed.l;if(parsed.a!==undefined)currentAlpha=parsed.a;drawSpectrum();updateUI();}
+    function setFromColor(colorStr){var parsed=parseColor(colorStr);currentHue=parsed.h;currentSat=parsed.s;currentLight=parsed.l;drawSpectrum();updateUI();}
 
-    requestAnimationFrame(function(){
-  setFromColor(currentColor||'#111111');
-  if(initGrad)updateGradPreview();
-});
+    setFromColor(currentColor||'#111111');
+    if(initGrad)updateGradPreview();
 
     overlay._setColor=function(c){
       if(c&&c.indexOf('linear-gradient')>=0){
@@ -762,56 +722,52 @@ App.openColorPicker = function(currentColor, onConfirm, onChange, callerId) {
       }
     };
 
-    var specDrag=false,hueDrag=false,alphaDrag=false;
+    var specDrag=false,hueDrag=false;
 
-    function specFromPos(e){var rect=specEl.getBoundingClientRect();var t=e.touches?e.touches[0]:e;var x=Math.max(0,Math.min(rect.width,t.clientX-rect.left));var y=Math.max(0,Math.min(rect.height,t.clientY-rect.top));var hsl=canvasPosToHsl(x,y,rect.width,rect.height);currentSat=hsl.s;currentLight=hsl.l;updateUI();}
+    function specFromPos(e){var rect=specEl.getBoundingClientRect();var t=e.touches?e.touches[0]:e;currentSat=Math.max(0,Math.min(100,(t.clientX-rect.left)/rect.width*100));var rawL=100-(t.clientY-rect.top)/rect.height*100;currentLight=Math.max(0,Math.min(100,rawL));updateUI();}
     specEl.addEventListener('mousedown',function(e){e.preventDefault();specDrag=true;specFromPos(e);});
-    specEl.addEventListener('touchstart',function(e){e.preventDefault();e.stopPropagation();specDrag=true;specFromPos(e);},{passive:false});
+    specEl.addEventListener('touchstart',function(e){e.preventDefault();specDrag=true;specFromPos(e);},{passive:false});
 
     function hueFromPos(e){var rect=hueWrap.getBoundingClientRect();var t=e.touches?e.touches[0]:e;currentHue=Math.max(0,Math.min(360,(t.clientX-rect.left)/rect.width*360));drawSpectrum();updateUI();}
     hueWrap.addEventListener('mousedown',function(e){e.preventDefault();hueDrag=true;hueFromPos(e);});
-    hueWrap.addEventListener('touchstart',function(e){e.preventDefault();e.stopPropagation();hueDrag=true;hueFromPos(e);},{passive:false});
+    hueWrap.addEventListener('touchstart',function(e){e.preventDefault();hueDrag=true;hueFromPos(e);},{passive:false});
 
-    function alphaFromPos(e){var rect=alphaWrap.getBoundingClientRect();var t=e.touches?e.touches[0]:e;currentAlpha=Math.max(0,Math.min(1,(t.clientX-rect.left)/rect.width));currentAlpha=Math.round(currentAlpha*100)/100;updateUI();}
-    alphaWrap.addEventListener('mousedown',function(e){e.preventDefault();alphaDrag=true;alphaFromPos(e);});
-    alphaWrap.addEventListener('touchstart',function(e){e.preventDefault();e.stopPropagation();alphaDrag=true;alphaFromPos(e);},{passive:false});
-
-    blurSlider.addEventListener('input',function(){currentBlur=parseInt(this.value);blurValEl.textContent=currentBlur+'px';var changeFn=overlay._onChange;if(changeFn)changeFn(getOutput(),currentBlur);});
-
-    function onDocMouseMove(e){if(specDrag)specFromPos(e);if(hueDrag)hueFromPos(e);if(alphaDrag)alphaFromPos(e);}
-    function onDocMouseUp(){specDrag=false;hueDrag=false;alphaDrag=false;}
-    function onDocTouchMove(e){if(specDrag||hueDrag||alphaDrag){e.preventDefault();if(specDrag)specFromPos(e);if(hueDrag)hueFromPos(e);if(alphaDrag)alphaFromPos(e);}}
-    function onDocTouchEnd(){
-  specDrag=false;hueDrag=false;alphaDrag=false;
-  /* 防止残留的拖拽锁定 */
-  setTimeout(function(){specDrag=false;hueDrag=false;alphaDrag=false;},100);
-}
+    function onDocMouseMove(e){if(specDrag)specFromPos(e);if(hueDrag)hueFromPos(e);}
+    function onDocMouseUp(){specDrag=false;hueDrag=false;}
+    function onDocTouchMove(e){if(specDrag||hueDrag){e.preventDefault();if(specDrag)specFromPos(e);if(hueDrag)hueFromPos(e);}}
+    function onDocTouchEnd(){specDrag=false;hueDrag=false;}
 
     document.addEventListener('mousemove',onDocMouseMove);
     document.addEventListener('mouseup',onDocMouseUp);
     document.addEventListener('touchmove',onDocTouchMove,{passive:false});
     document.addEventListener('touchend',onDocTouchEnd);
 
-    hexInput.addEventListener('input',function(){var v=this.value.trim();if(v.indexOf('linear-gradient')>=0){overlay._setColor(v);return;}if(v.indexOf('rgba')>=0||v.indexOf('rgb')>=0){setFromColor(v);return;}if(/^#[0-9a-fA-F]{6}$/.test(v)){setFromColor(v);}});
+    hexInput.addEventListener('input',function(){var v=this.value.trim();if(v.indexOf('linear-gradient')>=0){overlay._setColor(v);return;}if(/^#[0-9a-fA-F]{6}$/.test(v)){setFromColor(v);}});
 
     overlay.querySelectorAll('.cp-mode-btn').forEach(function(btn){
-  btn.addEventListener('click',function(e){e.stopPropagation();
-    overlay.querySelectorAll('.cp-mode-btn').forEach(function(b){b.classList.remove('active');});btn.classList.add('active');
-    gradMode=btn.dataset.mode==='gradient';
-    if(gradArea)gradArea.style.display=gradMode?'':'none';
-    if(gradMode){gradStops[activeStop].color=getSolidOutput();updateGradPreview();}
-    /* ★ 切换后强制重绘色谱，防止卡死 */
-    specDrag=false;hueDrag=false;alphaDrag=false;
-    requestAnimationFrame(function(){drawSpectrum();updateUI();});
-  });
-});
+      btn.addEventListener('click',function(e){e.stopPropagation();
+        overlay.querySelectorAll('.cp-mode-btn').forEach(function(b){b.classList.remove('active');});btn.classList.add('active');
+        gradMode=btn.dataset.mode==='gradient';
+        if(gradArea)gradArea.style.display=gradMode?'':'none';
+        if(gradMode){gradStops[activeStop].color=hslToHex(currentHue,currentSat,currentLight);updateGradPreview();}
+        updateUI();
+      });
+    });
 
-    overlay.querySelectorAll('.cp-grad-stop').forEach(function(stop){
+        overlay.querySelectorAll('.cp-grad-stop').forEach(function(stop){
       stop.addEventListener('click',function(e){e.stopPropagation();
-        gradStops[activeStop].color=getSolidOutput();
+        gradStops[activeStop].color=hslToHex(currentHue,currentSat,currentLight);
         overlay.querySelectorAll('.cp-grad-stop').forEach(function(s){s.classList.remove('active');});stop.classList.add('active');
         activeStop=parseInt(stop.dataset.stop);
-        setFromColor(gradStops[activeStop].color);
+        var parsed=parseColor(gradStops[activeStop].color);currentHue=parsed.h;currentSat=parsed.s;currentLight=parsed.l;
+        drawSpectrum();
+        var sw=specEl.clientWidth,sh=specEl.clientHeight;
+        specCursor.style.left=(currentSat/100)*sw+'px';
+        specCursor.style.top=((100-currentLight)/100)*sh+'px';
+        specCursor.style.background=hslToHex(currentHue,currentSat,currentLight);
+        hueCursor.style.left=(currentHue/360)*hueWrap.clientWidth+'px';
+        hueCursor.style.background=hslToHex(currentHue,100,50);
+        selectedHex=getOutput();pvInner.style.background=selectedHex;hexInput.value=getDisplayText();
         updateGradPreview();
       });
     });
@@ -829,15 +785,15 @@ App.openColorPicker = function(currentColor, onConfirm, onChange, callerId) {
       });
     });
 
-    if(gradAngleInput){gradAngleInput.addEventListener('input',function(){gradAngle=parseInt(this.value);if(gradAngleValEl)gradAngleValEl.textContent=gradAngle+'°';updateGradPreview();selectedHex=getOutput();var changeFn=overlay._onChange;if(changeFn)changeFn(selectedHex,currentBlur);});}
+    if(gradAngleInput){gradAngleInput.addEventListener('input',function(){gradAngle=parseInt(this.value);if(gradAngleValEl)gradAngleValEl.textContent=gradAngle+'°';updateGradPreview();selectedHex=getOutput();var changeFn=overlay._onChange;if(changeFn)changeFn(selectedHex);});}
 
     function rebindPresets(){
       presetsEl.innerHTML=buildPresetsHtml();
       if(editing)presetsEl.classList.add('editing');else presetsEl.classList.remove('editing');
       presetsEl.querySelectorAll('.cp-preset').forEach(function(p){
-        p.addEventListener('click',function(e){e.stopPropagation();if(editing)return;var c=p.dataset.color;
+          p.addEventListener('click',function(e){e.stopPropagation();if(editing)return;var c=p.dataset.color;
           if(c.indexOf('linear-gradient')>=0){overlay._setColor(c);}
-          else{setFromColor(c);}
+          else{if(gradMode){setFromColor(c);}else{setFromColor(c);}}
         });
         var del=p.querySelector('.cp-preset-del');
         if(del){del.addEventListener('click',function(e){e.stopPropagation();savedPresets.splice(parseInt(p.dataset.idx),1);App.LS.set('cpPresets',savedPresets);rebindPresets();});}
@@ -873,7 +829,7 @@ App.openColorPicker = function(currentColor, onConfirm, onChange, callerId) {
     overlay._doClose=doClose;
 
     overlay.querySelector('#cpClose').addEventListener('click',function(e){e.stopPropagation();doClose();});
-    overlay.querySelector('#cpConfirm').addEventListener('click',function(e){e.stopPropagation();var fn=overlay._onConfirm;if(fn)fn(getOutput(),currentBlur);doClose();});
+    overlay.querySelector('#cpConfirm').addEventListener('click',function(e){e.stopPropagation();var fn=overlay._onConfirm;if(fn)fn(getOutput());doClose();});
   };
       
   App.state = {
