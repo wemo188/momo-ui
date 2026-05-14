@@ -755,22 +755,26 @@ App.openColorPicker = function(currentColor, onConfirm, onChange, callerId) {
 
     function specFromPos(e){var rect=specEl.getBoundingClientRect();var t=e.touches?e.touches[0]:e;currentSat=Math.max(0,Math.min(100,(t.clientX-rect.left)/rect.width*100));var rawL=100-(t.clientY-rect.top)/rect.height*100;currentLight=Math.max(0,Math.min(100,rawL));updateUI();}
     specEl.addEventListener('mousedown',function(e){e.preventDefault();specDrag=true;specFromPos(e);});
-    specEl.addEventListener('touchstart',function(e){e.preventDefault();specDrag=true;specFromPos(e);},{passive:false});
+    specEl.addEventListener('touchstart',function(e){e.preventDefault();e.stopPropagation();specDrag=true;specFromPos(e);},{passive:false});
 
     function hueFromPos(e){var rect=hueWrap.getBoundingClientRect();var t=e.touches?e.touches[0]:e;currentHue=Math.max(0,Math.min(360,(t.clientX-rect.left)/rect.width*360));drawSpectrum();updateUI();}
     hueWrap.addEventListener('mousedown',function(e){e.preventDefault();hueDrag=true;hueFromPos(e);});
-    hueWrap.addEventListener('touchstart',function(e){e.preventDefault();hueDrag=true;hueFromPos(e);},{passive:false});
+    hueWrap.addEventListener('touchstart',function(e){e.preventDefault();e.stopPropagation();hueDrag=true;hueFromPos(e);},{passive:false});
 
     function alphaFromPos(e){var rect=alphaWrap.getBoundingClientRect();var t=e.touches?e.touches[0]:e;currentAlpha=Math.max(0,Math.min(1,(t.clientX-rect.left)/rect.width));currentAlpha=Math.round(currentAlpha*100)/100;updateUI();}
     alphaWrap.addEventListener('mousedown',function(e){e.preventDefault();alphaDrag=true;alphaFromPos(e);});
-    alphaWrap.addEventListener('touchstart',function(e){e.preventDefault();alphaDrag=true;alphaFromPos(e);},{passive:false});
+    alphaWrap.addEventListener('touchstart',function(e){e.preventDefault();e.stopPropagation();alphaDrag=true;alphaFromPos(e);},{passive:false});
 
     blurSlider.addEventListener('input',function(){currentBlur=parseInt(this.value);blurValEl.textContent=currentBlur+'px';var changeFn=overlay._onChange;if(changeFn)changeFn(getOutput(),currentBlur);});
 
     function onDocMouseMove(e){if(specDrag)specFromPos(e);if(hueDrag)hueFromPos(e);if(alphaDrag)alphaFromPos(e);}
     function onDocMouseUp(){specDrag=false;hueDrag=false;alphaDrag=false;}
     function onDocTouchMove(e){if(specDrag||hueDrag||alphaDrag){e.preventDefault();if(specDrag)specFromPos(e);if(hueDrag)hueFromPos(e);if(alphaDrag)alphaFromPos(e);}}
-    function onDocTouchEnd(){specDrag=false;hueDrag=false;alphaDrag=false;}
+    function onDocTouchEnd(){
+  specDrag=false;hueDrag=false;alphaDrag=false;
+  /* 防止残留的拖拽锁定 */
+  setTimeout(function(){specDrag=false;hueDrag=false;alphaDrag=false;},100);
+}
 
     document.addEventListener('mousemove',onDocMouseMove);
     document.addEventListener('mouseup',onDocMouseUp);
@@ -780,14 +784,16 @@ App.openColorPicker = function(currentColor, onConfirm, onChange, callerId) {
     hexInput.addEventListener('input',function(){var v=this.value.trim();if(v.indexOf('linear-gradient')>=0){overlay._setColor(v);return;}if(v.indexOf('rgba')>=0||v.indexOf('rgb')>=0){setFromColor(v);return;}if(/^#[0-9a-fA-F]{6}$/.test(v)){setFromColor(v);}});
 
     overlay.querySelectorAll('.cp-mode-btn').forEach(function(btn){
-      btn.addEventListener('click',function(e){e.stopPropagation();
-        overlay.querySelectorAll('.cp-mode-btn').forEach(function(b){b.classList.remove('active');});btn.classList.add('active');
-        gradMode=btn.dataset.mode==='gradient';
-        if(gradArea)gradArea.style.display=gradMode?'':'none';
-        if(gradMode){gradStops[activeStop].color=getSolidOutput();updateGradPreview();}
-        updateUI();
-      });
-    });
+  btn.addEventListener('click',function(e){e.stopPropagation();
+    overlay.querySelectorAll('.cp-mode-btn').forEach(function(b){b.classList.remove('active');});btn.classList.add('active');
+    gradMode=btn.dataset.mode==='gradient';
+    if(gradArea)gradArea.style.display=gradMode?'':'none';
+    if(gradMode){gradStops[activeStop].color=getSolidOutput();updateGradPreview();}
+    /* ★ 切换后强制重绘色谱，防止卡死 */
+    specDrag=false;hueDrag=false;alphaDrag=false;
+    requestAnimationFrame(function(){drawSpectrum();updateUI();});
+  });
+});
 
     overlay.querySelectorAll('.cp-grad-stop').forEach(function(stop){
       stop.addEventListener('click',function(e){e.stopPropagation();
