@@ -266,7 +266,14 @@ if(input){
   input.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();OL.sendUser();}});
 }
 
-App.safeOn('#olAiBtn','click',function(e){e.stopPropagation();if(OL.isStreaming){OL.stopStream();return;}OL.requestAI();});
+App.safeOn('#olAiBtn','click',function(e){
+  e.stopPropagation();
+  if(OL.isStreaming){OL.stopStream();return;}
+  var inp=App.$('#olInput');
+  var text=inp?inp.value.trim():'';
+  if(text){OL.sendUser();return;}
+  OL.requestAI();
+});
 App.safeOn('#olPlusBtn','click',function(e){e.stopPropagation();var pp=App.$('#olPlusPanel');if(!pp)return;OL._plusOpen=!OL._plusOpen;if(OL._plusOpen)pp.classList.add('show');else pp.classList.remove('show');});
 
 App.safeOn('#olPiPhoto','click',function(e){
