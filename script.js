@@ -1580,17 +1580,74 @@ App.closePanel = function() {
   App.state.currentPanelEl = null;
 };
 
-App.init = function() {
-  App.state.ball = App.$('#floatingBall');
+  /* ★ 新增：全局给所有半面屏注入控制按钮 */
+  App.initHalfPanelControls = function() {
+    App.$$('.half-panel').forEach(function(panel) {
+      var header = panel.querySelector('.hp-header');
+      // 如果没有 header，或者已经注入过了，就跳过
+      if (!header || header.querySelector('.hp-ctrl-btns')) return;
+      
+      var title = header.querySelector('h2');
+      var btns = document.createElement('div');
+      btns.className = 'hp-ctrl-btns';
+      btns.innerHTML = 
+        '<button class="hp-ctrl-btn hp-btn-exp" type="button">扩大</button>' +
+        '<button class="hp-ctrl-btn hp-btn-up" type="button">上移</button>' +
+        '<button class="hp-ctrl-btn hp-btn-dn" type="button" style="display:none;">下降</button>';
+      
+      // 插入到标题后面
+      if (title) {
+        title.parentNode.insertBefore(btns, title.nextSibling);
+      } else {
+        header.insertBefore(btns, header.firstChild);
+      }
 
-  if (!App.state.ball) {
-    console.warn('页面缺少核心元素');
-    return;
-  }
+      var btnExp = btns.querySelector('.hp-btn-exp');
+      var btnUp = btns.querySelector('.hp-btn-up');
+      var btnDn = btns.querySelector('.hp-btn-dn');
 
-  App.initFloatingBall();
-  App.runInits();
-  App.initMainPages();
-};
+      // 扩大/缩小
+      btnExp.addEventListener('click', function(e) {
+        e.stopPropagation();
+        if (panel.classList.contains('hp-size-full')) {
+          panel.classList.remove('hp-size-full');
+          btnExp.textContent = '扩大';
+        } else {
+          panel.classList.add('hp-size-full');
+          btnExp.textContent = '缩小';
+        }
+      });
+
+      // 上移
+      btnUp.addEventListener('click', function(e) {
+        e.stopPropagation();
+        panel.classList.add('hp-pos-top');
+        btnUp.style.display = 'none';
+        btnDn.style.display = 'inline-block';
+      });
+
+      // 下降
+      btnDn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        panel.classList.remove('hp-pos-top');
+        btnDn.style.display = 'none';
+        btnUp.style.display = 'inline-block';
+      });
+    });
+  };
+
+  App.init = function() {
+    App.state.ball = App.$('#floatingBall');
+    if (!App.state.ball) {
+      console.warn('页面缺少核心元素');
+      return;
+    }
+    App.initFloatingBall();
+    App.runInits();
+    App.initMainPages();
+    
+    /* ★ 在初始化时调用这个函数 */
+    App.initHalfPanelControls();
+  };
 
 })();
