@@ -59,16 +59,19 @@
   -webkit-touch-callout: none; overscroll-behavior: none;
   -webkit-backface-visibility: hidden; backface-visibility: hidden; will-change: transform;
 }
+
+/* ★ 终极背景外扩：上下左右各拉出100px，神仙也看不见缝隙 */
 .ol-bg{
-  position: absolute; inset: -20px; z-index: 0;
+  position: absolute; top: -100px; bottom: -100px; left: -50px; right: -50px; z-index: 0;
   background-size: cover; background-position: center; background-repeat: no-repeat; pointer-events: none;
 }
 
+/* ★ 恢复顶部透明，去掉了毛玻璃 */
 .ol-hd{
   position: absolute; top: 0; left: 0; right: 0; z-index: 10;
   display: flex; align-items: center; justify-content: center;
   padding: max(44px, env(safe-area-inset-top)) 16px 6px;
-  background: var(--ol-hd-bg); backdrop-filter: saturate(150%) blur(20px); -webkit-backdrop-filter: saturate(150%) blur(20px); pointer-events: none;
+  background: var(--ol-hd-bg); pointer-events: none;
 }
 .ol-hd::after{content:"";position:absolute;bottom:-30px;left:0;right:0;height:30px;background:linear-gradient(to bottom,var(--ol-hd-fade),transparent);pointer-events:none;}
 .ol-hd-name{flex:1;text-align:center;font-size:var(--ol-hd-size);font-weight:700;color:var(--ol-hd-text);letter-spacing:.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;pointer-events:auto;}
@@ -165,4 +168,4 @@
 .ol-css-hd-btn{background:none;border:none;color:#1a1a1a;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;padding:4px 8px;-webkit-tap-highlight-color:transparent;}
 .ol-css-hd-btn:active{opacity:.7;}
 .ol-css-hd-title{font-size:14px;font-weight:700;letter-spacing:1px;color:#1a1a1a;}
-.ol-css-textarea{flex:1;width:100%;padding:14px;background:transparent;border:none;color:#1a1a1a;font-size:13px;font-family:'SF Mono','Menlo','Consolas',monospace;line-height:1.6;outline:none;resize:none;-webkit-user-select:text;user-select:text;overflow-y:auto;-webkit-overflow-scrolling:touch;tab-size:2;}
+.ol-css-textarea{flex:1;width:100%;padding:14px;background:transparent;border:none;color:#1a1a1a;font-size:13px;line-height:1.6;outline:none;resize:none;-webkit-user-select:text;user-select:text;overflow-y:auto;-webkit-overflow-scrolling:touch;tab-size:2;}
