@@ -33,13 +33,12 @@
 
       var hasBg = !!bgData.src;
 
-      panel.innerHTML =
-        '<div class="hp-handle"></div>' +
-        '<div class="hp-header">' +
-          '<h2>背景与图标</h2>' +
-          '<button class="hp-close" id="bgCloseBtn" type="button"><svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg></button>' +
-        '</div>' +
-        '<div class="hp-body">' +
+  panel.innerHTML =
+  '<div class="hp-handle"></div>' +
+  '<div class="hp-header">' +
+    '<button class="hp-close" id="bgCloseBtn" type="button"><svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg></button>' +
+  '</div>' +
+  '<div class="hp-body">' +
 
           '<div class="hp-section-label">背景墙纸</div>' +
           '<div class="hp-upload" id="bgUploadArea">' +
