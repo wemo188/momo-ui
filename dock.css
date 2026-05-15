@@ -17,6 +17,7 @@
   box-shadow:
     0 12px 40px rgba(0,0,0,0.10),
     0 4px 12px rgba(0,0,0,0.06);
+  padding-bottom: max(24px, env(safe-area-inset-bottom)) !important;
 }
 
 .dock-item {
