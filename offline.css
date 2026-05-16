@@ -98,11 +98,11 @@
 .ol-block.is-char .ol-scatter-meta{color:var(--ol-c-av-frame-color);}
 .ol-block.is-user .ol-scatter-meta{color:var(--ol-u-av-frame-color);}
 
-.ol-frame-mid{position:relative;overflow:hidden;max-width:100%;isolation:isolate;}
+.ol-frame-mid{position:relative;overflow:hidden;max-width:100%;}
 .ol-block.is-char .ol-frame-mid{align-self:flex-start;border-radius:var(--ol-c-bubble-radius);border:var(--ol-c-bubble-border-w) solid var(--ol-c-bubble-border-color);width:var(--ol-c-bubble-width);}
 .ol-block.is-user .ol-frame-mid{align-self:flex-end;border-radius:var(--ol-u-bubble-radius);border:var(--ol-u-bubble-border-w) solid var(--ol-u-bubble-border-color);width:var(--ol-u-bubble-width);}
 
-.ol-bub-bg{position:absolute;inset:0;z-index:-1;border-radius:inherit;pointer-events:none;}
+.ol-bub-bg{position:absolute;inset:0;z-index:0;border-radius:inherit;pointer-events:none;}
 .ol-block.is-char .ol-bub-bg{
   background: var(--ol-c-bubble-bg);
   opacity: var(--ol-c-bubble-opacity);
