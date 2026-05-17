@@ -147,7 +147,23 @@ sls.forEach(function(s){var sl=App.$('#'+s.id),val=App.$('#'+s.id+'Val');if(!sl|
 App.$$('[data-fk]').forEach(function(el){var k=el.dataset.fk;if(el.tagName==='INPUT'&&el.type==='range'){var vl=App.$('#ol'+k+'Val');el.addEventListener('input',function(){var v=parseFloat(this.value);if(vl)vl.textContent=v+(k.indexOf('Weight')>=0?'':'px');ap[k]=v;sr();});}if(el.classList.contains('hp-color-dot')){el.style.background=ap[k];el.addEventListener('click',function(e){e.stopPropagation();if(!App.openColorPicker)return;App.openColorPicker(ap[k],function(hex){el.style.background=hex;ap[k]=hex;sr();},function(hex){el.style.background=hex;ap[k]=hex;sAp(cid,ap);O._noScroll=true;O.renderMessages();},'ol_'+k);});}});
 function bc(id,key){var dot=App.$('#'+id);if(!dot)return;dot.style.background=ap[key]||'#fff';dot.addEventListener('click',function(e){e.stopPropagation();if(!App.openColorPicker)return;App.openColorPicker(ap[key]||'#fff',function(hex){dot.style.background=hex;ap[key]=hex;sr();},function(hex){dot.style.background=hex;ap[key]=hex;sAp(cid,ap);O.applyAppearance(cid);},'ol_'+key);});}
 bc('olPageBg','pageBg');var barBgDot=App.$('#olBarBg');
-if(barBgDot){barBgDot.style.background=ap.barBg||'#fff';barBgDot.addEventListener('click',function(e){e.stopPropagation();if(!App.openColorPicker)return;App.openColorPicker(ap.barBg||'#fff',function(hex){if(hex.indexOf('gradient')>=0)hex='#ffffff';barBgDot.style.background=hex;ap.barBg=hex;sr();},function(hex){if(hex.indexOf('gradient')>=0)hex='#ffffff';barBgDot.style.background=hex;ap.barBg=hex;sAp(cid,ap);O.applyAppearance(cid);},'ol_barBg');});};bc('olBarBorderColor','barBorderColor');bc('olInputTextColor','inputTextColor');
+if(barBgDot){
+  var _barC=(ap.barBg||'#ffffff').indexOf('gradient')>=0?'#ffffff':ap.barBg;
+  barBgDot.style.background=_barC;
+  barBgDot.addEventListener('click',function(e){e.stopPropagation();if(!App.openColorPicker)return;
+    App.openColorPicker(_barC,function(hex){
+      var c=hex.indexOf('gradient')>=0?_barC:hex; _barC=c;
+      barBgDot.style.background=c;
+      ap.barBg='linear-gradient(135deg, #ffffff 0%, '+c+' 25%, '+c+' 55%, '+c+' 75%, #ffffff 100%)';
+      sr();
+    },function(hex){
+      var c=hex.indexOf('gradient')>=0?_barC:hex; _barC=c;
+      barBgDot.style.background=c;
+      ap.barBg='linear-gradient(135deg, #ffffff 0%, '+c+' 25%, '+c+' 55%, '+c+' 75%, #ffffff 100%)';
+      sAp(cid,ap);O.applyAppearance(cid);
+    },'ol_barBg');
+  });
+};bc('olBarBorderColor','barBorderColor');bc('olInputTextColor','inputTextColor');
 bc('olcAvFrameColor','cAvFrameColor');bc('olcTextColor','cTextColor');
 bc('oluAvFrameColor','uAvFrameColor');bc('oluTextColor','uTextColor');
 App.$$('.ol-povu-btn').forEach(function(b){if(b.dataset.pov===ap.povUser)b.classList.add('hp-btn-primary');b.addEventListener('click',function(){sa(Array.from(App.$$('.ol-povu-btn')),b);ap.povUser=b.dataset.pov;save();});});
