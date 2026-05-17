@@ -130,7 +130,7 @@
 /* ★ 底部栏：拉高、图标放大、bottom:30px */
 .ol-input-wrap{
   position:absolute;
-  bottom:30px;
+  bottom:40px;
   left:0;right:0;
   z-index:9;
   display:flex;align-items:center;gap:10px;
