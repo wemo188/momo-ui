@@ -172,8 +172,8 @@ function bindGrad(id, key, tpl) {
   });
 }
 bindGrad('olBarBg', 'barBg', function(c){ return 'linear-gradient(135deg, #ffffff 0%, '+c+'44 25%, '+c+' 55%, '+c+'44 75%, #ffffff 100%)'; });
-bindGrad('olcBubbleBg', 'cBubbleBg', function(c){ return 'linear-gradient(135deg, #ffffff 0%, '+c+'44 25%, '+c+' 55%, '+c+'44 75%, #ffffff 100%)'; });
-bindGrad('oluBubbleBg', 'uBubbleBg', function(c){ return 'linear-gradient(135deg, #ffffff 0%, '+c+'44 25%, '+c+' 55%, '+c+'44 75%, #ffffff 100%)'; });
+bc('olcBubbleBg','cBubbleBg');
+bc('oluBubbleBg','uBubbleBg');
 
 App.$$('.ol-povu-btn').forEach(function(b){if(b.dataset.pov===ap.povUser)b.classList.add('hp-btn-primary');b.addEventListener('click',function(){sa(Array.from(App.$$('.ol-povu-btn')),b);ap.povUser=b.dataset.pov;save();});});
 App.$$('.ol-povc-btn').forEach(function(b){if(b.dataset.pov===ap.povChar)b.classList.add('hp-btn-primary');b.addEventListener('click',function(){sa(Array.from(App.$$('.ol-povc-btn')),b);ap.povChar=b.dataset.pov;save();});});
