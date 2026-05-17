@@ -190,10 +190,12 @@
 
 .ol-input-box{
   flex:1;min-width:0;height:48px;display:flex;align-items:center;
-  background:rgba(255,255,255,0.7); /* ★ 恢复冰透白底 */
-  border:1px solid rgba(255,255,255,0.9);
+  background:rgba(255,255,255,0.85); /* 恢复半透明底色 */
+  backdrop-filter:blur(16px); /* ★ 核心：把透进来的图片强行模糊成纯色光晕 */
+  -webkit-backdrop-filter:blur(16px);
+  border:1px solid rgba(255,255,255,0.9); /* 保留白圈边框 */
   border-radius:0;padding:0 10px;box-sizing:border-box;gap:8px;
-  box-shadow:0 0 12px rgba(255,255,255,0.5); /* ★ 恢复白色柔光 */
+  box-shadow:0 0 12px rgba(255,255,255,0.5); /* 保留白圈发光 */
 }
 .ol-inner-btn{
   width:34px;height:34px;display:flex;align-items:center;justify-content:center;
