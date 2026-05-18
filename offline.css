@@ -123,8 +123,8 @@
 
 .ol-scatter-meta{display:flex;align-items:center;gap:4px;font-size:var(--ol-meta-size);font-weight:600;line-height:1;}
 .ol-scatter-meta .ol-meta-sep{display:inline-flex;align-items:center;line-height:1;}
-.ol-block.is-char .ol-scatter-meta{color:rgba(156,163,175,0.8);}
-.ol-block.is-user .ol-scatter-meta{color:rgba(126,163,201,0.8);}
+.ol-block.is-char .ol-scatter-meta{color:var(--ol-c-av-frame-color); opacity:0.85;}
+.ol-block.is-user .ol-scatter-meta{color:var(--ol-u-av-frame-color); opacity:0.85;}
 
 .ol-frame-mid{
   position:relative;
@@ -187,7 +187,7 @@
   left:16px;right:16px;
   z-index:9;
   display:flex;align-items:center;gap:10px;
-  padding:24px 10px 14px;
+  padding:24px 10px 14px 8px;
   background:var(--ol-bar-bg);
   border:var(--ol-bar-border-w) solid var(--ol-bar-border-color);
   border-radius:var(--ol-bar-radius);
@@ -210,10 +210,10 @@
 .ol-btn-menu svg{width:30px;height:30px;}
 
 .ol-input-box{
-  flex:1;min-width:0;height:48px;display:flex;align-items:center;
+  flex:1;min-width:0;height:44px;display:flex;align-items:center;
   background:rgba(255,255,255,0.7);
   border:var(--ol-bar-border-w) solid var(--ol-bar-border-color);
-  border-radius:0;padding:0 10px;box-sizing:border-box;gap:8px;
+  border-radius:0;padding:0 8px;box-sizing:border-box;gap:6px;
   box-shadow:0 0 12px rgba(255,255,255,0.5);
 }
 .ol-inner-btn{
@@ -229,7 +229,7 @@
   flex:1;min-width:0;height:100%;padding:0;border:none;background:transparent;
   font-size:var(--ol-input-font-size);font-weight:700;
   color:var(--ol-input-text);
-  outline:none;resize:none;line-height:48px;font-family:inherit;overflow-y:hidden;white-space:nowrap;text-overflow:ellipsis;-webkit-user-select:text;user-select:text;
+  outline:none;resize:none;line-height:44px;font-family:inherit;overflow-y:hidden;white-space:nowrap;text-overflow:ellipsis;-webkit-user-select:text;user-select:text;
 }
 .ol-input::placeholder{color:var(--ol-input-text);opacity:0.7;}
 
