@@ -274,6 +274,13 @@ App.safeOn('#olCardReset','click',function(){
   App.showToast('顶部卡片已重置');
 });
 
+function bc(id,key){var dot=App.$('#'+id);if(!dot)return;dot.style.background=ap[key]||'#fff';dot.addEventListener('click',function(e){e.stopPropagation();if(!App.openColorPicker)return;App.openColorPicker(ap[key]||'#fff',function(hex){dot.style.background=hex;ap[key]=hex;sr();},function(hex){dot.style.background=hex;ap[key]=hex;sAp(cid,ap);O.applyAppearance(cid);},'ol_'+key);});}
+bc('olPageBg','pageBg');bc('olInputTextColor','inputTextColor');
+bc('olBarBorderColor','barBorderColor');bc('olBarIconColor','barIconColor');
+bc('olCardBg','cardBg');bc('olCardTextColor','cardTextColor');
+bc('olcAvFrameColor','cAvFrameColor');bc('olcBubbleBorderColor','cBubbleBorderColor');bc('olcTextColor','cTextColor');
+bc('oluAvFrameColor','uAvFrameColor');bc('oluBubbleBorderColor','uBubbleBorderColor');bc('oluTextColor','uTextColor');
+
 function bindGrad(id, key, tpl) {
   var dot = App.$('#'+id); if(!dot) return;
   dot.style.background = ap[key] || '#fff';
