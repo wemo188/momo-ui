@@ -360,6 +360,7 @@ App.safeOn('#olCardReset','click',function(){
       if(cap)cap.textContent = defCardT[i-1];
     }
   }
+
   var cfSel=App.$('#olCardFont'); if(cfSel)cfSel.value='';
   sAp(cid,ap); O.applyAppearance(cid);
   var dbg=App.$('#olCardBg'), dtc=App.$('#olCardTextColor'), dtbg=App.$('#olTopBgColor');
@@ -399,33 +400,56 @@ App.safeOn('#olSbTopBgBtn','click',function(){if(topBgInp)topBgInp.click();});
 if(topBgInp){topBgInp.addEventListener('change',function(e){var f=e.target.files[0];if(!f)return;var reader=new FileReader();reader.onload=function(ev){var process=function(c){ap.topBgImg=c;sAp(cid,ap);O.applyAppearance(cid);App.showToast('顶部图已更新');};if(App.cropImage)App.cropImage(ev.target.result,process);else process(ev.target.result);};reader.readAsDataURL(f);e.target.value='';});}
 App.safeOn('#olSbTopBgDel','click',function(){ap.topBgImg='';sAp(cid,ap);O.applyAppearance(cid);App.showToast('顶部图已清除');});
 
-App.safeOn('#olBarReset','click',function(){
-  ap.barBg='linear-gradient(135deg, #ffffff 0%, #e9f6ff 25%, #d9ecfc 55%, #e1f2ff 75%, #ffffff 100%)';
-  ap.barBorderColor='rgba(255,255,255,0.9)'; ap.barIconColor='#adcdea'; ap.inputTextColor='#adcdea';
-  ap.barBorderW=1; ap.barRadius=0; ap.placeholder='宇宙带着星轨在私奔✮ ࣪ ⊹⋆˚'; ap.barBgImg='';
-  sAp(cid,ap); O.applyAppearance(cid);
-  var dbg=App.$('#olBarBg'), dbc=App.$('#olBarBorderColor'), dic=App.$('#olBarIconColor'), dit=App.$('#olInputTextColor');
-  if(dbg) dbg.style.background=ap.barBg;
-  if(dbc) dbc.style.background=ap.barBorderColor;
-  if(dic) dic.style.background=ap.barIconColor;
-  if(dit) dit.style.background=ap.inputTextColor;
-  var sw=App.$('#olBarBorderW'), sv=App.$('#olBarBorderWVal'), sr=App.$('#olBarRadius'), srv=App.$('#olBarRadiusVal'), ph=App.$('#olPlaceholderInput');
-  if(sw){sw.value=1;sv.textContent='1px';}
-  if(sr){sr.value=0;srv.textContent='0px';}
-  if(ph) ph.value=ap.placeholder;
-  App.showToast('底部区域已重置');
-});
-
 var barBgInp=App.$('#olBarBgInput');
 App.safeOn('#olSbBarBgBtn','click',function(){if(barBgInp)barBgInp.click();});
 if(barBgInp){barBgInp.addEventListener('change',function(e){var f=e.target.files[0];if(!f)return;var reader=new FileReader();reader.onload=function(ev){var process=function(c){ap.barBgImg=c;sAp(cid,ap);O.applyAppearance(cid);App.showToast('底栏图已更新');};if(App.cropImage)App.cropImage(ev.target.result,process);else process(ev.target.result);};reader.readAsDataURL(f);e.target.value='';});}
 App.safeOn('#olSbBarBgDel','click',function(){ap.barBgImg='';sAp(cid,ap);O.applyAppearance(cid);App.showToast('底栏图已清除');});
+
+var bgInp=App.$('#olBgFileInput');
+App.safeOn('#olSbBg','click',function(){if(bgInp)bgInp.click();});
+if(bgInp){bgInp.addEventListener('change',function(e){var f=e.target.files[0];if(!f)return;var reader=new FileReader();reader.onload=function(ev){var process=function(src){try{App.LS.set('olBg_'+cid,src);}catch(err){App.showToast('图片过大');return;}O.applyAppearance(cid);App.showToast('背景已更新');};if(App.cropImage)App.cropImage(ev.target.result,process);else process(ev.target.result);};reader.readAsDataURL(f);e.target.value='';});}
+App.safeOn('#olBgDel','click',function(){App.LS.remove('olBg_'+cid);O.applyAppearance(cid);App.showToast('背景已清除');});
+
+var phInput=App.$('#olPlaceholderInput');
+if(phInput){phInput.addEventListener('input',function(){ap.placeholder=this.value;sAp(cid,ap);var inp=App.$('#olInput');if(inp)inp.placeholder=this.value||'宇宙带着星轨在私奔✮ ࣪ ⊹⋆˚';});}
+
+App.safeOn('#olBarReset','click',function(){
+  ap.barBg='linear-gradient(135deg, #ffffff 0%, #e9f6ff 25%, #d9ecfc 55%, #e1f2ff 75%, #ffffff 100%)';
+  ap.barBorderColor='rgba(255,255,255,0.9)';ap.barIconColor='#adcdea';ap.inputTextColor='#adcdea';
+  ap.barBorderW=1;ap.barRadius=0;ap.placeholder='宇宙带着星轨在私奔✮ ࣪ ⊹⋆˚';ap.barBgImg='';
+  sAp(cid,ap);O.applyAppearance(cid);
+  var d1=App.$('#olBarBg'),d2=App.$('#olBarBorderColor'),d3=App.$('#olBarIconColor'),d4=App.$('#olInputTextColor');
+  if(d1)d1.style.background=ap.barBg;if(d2)d2.style.background=ap.barBorderColor;
+  if(d3)d3.style.background=ap.barIconColor;if(d4)d4.style.background=ap.inputTextColor;
+  var s1=App.$('#olBarBorderW'),v1=App.$('#olBarBorderWVal'),s2=App.$('#olBarRadius'),v2=App.$('#olBarRadiusVal'),ph2=App.$('#olPlaceholderInput');
+  if(s1){s1.value=1;v1.textContent='1px';}if(s2){s2.value=0;v2.textContent='0px';}
+  if(ph2)ph2.value=ap.placeholder;
+  App.showToast('底部区域已重置');
+});
+
+App.safeOn('#olStyleReset','click',function(){
+  App.LS.remove('olAp_'+cid);ap=JSON.parse(JSON.stringify(DEF_AP));
+  for(var i=1;i<=4;i++){App.LS.remove('ol_photo_'+cid+'_'+i);
+    var ipt=App.$('#olCardT'+i);if(ipt)ipt.value='';
+    var card=App.$('.mm-ec-'+i);
+    if(card){var img=card.querySelector('.mm-env-img'),pl=card.querySelector('.mm-env-placeholder'),cap=card.querySelector('.mm-env-caption');
+    if(img){img.src='';img.style.display='none';}if(pl)pl.style.display='flex';
+    if(cap)cap.textContent=['银河歌颂','梦想在冒险','星星怀抱月夜','明天想见你'][i-1];}
+  }
+  App.LS.remove('olBg_'+cid);
+  sAp(cid,ap);O.applyAppearance(cid);O._noScroll=true;O.renderMessages();
+  App.showToast('已重置全部渲染');
+});
+
+App.safeOn('#olSbScene','click',function(){O.showSceneDialog();});
+App.safeOn('#olSbCode','click',function(){O._closePanel();O.openCodeEditor();});
 
 var swMap={'olPovOn':'povOn','olcAvShow':'cAvShow','olcAvNameShow':'cAvNameShow','oluAvShow':'uAvShow','oluAvNameShow':'uAvNameShow','olcQuoteOn':'cQuoteOn','olcParenOn':'cParenOn','olcStarOn':'cStarOn','olcParenHide':'cParenHide','olcStarHide':'cStarHide','olquoteOn':'quoteOn','olparenOn':'parenOn','olstarOn':'starOn','olparenHide':'parenHide','olstarHide':'starHide'};
 App.$$('.ol-sw-track').forEach(function(s){s.addEventListener('click',function(e){e.stopPropagation();s.classList.toggle('on');var id=s.parentElement.id,on=s.classList.contains('on');if(swMap[id]){ap[swMap[id]]=on;if(id==='olPovOn'){var sub=App.$('#olPovSub');if(sub)sub.style.display=on?'':'none';}sr();}else save();});});
 
 var sls=[{id:'olBgBlur',k:'bgBlur',u:'%'},{id:'olBgDark',k:'bgDark',u:'%'},{id:'olBarBorderW',k:'barBorderW',u:'px'},{id:'olBarRadius',k:'barRadius',u:'px'},{id:'olcAvSize',k:'cAvSize',u:'px'},{id:'olcAvRadius',k:'cAvRadius',u:'%'},{id:'olcAvFrameW',k:'cAvFrameW',u:'px'},{id:'olcAvNameSize',k:'cAvNameSize',u:'px'},{id:'olcBubbleRadius',k:'cBubbleRadius',u:'px'},{id:'olcBubbleBorderW',k:'cBubbleBorderW',u:'px'},{id:'olcBubbleWidth',k:'cBubbleWidth',u:'%'},{id:'olcBubbleOpacity',k:'cBubbleOpacity',u:'%'},{id:'olcBubbleBlur',k:'cBubbleBlur',u:'px'},{id:'olcTextSize',k:'cTextSize',u:'px'},{id:'olcTextWeight',k:'cTextWeight',u:''},{id:'olcTextLH',k:'cTextLH',u:''},{id:'olcParaGap',k:'cParaGap',u:'px'},{id:'olcLetterGap',k:'cLetterGap',u:'px'},{id:'oluAvSize',k:'uAvSize',u:'px'},{id:'oluAvRadius',k:'uAvRadius',u:'%'},{id:'oluAvFrameW',k:'uAvFrameW',u:'px'},{id:'oluAvNameSize',k:'uAvNameSize',u:'px'},{id:'oluBubbleRadius',k:'uBubbleRadius',u:'px'},{id:'oluBubbleBorderW',k:'uBubbleBorderW',u:'px'},{id:'oluBubbleWidth',k:'uBubbleWidth',u:'%'},{id:'oluBubbleOpacity',k:'uBubbleOpacity',u:'%'},{id:'oluBubbleBlur',k:'uBubbleBlur',u:'px'},{id:'oluTextSize',k:'uTextSize',u:'px'},{id:'oluTextWeight',k:'uTextWeight',u:''},{id:'oluTextLH',k:'uTextLH',u:''},{id:'oluParaGap',k:'uParaGap',u:'px'},{id:'oluLetterGap',k:'uLetterGap',u:'px'}];
 sls.forEach(function(s){var sl=App.$('#'+s.id),val=App.$('#'+s.id+'Val');if(!sl||!val)return;sl.addEventListener('input',function(){var v=parseFloat(this.value);val.textContent=v+s.u;ap[s.k]=v;sr();});});
+
 App.$$('[data-fk]').forEach(function(el){var k=el.dataset.fk;if(el.tagName==='INPUT'&&el.type==='range'){var vl=App.$('#ol'+k+'Val');el.addEventListener('input',function(){var v=parseFloat(this.value);if(vl)vl.textContent=v+(k.indexOf('Weight')>=0?'':'px');ap[k]=v;sr();});}if(el.classList.contains('hp-color-dot')){el.style.background=ap[k]||'#666';el.addEventListener('click',function(e){e.stopPropagation();if(!App.openColorPicker)return;App.openColorPicker(ap[k]||'#666',function(hex){el.style.background=hex;ap[k]=hex;sr();},function(hex){el.style.background=hex;ap[k]=hex;sAp(cid,ap);O._noScroll=true;O.renderMessages();},'ol_'+k);});}});
 
 App.$$('.ol-povu-btn').forEach(function(b){if(b.dataset.pov===ap.povUser)b.classList.add('hp-btn-primary');b.addEventListener('click',function(){sa(Array.from(App.$$('.ol-povu-btn')),b);ap.povUser=b.dataset.pov;save();});});
@@ -439,55 +463,6 @@ bmt('.ol-cQuote-qrec','cQuoteRec');bmt('.ol-cParen-prec','cParenRec');bmt('.ol-q
 function bst(cls,k){App.$$(cls).forEach(function(t){t.addEventListener('click',function(){App.$$(cls).forEach(function(x){x.classList.remove('active');});t.classList.add('active');ap[k]=t.dataset.val;sr();});});}
 bst('.ol-cQuote-qdis','cQuoteDis');bst('.ol-cParen-pdis','cParenDis');bst('.ol-quote-qdis','quoteDis');bst('.ol-paren-pdis','parenDis');
 ['cQuote','cParen','cStar','quote','paren','star'].forEach(function(p){App.$$('.ol-'+p+'-style').forEach(function(t){t.addEventListener('click',function(){App.$$('.ol-'+p+'-style').forEach(function(x){x.classList.remove('active');});t.classList.add('active');ap[p+'Italic']=t.dataset.val==='italic';sr();});});});
-
-App.safeOn('#olSbScene','click',function(){O.showSceneDialog();});
-App.safeOn('#olSbCode','click',function(){O._closePanel();O.openCodeEditor();});
-
-/* ★ 彻底修复背景上传与清除：使用专门函数强刷 */
-var bgInp = App.$('#olBgFileInput');
-App.safeOn('#olSbBg', 'click', function(){ if(bgInp) bgInp.click(); });
-if(bgInp) {
-  bgInp.addEventListener('change', function(e){
-    var f = e.target.files[0]; if(!f) return;
-    var reader = new FileReader();
-    reader.onload = function(ev) {
-      var process = function(src) {
-        try { App.LS.set('olBg_'+cid, src); } catch(err) { App.showToast('图片过大'); return; }
-        O.applyAppearance(cid);
-        App.showToast('背景已更新');
-      };
-      if(App.cropImage) App.cropImage(ev.target.result, process); else process(ev.target.result);
-    };
-    reader.readAsDataURL(f);
-    e.target.value='';
-  });
-}
-App.safeOn('#olBgDel', 'click', function(){
-  App.LS.remove('olBg_'+cid);
-  O.applyAppearance(cid);
-  App.showToast('背景已清除');
-});
-
-App.safeOn('#olStyleReset','click',function(){
-  App.LS.remove('olAp_'+cid);
-  ap=JSON.parse(JSON.stringify(DEF_AP));
-  for(var i=1;i<=4;i++){
-    App.LS.remove('ol_photo_'+cid+'_'+i);
-    var ipt=App.$('#olCardT'+i); if(ipt) ipt.value='';
-    var card=App.$('.mm-ec-'+i);
-    if(card){
-      var img=card.querySelector('.mm-env-img');
-      var pl=card.querySelector('.mm-env-placeholder');
-      var cap=card.querySelector('.mm-env-caption');
-      if(img){img.src='';img.style.display='none';}
-      if(pl)pl.style.display='flex';
-      if(cap)cap.textContent=['银河歌颂','梦想在冒险','星星怀抱月夜','明天想见你'][i-1];
-    }
-  }
-  App.LS.remove('olBg_'+cid);
-  sAp(cid,ap); O.applyAppearance(cid); O._noScroll=true; O.renderMessages();
-  App.showToast('已重置全部渲染');
-});
 
 var getActiveBubble = function() {
   var mc = App.$('#olMsgs');
