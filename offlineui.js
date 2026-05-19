@@ -70,12 +70,12 @@ con.innerHTML=
 
 '<div id="olSettingsPanel" class="half-panel hidden"><div class="hp-handle"></div><div class="hp-header"><button class="hp-close" id="olPanelClose" type="button"><svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div><div class="hp-body">' +
 
-'<div class="hp-section-label">★ 聊天设置 ★</div>' +
+'<div class="hp-section-label">聊天设置</div>' +
 '<div class="hp-upload" id="olSbScene"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>编辑场景/时间线</div>' +
 '<div class="ol-sw-row" style="margin-bottom:12px;">人称称呼 '+sw('olPovOn',ap.povOn)+'</div><div id="olPovSub" style="'+(ap.povOn?'':'display:none;')+'"><div class="hp-slider-row" style="margin-bottom:18px;"><span class="hp-slider-label" style="width:60px">称呼用户</span><div style="display:flex;gap:12px;flex:1;"><button class="hp-btn ol-povu-btn" data-pov="first">第一人称</button><button class="hp-btn ol-povu-btn" data-pov="second">第二人称</button><button class="hp-btn ol-povu-btn" data-pov="third">第三人称</button></div></div><div class="hp-slider-row" style="margin-bottom:18px;"><span class="hp-slider-label" style="width:60px">称呼角色</span><div style="display:flex;gap:12px;flex:1;"><button class="hp-btn ol-povc-btn" data-pov="first">第一人称</button><button class="hp-btn ol-povc-btn" data-pov="second">第二人称</button><button class="hp-btn ol-povc-btn" data-pov="third">第三人称</button></div></div></div>' +
 '<div class="hp-slider-row" style="margin-bottom:12px;"><span class="hp-slider-label" style="width:60px">期望字数</span><input type="number" id="olWordCount" placeholder="留空不限" value="'+(ap.wordCount||'')+'" style="flex:1;min-width:0;height:48px;padding:0 12px;box-sizing:border-box;border:1.5px solid #adcdea;border-radius:8px;font-size:14px;background:#fff;box-shadow:none;outline:none;"></div>' +
 
-'<div class="hp-section-label" style="margin-top:36px;">★ 美化渲染 ★</div>' +
+'<div class="hp-section-label" style="margin-top:36px;">美化渲染</div>' +
 '<div class="ol-area-label">全局</div>' +
 '<div class="ol-color-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:12px;"><div class="ol-color-item"><div class="hp-color-dot" id="olPageBg"></div><span>页面背景</span></div></div>' +
 '<div class="hp-upload" id="olSbBg"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>上传背景</div><input type="file" id="olBgFileInput" accept="image/*" hidden>' +
