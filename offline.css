@@ -1,3 +1,4 @@
+
 .ol-panel{position:fixed;inset:0;z-index:9990;transition:transform .35s cubic-bezier(.32,.72,0,1),opacity .3s;transform:translateX(100%);opacity:0;}
 .ol-panel.show{transform:translateX(0);opacity:1;}
 #olSettingsPanel{z-index:9995;}
@@ -133,33 +134,57 @@
 .ol-block.is-char .ol-scatter-meta{color:var(--ol-c-av-frame-color); opacity:0.85;}
 .ol-block.is-user .ol-scatter-meta{color:var(--ol-u-av-frame-color); opacity:0.85;}
 
-/* ★ 彻底移除 mask 遮罩，让毛玻璃重见天日！ */
-.ol-frame-mid{position:relative;max-width:100%;border-radius:inherit;transform:translateZ(0);}
-.ol-block.is-char .ol-frame-mid{
-  align-self:flex-start; border-radius:var(--ol-c-bubble-radius); width:var(--ol-c-bubble-width);
-  border:var(--ol-c-bubble-border-w) solid var(--ol-c-bubble-border-color);
-  backdrop-filter:blur(var(--ol-c-bubble-blur)); -webkit-backdrop-filter:blur(var(--ol-c-bubble-blur));
+/* ★ 完美的毛玻璃分离方案：frame-mid 只负责毛玻璃和边框，绝不带背景色和内发光 */
+.ol-frame-mid {
+  position: relative;
+  max-width: 100%;
+  border-radius: inherit;
+  isolation: isolate; /* 建立层叠上下文，防止 z-index 乱跑 */
 }
-.ol-block.is-user .ol-frame-mid{
-  align-self:flex-end; border-radius:var(--ol-u-bubble-radius); width:var(--ol-u-bubble-width);
-  border:var(--ol-u-bubble-border-w) solid var(--ol-u-bubble-border-color);
-  backdrop-filter:blur(var(--ol-u-bubble-blur)); -webkit-backdrop-filter:blur(var(--ol-u-bubble-blur));
+.ol-block.is-char .ol-frame-mid {
+  align-self: flex-start;
+  border-radius: var(--ol-c-bubble-radius);
+  width: var(--ol-c-bubble-width);
+  border: var(--ol-c-bubble-border-w) solid var(--ol-c-bubble-border-color);
+  backdrop-filter: blur(var(--ol-c-bubble-blur));
+  -webkit-backdrop-filter: blur(var(--ol-c-bubble-blur));
+}
+.ol-block.is-user .ol-frame-mid {
+  align-self: flex-end;
+  border-radius: var(--ol-u-bubble-radius);
+  width: var(--ol-u-bubble-width);
+  border: var(--ol-u-bubble-border-w) solid var(--ol-u-bubble-border-color);
+  backdrop-filter: blur(var(--ol-u-bubble-blur));
+  -webkit-backdrop-filter: blur(var(--ol-u-bubble-blur));
 }
 
-.ol-bub-bg{display:none !important;}
-.ol-block.is-char .ol-frame-mid{
-  background:var(--ol-c-bubble-bg);
-  opacity:var(--ol-c-bubble-opacity);
+/* ★ 背景颜色层：独立控制透明度，绝对不影响文字！ */
+.ol-bub-bg {
+  position: absolute;
+  inset: 0;
+  z-index: -1; /* 乖乖待在文字下面 */
+  border-radius: inherit;
+  pointer-events: none;
 }
-.ol-block.is-user .ol-frame-mid{
-  background:var(--ol-u-bubble-bg);
-  opacity:var(--ol-u-bubble-opacity);
+.ol-block.is-char .ol-bub-bg {
+  background: var(--ol-c-bubble-bg);
+  opacity: var(--ol-c-bubble-opacity);
+}
+.ol-block.is-user .ol-bub-bg {
+  background: var(--ol-u-bubble-bg);
+  opacity: var(--ol-u-bubble-opacity);
 }
 
-.ol-bubble-inner{position:relative;z-index:1;padding:var(--ol-prose-padding);}
+/* ★ 文字层：永远保持 100% 不透明 */
+.ol-bubble-inner {
+  position: relative;
+  z-index: 1; /* 踩在背景层上面 */
+  padding: var(--ol-prose-padding);
+}
 .ol-bubble-text{font-size:var(--ol-text-size);line-height:var(--ol-text-line-height);font-weight:var(--ol-text-weight);color:var(--ol-text-color);word-break:break-word;white-space:pre-wrap;-webkit-user-select:text !important;user-select:text !important;-webkit-touch-callout:default !important; touch-action: pan-y !important;}
 .ol-block.is-char .ol-bubble-text{font-size:var(--ol-c-text-size);font-weight:var(--ol-c-text-weight);line-height:var(--ol-c-text-lh);color:var(--ol-c-text-color);}
 .ol-block.is-user .ol-bubble-text{font-size:var(--ol-u-text-size);font-weight:var(--ol-u-text-weight);line-height:var(--ol-u-text-lh);color:var(--ol-u-text-color);}
+
 .ol-time-sep{text-align:center;font-size:12px;color:var(--ol-meta-color);margin:14px 20px 8px;letter-spacing:.5px;font-weight:600;}
 .ol-empty{font-size:14px;color:var(--ol-accent);text-align:center;padding:80px 20px;opacity:.7;}
 
