@@ -133,8 +133,8 @@
 .ol-block.is-char .ol-scatter-meta{color:var(--ol-c-av-frame-color); opacity:0.85;}
 .ol-block.is-user .ol-scatter-meta{color:var(--ol-u-av-frame-color); opacity:0.85;}
 
-/* ★ 彻底移除内发光，完全开放毛玻璃 */
-.ol-frame-mid{position:relative;max-width:100%;border-radius:inherit;transform:translateZ(0);-webkit-mask-image:-webkit-radial-gradient(white,black);}
+/* ★ 彻底移除 mask 遮罩，让毛玻璃重见天日！ */
+.ol-frame-mid{position:relative;max-width:100%;border-radius:inherit;transform:translateZ(0);}
 .ol-block.is-char .ol-frame-mid{
   align-self:flex-start; border-radius:var(--ol-c-bubble-radius); width:var(--ol-c-bubble-width);
   border:var(--ol-c-bubble-border-w) solid var(--ol-c-bubble-border-color);
