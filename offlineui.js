@@ -14,7 +14,7 @@ var CLOUD_SVG='<svg viewBox="0 0 64 64" fill="none"><circle cx="32" cy="32" r="1
 var ROBOT_SVG='<svg viewBox="0 0 64 64" fill="none"><line x1="32" y1="14" x2="32" y2="10" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><ellipse cx="32" cy="6.5" rx="4.5" ry="5.5" fill="currentColor"/><rect x="7" y="22" width="6" height="12" rx="3" fill="currentColor"/><rect x="51" y="22" width="6" height="12" rx="3" fill="currentColor"/><rect x="12" y="14" width="40" height="32" rx="8" fill="currentColor"/><line x1="26" y1="27" x2="26" y2="33" stroke="#fff" stroke-width="4" stroke-linecap="round"/><line x1="38" y1="27" x2="38" y2="33" stroke="#fff" stroke-width="4" stroke-linecap="round"/></svg>';
 var STOP_SVG='<svg viewBox="0 0 24 24" width="16" height="16"><rect x="6" y="6" width="12" height="12" rx="2" fill="#fff" stroke="none"/></svg>';
 
-var DEF_AP={chatFont:'',bgBlur:0,bgDark:0,povOn:true,povUser:'second',povChar:'third',wordCount:0,pageBg:'#ffffff',topBgColor:'fff',topBgImg:'',barBg:'linear-gradient(135deg, #ffffff 0%, #e9f6ff 25%, #d9ecfc 55%, #e1f2ff 75%, #ffffff 100%)',barBgImg:'',barBorderColor:'rgba(255,255,255,0.9)',barBorderW:1,barRadius:0,barIconColor:'#adcdea',inputTextColor:'#adcdea',placeholder:'宇宙带着星轨在私奔✮ ࣪ ⊹⋆˚',cardBg:'#ffffff',cardTextColor:'#7ea3c9',cardT1:'',cardT2:'',cardT3:'',cardT4:'',cardFont:'',mode:'bubble',blockGap:20,cAvShow:true,cAvNameShow:true,cAvSize:70,cAvRadius:50,cAvFrameColor:'#9ca3af',cAvFrameW:2,cAvNameSize:18,cBubbleBg:'linear-gradient(135deg, #ffffff 0%, #edf1f5 40%, #e2e8f0 70%, #f4f7f9 100%)',cBubbleRadius:14,cBubbleBorderColor:'rgba(255,255,255,0.9)',cBubbleBorderW:0,cBubbleWidth:95,cBubbleOpacity:100,cBubbleBlur:0,cTextSize:17,cTextWeight:400,cTextLH:1.85,cTextColor:'#2e4258',cParaGap:8,cLetterGap:0,cQuoteOn:false,cQuoteRec:['curly','straight'],cQuoteDis:'curly',cQuoteColor:'#6b7280',cQuoteSize:17,cQuoteWeight:400,cQuoteItalic:true,cParenOn:false,cParenRec:['full','half'],cParenDis:'full',cParenHide:false,cParenColor:'#6b7280',cParenSize:17,cParenWeight:400,cParenItalic:true,cStarOn:false,cStarHide:true,cStarColor:'#6b7280',cStarSize:17,cStarWeight:400,cStarItalic:true,uAvShow:true,uAvNameShow:true,uAvSize:70,uAvRadius:50,uAvFrameColor:'#7ea3c9',uAvFrameW:2,uAvNameSize:18,uBubbleBg:'linear-gradient(135deg, #ffffff 0%, #f0f7fc 40%, #e0f0fa 70%, #f4f9fd 100%)',uBubbleRadius:14,uBubbleBorderColor:'rgba(255,255,255,0.9)',uBubbleBorderW:0,uBubbleWidth:95,uBubbleOpacity:100,uBubbleBlur:0,uTextSize:17,uTextWeight:400,uTextLH:1.85,uTextColor:'#2e4258',uParaGap:8,uLetterGap:0,quoteOn:false,quoteRec:['curly','straight'],quoteDis:'curly',quoteColor:'#7ea3c9',quoteSize:17,quoteWeight:400,quoteItalic:false,parenOn:false,parenRec:['full','half'],parenDis:'full',parenHide:false,parenColor:'#7ea3c9',parenSize:17,parenWeight:400,parenItalic:true,starOn:false,starHide:true,starColor:'#7ea3c9',starSize:17,starWeight:400,starItalic:true};
+var DEF_AP={chatFont:'',bgBlur:0,bgDark:0,povOn:true,povUser:'second',povChar:'third',wordCount:0,pageBg:'#ffffff',topBgColor:'fff',topBgImg:'',barBg:'linear-gradient(135deg, #ffffff 0%, #e9f6ff 25%, #d9ecfc 55%, #e1f2ff 75%, #ffffff 100%)',barBgImg:'',barBorderColor:'rgba(255,255,255,0.9)',barBorderW:1,barRadius:0,barIconColor:'#adcdea',inputTextColor:'#adcdea',placeholder:'宇宙带着星轨在私奔✮ ࣪ ⊹⋆˚',cardBg:'#ffffff',cardTextColor:'#7ea3c9',cardT1:'',cardT2:'',cardT3:'',cardT4:'',cardFont:'',mode:'bubble',blockGap:20,cAvShow:true,cAvNameShow:true,cAvSize:70,cAvRadius:50,cAvFrameColor:'#9ca3af',cAvFrameW:2,cAvNameSize:18,cBubbleBg:'linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(237,241,245,0.75) 40%, rgba(226,232,240,0.6) 70%, rgba(244,247,249,0.85) 100%)',cBubbleRadius:14,cBubbleBorderColor:'rgba(255,255,255,0.9)',cBubbleBorderW:0,cBubbleWidth:95,cBubbleOpacity:100,cBubbleBlur:12,cTextSize:17,cTextWeight:400,cTextLH:1.85,cTextColor:'#2e4258',cParaGap:8,cLetterGap:0,cQuoteOn:false,cQuoteRec:['curly','straight'],cQuoteDis:'curly',cQuoteColor:'#6b7280',cQuoteSize:17,cQuoteWeight:400,cQuoteItalic:true,cParenOn:false,cParenRec:['full','half'],cParenDis:'full',cParenHide:false,cParenColor:'#6b7280',cParenSize:17,cParenWeight:400,cParenItalic:true,cStarOn:false,cStarHide:true,cStarColor:'#6b7280',cStarSize:17,cStarWeight:400,cStarItalic:true,uAvShow:true,uAvNameShow:true,uAvSize:70,uAvRadius:50,uAvFrameColor:'#7ea3c9',uAvFrameW:2,uAvNameSize:18,uBubbleBg:'linear-gradient(135deg, rgba(255,255,255,0.92) 0%, rgba(240,247,252,0.8) 40%, rgba(224,240,250,0.65) 70%, rgba(244,249,253,0.88) 100%)',uBubbleRadius:14,uBubbleBorderColor:'rgba(255,255,255,0.9)',uBubbleBorderW:0,uBubbleWidth:95,uBubbleOpacity:100,uBubbleBlur:12,uTextSize:17,uTextWeight:400,uTextLH:1.85,uTextColor:'#2e4258',uParaGap:8,uLetterGap:0,quoteOn:false,quoteRec:['curly','straight'],quoteDis:'curly',quoteColor:'#7ea3c9',quoteSize:17,quoteWeight:400,quoteItalic:false,parenOn:false,parenRec:['full','half'],parenDis:'full',parenHide:false,parenColor:'#7ea3c9',parenSize:17,parenWeight:400,parenItalic:true,starOn:false,starHide:true,starColor:'#7ea3c9',starSize:17,starWeight:400,starItalic:true};
 
 function gAp(c){var s=App.LS.get('olAp_'+c);if(!s)return JSON.parse(JSON.stringify(DEF_AP));var r=JSON.parse(JSON.stringify(DEF_AP));Object.keys(s).forEach(function(k){if(r[k]!==undefined)r[k]=s[k];});return r;}
 function sAp(c,a){App.LS.set('olAp_'+c,a);}
@@ -43,36 +43,36 @@ var p1=App.LS.get('ol_photo_'+c.id+'_1')||'', p2=App.LS.get('ol_photo_'+c.id+'_2
 
 con.innerHTML=
 '<style>#olSettingsPanel .hp-btn:not(.hp-btn-primary):not(.hp-btn-danger):not(.hp-btn-outline){border:1.5px solid transparent !important;box-shadow:0 1px 4px rgba(0,0,0,0.05);} ' +
-'#olMsgs { margin-top: 60px !important; } ' +
 '.mm-cards-wrapper{position:absolute;top:-20px;left:0;right:0;z-index:10;width:100%;max-width:410px;height:160px;margin:0 auto;font-family:inherit;pointer-events:none;} ' +
 '.mm-env-card{pointer-events:auto;display:block;width:100px;height:110px;background:var(--ol-card-bg);padding:6px 6px 20px 6px;box-shadow:2px 4px 12px rgba(20,35,55,0.08),inset 0 0 0 1px rgba(0,0,0,0.02);cursor:pointer;position:absolute;box-sizing:border-box;transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1),box-shadow 0.3s ease,z-index 0s;} ' +
 '.mm-ec-1{left:2px;bottom:20px;transform:rotate(-10deg);z-index:1;} .mm-ec-2{left:105px;bottom:10px;transform:rotate(10deg);z-index:2;} .mm-ec-3{left:205px;bottom:20px;transform:rotate(5deg);z-index:3;} .mm-ec-4{left:308px;bottom:15px;transform:rotate(-12deg);z-index:4;} ' +
 '.mm-env-card:hover{transform:rotate(0deg) scale(1.3) translateY(-4px);box-shadow:4px 12px 24px rgba(20,35,55,0.15);z-index:20;} .mm-env-card:active{transform:rotate(0deg) scale(0.98);} .mm-env-inner{width:100%;height:100%;background:#f0f6fb;border-radius:2px;display:flex;align-items:center;justify-content:center;color:#adcdea;overflow:hidden;} .mm-env-img{width:100%;height:100%;object-fit:cover;} .mm-env-caption{position:absolute;bottom:1px;left:0;width:100%;text-align:center;font-size:10px;font-weight:700;color:var(--ol-card-text);letter-spacing:1px;} ' +
 '.ol-area-label{font-size:14px;font-weight:800;color:#1a1a1a;letter-spacing:1px;margin:20px 0 12px;padding-bottom:8px;border-bottom:1px solid rgba(0,0,0,0.06);} ' +
-'#olSettingsPanel .hp-section-label{color:#1a1a1a;font-weight:900;font-size:19px;letter-spacing:2px;margin-bottom:16px;text-align:center;} ' +
+'.hp-section-title { display:flex; align-items:center; gap:16px; color:#1a1a1a; font-weight:900; font-size:19px; letter-spacing:2px; margin:36px 0 16px; } ' +
+'.hp-section-title::before, .hp-section-title::after { content:""; flex:1; height:1.5px; border-radius:1px; background:linear-gradient(to right, transparent, rgba(0,0,0,0.15)); } ' +
+'.hp-section-title::after { background:linear-gradient(to left, transparent, rgba(0,0,0,0.15)); } ' +
+'.hp-section-title.first { margin-top:10px; } ' +
 '.ol-top-bg{position:absolute;top:0;left:0;right:0;height:70px;z-index:4;background-color:var(--ol-top-bg-color);background-image:var(--ol-top-bg-img);background-size:cover;background-position:center;pointer-events:none;} ' +
-'.ol-msgs{position:relative;z-index:5;flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;margin-top:0 !important;margin-bottom:106px !important;padding:85px 16px 20px !important;min-height:0;overscroll-behavior:contain;scrollbar-width:none;-webkit-mask-image:linear-gradient(to bottom, transparent 0px, transparent 70px, black 75px, black 100%) !important;mask-image:linear-gradient(to bottom, transparent 0px, transparent 60px, black 75px, black 100%) !important;} ' +
+'.ol-msgs{position:absolute;top:0;bottom:0;left:0;right:0;z-index:5;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;margin:0 !important;padding:85px 16px 140px !important;overscroll-behavior:contain;scrollbar-width:none;-webkit-mask-image:linear-gradient(to bottom, transparent 0px, transparent 70px, black 70px, black 100%) !important;mask-image:linear-gradient(to bottom, transparent 0px, transparent 70px, black 70px, black 100%) !important;} ' +
 '.ol-msgs::-webkit-scrollbar{display:none;} ' +
-
-/* ★ 气泡外部底部的纯文字操作栏 */
-'.ol-msg-actions { display:flex; flex-wrap:wrap; gap:12px; margin-top:6px; opacity:0.3; transition:opacity 0.2s; } ' +
+'.ol-msg-actions { display:flex; flex-wrap:wrap; align-items:center; gap:12px; margin-top:6px; opacity:0; transition:opacity 0.2s; width:100%; } ' +
 '.ol-block.is-char .ol-msg-actions { justify-content:flex-start; padding-left:52px; } ' +
 '.ol-block.is-user .ol-msg-actions { justify-content:flex-end; padding-right:52px; } ' +
 '.ol-block:hover .ol-msg-actions { opacity:1; } ' +
-'.ol-action-btn { display:inline-flex; align-items:center; background:none; border:none; padding:4px 6px; font-size:12px; font-weight:700; color:var(--ol-meta-color); cursor:pointer; font-family:inherit; -webkit-tap-highlight-color:transparent; transition:color 0.2s; } ' +
+'.ol-action-btn { background:none; border:none; padding:4px 6px; font-size:12px; font-weight:700; color:var(--ol-meta-color); cursor:pointer; font-family:inherit; -webkit-tap-highlight-color:transparent; transition:color 0.2s; } ' +
 '.ol-action-btn:active { color:var(--ol-text-color); } ' +
-
-/* ★ 悬浮导航电梯 (默认隐藏) */
+'.ol-swipe-ctrl { display:flex; align-items:center; gap:2px; font-size:13px; font-weight:800; color:var(--ol-meta-color); } ' +
+'.ol-block.is-user .ol-swipe-ctrl { margin-right:auto; } ' +
+'.ol-block.is-char .ol-swipe-ctrl { margin-left:auto; } ' +
+'.ol-swipe-ctrl button { background:none; border:none; color:inherit; font-size:14px; cursor:pointer; padding:2px 6px; -webkit-tap-highlight-color:transparent; } ' +
+'.ol-swipe-ctrl button:disabled { opacity:0.2; pointer-events:none; } ' +
 '.ol-nav-fab { position:fixed; right:-60px; bottom:160px; z-index:90; display:flex; flex-direction:column; gap:10px; transition:right 0.3s cubic-bezier(0.34,1.56,0.64,1); } ' +
 '.ol-nav-fab.show { right:12px; } ' +
 '.ol-nav-btn { width:38px; height:38px; border-radius:50%; background:rgba(255,255,255,0.85); border:1.5px solid rgba(173,205,234,0.5); box-shadow:0 4px 12px rgba(0,0,0,0.1); display:flex; align-items:center; justify-content:center; cursor:pointer; color:#7ea3c9; backdrop-filter:blur(4px); -webkit-tap-highlight-color:transparent; } ' +
 '.ol-nav-btn:active { background:#e9f6ff; transform:scale(0.92); } ' +
 '.ol-nav-btn svg { width:18px; height:18px; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; } ' +
-
-/* ★ 编辑面板放大 */
 '.pc-edit-panel.is-expanded { width:100% !important; max-width:100% !important; height:100% !important; max-height:none !important; border-radius:0 !important; top:0 !important; left:0 !important; transform:none !important; } ' +
 '.pc-edit-panel { transition:all 0.3s cubic-bezier(0.2,0.85,0.2,1); }</style>' +
-
 '<div class="ol-root" id="olRoot"><div class="ol-bg" id="olBg" style="'+(bg?'background-image:linear-gradient(rgba(255,255,255,'+(ap.bgBlur/100)+'),rgba(255,255,255,'+(ap.bgBlur/100)+')),url('+App.escAttr(bg)+');filter:brightness('+(100-ap.bgDark)+'%);background-size:cover;':'')+'"></div>' +
 '<div class="ol-top-bg"></div>' +
 '<div class="mm-cards-wrapper" id="olCardsWrap">' +
@@ -104,13 +104,13 @@ con.innerHTML=
 '<div id="olSettingsPanel" class="half-panel hidden"><div class="hp-handle"></div><div class="hp-header"><button class="hp-close" id="olPanelClose" type="button"><svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div><div class="hp-body">' +
 
 /* ===== 1. 聊天设置 ===== */
-'<div class="hp-section-label">★ 聊天设置 ★</div>' +
+'<div class="hp-section-title first">聊天设置</div>' +
 '<div class="hp-upload" id="olSbScene"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>编辑场景/时间线</div>' +
 '<div class="ol-sw-row" style="margin-bottom:12px;">人称称呼 '+sw('olPovOn',ap.povOn)+'</div><div id="olPovSub" style="'+(ap.povOn?'':'display:none;')+'"><div class="hp-slider-row" style="margin-bottom:18px;"><span class="hp-slider-label" style="width:60px">称呼用户</span><div style="display:flex;gap:12px;flex:1;"><button class="hp-btn ol-povu-btn" data-pov="first">第一人称</button><button class="hp-btn ol-povu-btn" data-pov="second">第二人称</button><button class="hp-btn ol-povu-btn" data-pov="third">第三人称</button></div></div><div class="hp-slider-row" style="margin-bottom:18px;"><span class="hp-slider-label" style="width:60px">称呼角色</span><div style="display:flex;gap:12px;flex:1;"><button class="hp-btn ol-povc-btn" data-pov="first">第一人称</button><button class="hp-btn ol-povc-btn" data-pov="second">第二人称</button><button class="hp-btn ol-povc-btn" data-pov="third">第三人称</button></div></div></div>' +
 '<div class="hp-slider-row" style="margin-bottom:12px;"><span class="hp-slider-label" style="width:60px">期望字数</span><input type="number" id="olWordCount" placeholder="留空不限" value="'+(ap.wordCount||'')+'" style="flex:1;min-width:0;height:48px;padding:0 12px;box-sizing:border-box;border:1.5px solid #adcdea;border-radius:8px;font-size:14px;background:#fff;box-shadow:none;outline:none;"></div>' +
 
 /* ===== 2. 美化渲染 ===== */
-'<div class="hp-section-label" style="margin-top:36px;">★ 美化渲染 ★</div>' +
+'<div class="hp-section-title">美化渲染</div>' +
 
 /* --- 整体 --- */
 '<div class="ol-area-label">全局</div>' +
@@ -222,8 +222,23 @@ var uAvI=user&&user.avatar?'<img src="'+App.escAttr(user.avatar)+'">':'<svg view
 if(!OL.messages.length){con.innerHTML='<div class="ol-empty">开始你们的故事吧</div>';return;}
 var html='',floor=0;
 OL.messages.forEach(function(msg,idx){if(msg.role==='system')return;floor++;var isU=msg.role==='user';
-var cc=(msg.content||'').length,tk=Math.round(cc/2),tkS=tk>=1000?(tk/1000).toFixed(1)+'k':tk+'',ts=msg.ts?O.fmtTime(msg.ts):'';
-var raw=(msg.content||'').trim();if(!raw)return;
+
+/* ★ 核心：多版本 Swipes 同步逻辑 */
+if(OL._savedSwipes && OL._savedSwipes.idx === idx) {
+  if(!msg.swipes) {
+    msg.swipes = OL._savedSwipes.arr.slice();
+    msg.swipes.push(msg.content);
+    msg.activeSwipe = msg.swipes.length - 1;
+  } else {
+    msg.swipes[msg.activeSwipe] = msg.content;
+  }
+} else if(msg.swipes && msg.activeSwipe !== undefined) {
+  msg.swipes[msg.activeSwipe] = msg.content;
+}
+
+var currentContent = msg.content || '';
+var cc=currentContent.length,tk=Math.round(cc/2),tkS=tk>=1000?(tk/1000).toFixed(1)+'k':tk+'',ts=msg.ts?O.fmtTime(msg.ts):'';
+var raw=currentContent.trim();if(!raw)return;
 var parsed=O.parseThinking(raw),text=parsed.main,thH=(!isU&&parsed.think)?O.buildThinkHtml(parsed.think, idx):'';
 var avH=isU?uAvI:cAvI,avN=isU?App.esc((user&&(user.nickname||user.realName))||'你'):App.esc(c.name||'');
 var fmt=O.formatProse(text,OL.charId,isU);
@@ -239,8 +254,22 @@ var sep = isU ? '<span class="ol-meta-sep" style="font-size:8px;">☽</span>' : 
 var meta='<div class="ol-scatter-meta"><span>#'+String(floor).padStart(3,'0')+'</span>'+sep+'<span>'+ts+'</span>'+sep+'<span>'+tkS+'tk</span>'+sep+'<span>'+cc+'字</span></div>';
 var headerHtml = '<div class="ol-msg-header"><div class="ol-avatar-area"><div class="ol-avatar-frame"><div class="ol-avatar">'+avH+'</div></div></div><div class="ol-msg-info"><div class="ol-avatar-name" style="display:flex; align-items:center;">'+nameHtml+'</div>'+meta+'</div></div>';
 
+/* ★ Swipe UI 组件 */
+var hasSwipes = msg.swipes && msg.swipes.length > 1;
+var swipeHtml = '';
+if(hasSwipes) {
+  var aS = msg.activeSwipe;
+  var tS = msg.swipes.length;
+  swipeHtml = '<div class="ol-swipe-ctrl">' +
+    '<button data-act="prev-swipe" '+(aS>0?'':'disabled')+'>◀</button>' +
+    '<span>'+(aS+1)+' / '+tS+'</span>' +
+    '<button data-act="next-swipe" '+(aS<tS-1?'':'disabled')+'>▶</button>' +
+  '</div>';
+}
+
 /* ★ 气泡外部底部的纯文字操作栏 */
 var actHtml = '<div class="ol-msg-actions" data-idx="'+idx+'">';
+if(isU && swipeHtml) actHtml += swipeHtml; // 用户侧分支切换放最左
 actHtml += '<button class="ol-action-btn" data-act="copy">复制</button>';
 actHtml += '<button class="ol-action-btn" data-act="edit">编辑</button>';
 if(!isU) {
@@ -248,10 +277,9 @@ if(!isU) {
   actHtml += '<button class="ol-action-btn" data-act="continue">续写</button>';
 }
 actHtml += '<button class="ol-action-btn" data-act="rewind" style="color:#c9706b;">回溯</button>';
-actHtml += '<button class="ol-action-btn" data-act="nav" style="color:#adcdea;">定位</button>';
+if(!isU && swipeHtml) actHtml += swipeHtml; // 角色侧分支切换放最右
 actHtml += '</div>';
 
-/* ★ 注意：actHtml 被移到了 ol-frame-mid 的外面 */
 html+='<div class="ol-block'+(isU?' is-user':' is-char')+'" data-msg-idx="'+idx+'" style="margin-bottom:20px;">' + headerHtml + '<div class="ol-frame-mid"><div class="ol-bub-bg"></div><div class="ol-bubble-inner">'+thH+'<div class="ol-bubble-text" style="letter-spacing:'+lg+'px;">'+fmt+'</div></div></div>' + actHtml + '</div>';
 });
 
@@ -451,7 +479,7 @@ bst('.ol-cQuote-qdis','cQuoteDis');bst('.ol-cParen-pdis','cParenDis');bst('.ol-q
 App.safeOn('#olSbScene','click',function(){O.showSceneDialog();});
 App.safeOn('#olSbCode','click',function(){O._closePanel();O.openCodeEditor();});
 
-/* ★ 修复：背景图片直接绑 input */
+/* ★ 背景图片直接绑 input */
 var bgInp = App.$('#olBgFileInput');
 App.safeOn('#olSbBg', 'click', function(){ if(bgInp) bgInp.click(); });
 if(bgInp) {
@@ -534,8 +562,28 @@ App.safeOn('#olNavBubBot', 'click', function(){
 
 var mc=App.$('#olMsgs');
 if(mc){
+  /* ★ 电梯滑动逻辑：上滑显示，下滑/停止隐藏 */
+  var lastSt = 0;
+  var navTimer = null;
+  mc.addEventListener('scroll', function() {
+    var st = mc.scrollTop;
+    var fab = App.$('#olNavFab');
+    if(fab) {
+      if(st < lastSt && st > 50) {
+        fab.classList.add('show');
+      } else {
+        fab.classList.remove('show');
+      }
+      clearTimeout(navTimer);
+      navTimer = setTimeout(function(){
+        fab.classList.remove('show');
+      }, 2500);
+    }
+    lastSt = st;
+  }, {passive:true});
+
   mc.addEventListener('click', function(e){
-    var btn = e.target.closest('.ol-action-btn');
+    var btn = e.target.closest('.ol-action-btn') || e.target.closest('button[data-act]');
     if(!btn) return;
     var act = btn.dataset.act;
     var block = btn.closest('.ol-block');
@@ -548,6 +596,9 @@ if(mc){
     } else if(act === 'edit') {
       O.showEditDialog(idx);
     } else if(act === 'regen') {
+      /* ★ 多版本：存入 swipes 后重写 */
+      var swipes = msg.swipes ? msg.swipes.slice() : [msg.content];
+      OL._savedSwipes = { idx: idx, arr: swipes };
       OL.messages.splice(idx);
       OL.saveMsgs();
       O.renderMessages();
@@ -557,12 +608,21 @@ if(mc){
       OL.saveMsgs();
       O.renderMessages();
       OL.requestAI();
-    } else if(act === 'nav') {
-      var nav = App.$('#olNavFab');
-      if(nav) {
-        nav.classList.add('show');
-        clearTimeout(nav._timer);
-        nav._timer = setTimeout(function(){ nav.classList.remove('show'); }, 5000);
+    } else if(act === 'prev-swipe') {
+      if(msg.activeSwipe > 0) {
+        msg.activeSwipe--;
+        msg.content = msg.swipes[msg.activeSwipe];
+        OL.saveMsgs();
+        O._noScroll = true;
+        O.renderMessages();
+      }
+    } else if(act === 'next-swipe') {
+      if(msg.activeSwipe < msg.swipes.length - 1) {
+        msg.activeSwipe++;
+        msg.content = msg.swipes[msg.activeSwipe];
+        OL.saveMsgs();
+        O._noScroll = true;
+        O.renderMessages();
       }
     } else if(act === 'rewind') {
       O.showConfirm('确定要回溯到此处吗？', '这将会删除本条消息以及之后的所有对话，且无法恢复。', function(){
@@ -577,10 +637,17 @@ if(mc){
 
 if(root){root.addEventListener('click',function(){var pp=App.$('#olPlusPanel');if(pp&&OL._plusOpen){pp.classList.remove('show');OL._plusOpen=false;}});}},
 
-showEditDialog:function(idx){var OL=App.offline;if(!OL)return;var msg=OL.messages[idx];if(!msg)return;var ov=document.createElement('div');ov.className='pc-edit-overlay';ov.style.zIndex='100060';ov.innerHTML='<div class="pc-edit-panel" id="olEdPanel" style="width:95%;max-width:500px;height:70vh;max-height:800px;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;"><div class="pc-header" style="display:flex;align-items:center;justify-content:center;"><div style="position:absolute;left:12px;cursor:pointer;color:#666;" id="olEdExp" title="全屏展开"><svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg></div>编辑消息<div class="pc-close-btn" id="olEdX">×</div></div><div class="pc-body" style="flex:1;padding:12px;display:flex;flex-direction:column;"><textarea class="pc-input" id="olEdTA" style="flex:1;resize:none;font-size:15px;line-height:1.6;padding:12px;">'+App.esc(msg.content)+'</textarea></div><div class="pc-footer"><button class="pc-btn pc-btn-save" id="olEdSave" type="button" style="height:48px;border-radius:12px;">保存</button><button class="pc-btn pc-btn-cancel" id="olEdNo" type="button" style="height:48px;border-radius:12px;">取消</button></div></div>';document.body.appendChild(ov);var panel=ov.querySelector('#olEdPanel');ov.querySelector('#olEdExp').addEventListener('click',function(){panel.classList.toggle('is-expanded');});ov.addEventListener('click',function(e){if(e.target===ov)ov.remove();});ov.querySelector('#olEdX').addEventListener('click',function(){ov.remove();});ov.querySelector('#olEdNo').addEventListener('click',function(){ov.remove();});ov.querySelector('#olEdSave').addEventListener('click',function(){var v=ov.querySelector('#olEdTA').value.trim();if(!v){App.showToast('不能为空');return;}OL.messages[idx].content=v;OL.saveMsgs();O.renderMessages();ov.remove();});},
+showEditDialog:function(idx){var OL=App.offline;if(!OL)return;var msg=OL.messages[idx];if(!msg)return;var ov=document.createElement('div');ov.className='pc-edit-overlay';ov.style.zIndex='100060';ov.innerHTML='<div class="pc-edit-panel" id="olEdPanel" style="width:95%;max-width:500px;height:70vh;max-height:800px;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;"><div class="pc-header" style="display:flex;align-items:center;justify-content:center;"><div style="position:absolute;left:12px;cursor:pointer;color:#666;" id="olEdExp" title="全屏展开"><svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg></div>编辑消息<div class="pc-close-btn" id="olEdX">×</div></div><div class="pc-body" style="flex:1;padding:12px;display:flex;flex-direction:column;"><textarea class="pc-input" id="olEdTA" style="flex:1;resize:none;font-size:15px;line-height:1.6;padding:12px;">'+App.esc(msg.content)+'</textarea></div><div class="pc-footer"><button class="pc-btn pc-btn-save" id="olEdSave" type="button" style="height:48px;border-radius:12px;">保存</button><button class="pc-btn pc-btn-cancel" id="olEdNo" type="button" style="height:48px;border-radius:12px;">取消</button></div></div>';document.body.appendChild(ov);var panel=ov.querySelector('#olEdPanel');ov.querySelector('#olEdExp').addEventListener('click',function(){panel.classList.toggle('is-expanded');});ov.addEventListener('click',function(e){if(e.target===ov)ov.remove();});ov.querySelector('#olEdX').addEventListener('click',function(){ov.remove();});ov.querySelector('#olEdNo').addEventListener('click',function(){ov.remove();});ov.querySelector('#olEdSave').addEventListener('click',function(){var v=ov.querySelector('#olEdTA').value.trim();if(!v){App.showToast('不能为空');return;}
+/* ★ 编辑时同步更新当前 swipe */
+OL.messages[idx].content=v;
+if(OL.messages[idx].swipes && OL.messages[idx].activeSwipe !== undefined) {
+  OL.messages[idx].swipes[OL.messages[idx].activeSwipe] = v;
+}
+OL.saveMsgs();O._noScroll=true;O.renderMessages();ov.remove();});},
 showSceneDialog:function(){var OL=App.offline;if(!OL)return;var cur=App.LS.get('olScene_'+OL.charId)||'';var ov=document.createElement('div');ov.className='pc-edit-overlay';ov.style.zIndex='100060';ov.innerHTML='<div class="pc-edit-panel" style="width:340px;max-height:75vh;overflow-y:auto;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)"><div class="pc-header">场景 / 时间线<div class="pc-close-btn" id="olScX">×</div></div><div class="pc-body"><div style="font-size:13px;color:#1a1a1a;margin-bottom:8px;line-height:1.5;">描述当前的时间、地点、剧情背景等。每次发送消息时自动附带给AI。留空则不启用。</div><textarea class="pc-input" id="olScTA" style="min-height:200px;resize:vertical" placeholder="例如：暴风雨之夜，你们被困在山中的一间木屋里。外面电闪雷鸣，屋内只有一盏摇曳的油灯。角色刚从昏迷中醒来，发现自己的记忆出现了空白...">'+App.esc(cur)+'</textarea></div><div class="pc-footer"><button class="pc-btn pc-btn-save" id="olScSave" type="button">保存</button><button class="pc-btn pc-btn-cancel" id="olScClr" type="button">清空</button></div></div>';document.body.appendChild(ov);ov.addEventListener('click',function(e){if(e.target===ov)ov.remove();});ov.querySelector('#olScX').addEventListener('click',function(){ov.remove();});ov.querySelector('#olScSave').addEventListener('click',function(){var v=ov.querySelector('#olScTA').value.trim();if(v)App.LS.set('olScene_'+OL.charId,v);else App.LS.remove('olScene_'+OL.charId);ov.remove();App.showToast('已保存');});ov.querySelector('#olScClr').addEventListener('click',function(){App.LS.remove('olScene_'+OL.charId);ov.remove();App.showToast('已清空');});},
 openCodeEditor:function(){var OL=App.offline;if(!OL)return;var saved=App.LS.get('olCustomCode_'+OL.charId)||'';var ed=document.createElement('div');ed.className='ol-css-editor';ed.innerHTML='<div class="ol-css-editor-header"><button type="button" id="olCodeBack" class="ol-css-hd-btn">返回</button><span class="ol-css-hd-title">自定义UI</span><button type="button" id="olCodeSave" class="ol-css-hd-btn">保存</button></div><textarea class="ol-css-textarea" id="olCodeTA" spellcheck="false" placeholder="HTML + CSS + JS">'+App.esc(saved)+'</textarea>';document.body.appendChild(ed);function goBack(){ed.remove();var p=App.$('#olSettingsPanel');if(p){p.classList.remove('hidden');requestAnimationFrame(function(){p.classList.add('show');});}}App.bindSwipeBack(ed,goBack);ed.querySelector('#olCodeBack').addEventListener('click',goBack);ed.querySelector('#olCodeSave').addEventListener('click',function(){var code=ed.querySelector('#olCodeTA').value||'';App.LS.set('olCustomCode_'+OL.charId,code);O.applyCustomCode(OL.charId);goBack();App.showToast('已保存');});ed.querySelector('#olCodeTA').addEventListener('keydown',function(e){if(e.key==='Tab'){e.preventDefault();var ta=this,s=ta.selectionStart,end=ta.selectionEnd;ta.value=ta.value.substring(0,s)+'  '+ta.value.substring(end);ta.selectionStart=ta.selectionEnd=s+2;}});},
 applyCustomCode:function(cid){var oldS=document.getElementById('olCustomStyle');if(oldS)oldS.remove();var oldH=document.getElementById('olCustomHtml');if(oldH)oldH.remove();var code=App.LS.get('olCustomCode_'+cid);if(!code)return;var css='',cssR=/<style[^>]*>([\s\S]*?)<\/style>/gi,cm;while((cm=cssR.exec(code))!==null)css+=cm[1]+'\n';var jss=[],jsR=/<script[^>]*>([\s\S]*?)<\/script>/gi,jm;while((jm=jsR.exec(code))!==null)jss.push(jm[1]);var html=code.replace(/<style[^>]*>[\s\S]*?<\/style>/gi,'').replace(/<script[^>]*>[\s\S]*?<\/script>/gi,'').trim();if(!/<style/i.test(code)&&!/<[a-z]/i.test(code)){css=code;html='';}if(css){var s=document.createElement('style');s.id='olCustomStyle';s.textContent=css;document.head.appendChild(s);}if(html){var cont=document.getElementById('olMsgs');if(cont){var d=document.createElement('div');d.id='olCustomHtml';d.innerHTML=html;cont.insertBefore(d,cont.firstChild);}}if(jss.length)jss.forEach(function(js){try{(new Function(js))();}catch(e){console.warn('[自定义代码]',e.message);}});},
 init:function(){App.offlineUI=O;}};
 App.register('offlineUI',O);
 })();
+
