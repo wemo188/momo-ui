@@ -221,14 +221,23 @@ var meta='<div class="ol-scatter-meta"><span>#'+String(floor).padStart(3,'0')+'<
 var headerHtml = '<div class="ol-msg-header"><div class="ol-avatar-area"><div class="ol-avatar-frame"><div class="ol-avatar">'+avH+'</div></div></div><div class="ol-msg-info"><div class="ol-avatar-name" style="display:flex; align-items:center;">'+nameHtml+'</div>'+meta+'</div></div>';
 
 var actHtml = '<div class="ol-msg-actions" data-idx="'+idx+'">';
-actHtml += '<button class="ol-action-btn" data-act="copy" title="复制"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>';
-actHtml += '<button class="ol-action-btn" data-act="edit" title="编辑"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>';
 if(!isU) {
-  actHtml += '<button class="ol-action-btn" data-act="regen" title="重写"><svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-6.22-8.56"/><path d="M21 3v6h-6"/></svg></button>';
-  actHtml += '<button class="ol-action-btn" data-act="continue" title="续写"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>';
+  actHtml += '<button class="ol-action-btn" data-act="regen">重写</button>';
+  actHtml += '<button class="ol-action-btn" data-act="continue">续写</button>';
 }
-actHtml += '<button class="ol-action-btn" data-act="del" title="删除"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>';
-actHtml += '<button class="ol-action-btn" data-act="rewind" title="回溯" style="color:#c9706b;"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><polyline points="3 3 3 8 8 8"/></svg></button>';
+actHtml += '<button class="ol-action-btn" data-act="del">删除</button>';
+actHtml += '<button class="ol-action-btn" data-act="copy">复制</button>';
+actHtml += '<button class="ol-action-btn" data-act="edit">编辑</button>';
+actHtml += '<button class="ol-action-btn" data-act="rewind" style="color:#c9706b;">回溯</button>';
+
+if(msg.swipes && msg.swipes.length > 1) {
+  actHtml += '<div class="ol-swipe-nav">';
+  actHtml += '<button class="ol-swipe-btn" data-act="swipe-prev" '+(msg.swipeIdx===0?'disabled':'')+'>&lt;</button>';
+  actHtml += '<span>'+(msg.swipeIdx+1)+' / '+msg.swipes.length+'</span>';
+  actHtml += '<button class="ol-swipe-btn" data-act="swipe-next" '+(msg.swipeIdx===msg.swipes.length-1?'disabled':'')+'>&gt;</button>';
+  actHtml += '</div>';
+}
+actHtml += '</div>';
 
 if(msg.swipes && msg.swipes.length > 1) {
   actHtml += '<div class="ol-swipe-nav">';
@@ -526,18 +535,20 @@ if(mc){
     if(!msg) return;
 
     if(act === 'swipe-prev') {
-      if(msg.swipeIdx > 0) {
-        msg.swipeIdx--;
-        msg.content = msg.swipes[msg.swipeIdx];
-        OL.saveMsgs(); O.renderMessages();
-      }
-    } else if(act === 'swipe-next') {
-      if(msg.swipeIdx < msg.swipes.length - 1) {
-        msg.swipeIdx++;
-        msg.content = msg.swipes[msg.swipeIdx];
-        OL.saveMsgs(); O.renderMessages();
-      }
-    } else if(act === 'copy') {
+  if(msg.swipeIdx > 0) {
+    msg.swipeIdx--;
+    msg.content = msg.swipes[msg.swipeIdx];
+    OL.messages.splice(idx + 1);
+    OL.saveMsgs(); O.renderMessages();
+  }
+} else if(act === 'swipe-next') {
+  if(msg.swipeIdx < msg.swipes.length - 1) {
+    msg.swipeIdx++;
+    msg.content = msg.swipes[msg.swipeIdx];
+    OL.messages.splice(idx + 1);
+    OL.saveMsgs(); O.renderMessages();
+  }
+} else if(act === 'copy') {
       App.copyText(msg.content).then(function(){App.showToast('已复制');});
     } else if(act === 'edit') {
       O.showEditDialog(idx);
